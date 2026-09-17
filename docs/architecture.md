@@ -46,6 +46,8 @@ tests/                  the core's suite and the repository-level suite (§7)
 out/                    build artefacts, ignored by git
 docs/                   this document, the roadmaps, the design notes
 .claude/skills/         pdf · epub · fetch · sourcing · translate (§5)
+.claude/agents/         pdf-reviewer
+.claude/hooks/          guards and automations, declared in .claude/settings.json
 ```
 
 Reason, directory by directory:
@@ -60,6 +62,8 @@ Reason, directory by directory:
 | `out/` | Build artefacts, reconstructible by `make build` and `make epub`. Gitignored. |
 | `docs/` | Prose about the repository: this document, the roadmaps under `docs/roadmap/`, and the design notes a roadmap hands over (`docs/local-translation.md`, Phase 7). |
 | `.claude/skills/` | Five skills, one per context. Each carries its own scripts, tests and assets. |
+| `.claude/agents/` | Subagents a skill delegates to. `pdf-reviewer` holds the page-by-page look at a built PDF, so the page images stay out of the main conversation. |
+| `.claude/hooks/` | What a skill states as a rule but memory would enforce badly: generated and immutable files, the venv's Python, `make brand` after `tokens.yaml`, a skill's suite after its scripts change. Declared in `.claude/settings.json`. |
 
 Nothing is slated for removal. Two directories are generated and must not be
 edited by hand: `brand/icons/` (`make icons`) and `brand/tokens.css`

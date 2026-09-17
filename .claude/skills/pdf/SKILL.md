@@ -204,6 +204,13 @@ language.
 With `theme: both`, two PDFs come out and **both are reviewed**: the dark
 variant has its own contrast pitfalls.
 
+**Delegate the look to the `pdf-reviewer` agent** (`.claude/agents/`) rather
+than reading the images here: it renders the pages, applies this checklist, and
+returns only the defects, so the page images stay out of the conversation. Run
+it once per variant — both at once with `theme: both` — and say when the
+document is an import. Fixing what it reports stays here; then build and review
+again.
+
 ## The art direction
 
 `brand/tokens.yaml` is **the only** source of brand values. It has two levels:
