@@ -396,6 +396,10 @@ Passed through `IMPORT_FLAGS=`: `--pages 3-18` limits the imported range,
 - `display: none` also removes `string-set`: do not use it to hide a metadata
   carrier.
 - CSS grid is not supported by WeasyPrint. Use flex, `columns`, or a table.
+- `target-counter()` resolves to 0 inside a `display: flex` container: every
+  table-of-contents entry would read page 0. Lay such a line out as a table.
+- `body` keeps the user agent's 8px margin unless it is reset: the text then
+  sits inside the page margins while the running headers sit on them.
 - A named page (`@page cover`) inherits from `@page`: do not redeclare margin or
   size there, or a preset that changes the geometry would be ignored.
 - Code highlighting goes through `theme/code.css`, which uses only `ink`, `soft`

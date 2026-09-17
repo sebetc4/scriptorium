@@ -142,11 +142,13 @@ nav.toc > h2 {
 }
 nav.toc ul { list-style: none; padding: 0; margin: 0; }
 nav.toc li { margin: 0; }
+/* A table, not `display: flex`: WeasyPrint resolves target-counter() to 0
+   inside a flex container, and every entry would read page 0. The number is a
+   cell of its own, aligned on the title's baseline whatever their sizes. */
 nav.toc a {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1em;
+  display: table;
+  width: 100%;
+  box-sizing: border-box;   /* the sub-entries' indent stays inside the width */
   border: 0;
   color: var(--ink);
   font-family: var(--font-sans);
@@ -157,7 +159,11 @@ nav.toc a {
 /* Leader line + page number, computed by WeasyPrint */
 nav.toc a::after {
   content: target-counter(attr(href url), page);
-  flex: 0 0 auto;
+  display: table-cell;
+  vertical-align: baseline;
+  text-align: right;
+  white-space: nowrap;
+  padding-left: 1em;
   font-family: var(--font-mono);
   font-size: var(--s-1);
   color: var(--soft);

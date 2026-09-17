@@ -18,7 +18,11 @@
 
 html { font-size: var(--s0); }
 
+/* margin: 0 — the user agent's 8px would inset the text inside the page
+   margins, and the running headers, which sit on those margins, would stick
+   out past it. */
 body {
+  margin: 0;
   font-family: var(--font-body);
   font-size: var(--s0);
   line-height: var(--lead);
@@ -83,6 +87,7 @@ code, kbd, samp {
   font-family: var(--font-mono);
   font-size: 0.86em;
   font-style: normal;
+  hyphens: none;   /* body's `hyphens: auto` would cut an identifier with a hyphen it does not have */
 }
 :not(pre) > code {
   background: var(--paper-2);
@@ -175,6 +180,8 @@ figure.row > figcaption { flex: 0 0 100%; margin-top: 0; }
 /* A diagram produced by the diagram-design skill: it already carries the art
    direction (same tokens), so nothing but a framing is imposed on it. */
 figure.diagram { margin-inline: calc(var(--gap) * -0.5); }
+/* The diagram may use its figure's extra width; its caption stays on the text. */
+figure.diagram > figcaption { margin-inline: calc(var(--gap) * 0.5); }
 figure.full-bleed { margin-inline: calc(var(--page-bleed, 0mm) * -1); }
 
 /* --- Definition lists --------------------------------------- */
