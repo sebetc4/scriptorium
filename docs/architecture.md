@@ -31,7 +31,7 @@ consumer, one skill.*
 
 ```
 pyproject.toml          the package; installed editable by `make setup`
-Makefile                the human facade — sixteen targets (§8)
+Makefile                the human facade — seventeen targets (§8)
 requirements.txt        runtime dependencies
 CLAUDE.md               repo map, commands, and the rules no skill owns
 README.md               what the repository is, for a reader arriving cold
@@ -62,7 +62,7 @@ Reason, directory by directory:
 | `out/` | Build artefacts, reconstructible by `make build` and `make epub`. Gitignored. |
 | `docs/` | Prose about the repository: this document, the roadmaps under `docs/roadmap/`, and the design notes a roadmap hands over (`docs/local-translation.md`, Phase 7). |
 | `.claude/skills/` | Five skills, one per context. Each carries its own scripts, tests and assets. |
-| `.claude/agents/` | Subagents a skill delegates to. `pdf-reviewer` holds the page-by-page look at a built PDF, so the page images stay out of the main conversation. |
+| `.claude/agents/` | Subagents a skill delegates to. `pdf-reviewer` holds the look at a built PDF — `make review`'s checks, sheets and zooms — so no page image enters the main conversation. |
 | `.claude/hooks/` | What a skill states as a rule but memory would enforce badly: generated and immutable files, the venv's Python, `make brand` after `tokens.yaml`, a skill's suite after its scripts change. Declared in `.claude/settings.json`. |
 
 Nothing is slated for removal. Two directories are generated and must not be
@@ -433,7 +433,7 @@ seventeenth ever appears is:
 | Target | After the roadmap |
 |---|---|
 | `setup` `brand` `icons` `test` `list` `clean` `help` | unchanged — the harness itself |
-| `new` `build` `watch` `check` `import` | facades over `pdf` |
+| `new` `build` `watch` `check` `import` `review` | facades over `pdf` |
 | `epub` `preview` `preview-style` | facades over `epub` |
 | `fetch` | facade over `fetch` |
 
@@ -452,6 +452,10 @@ Two consequences:
   of times while being written, and rasterising twelve diagrams on every pass is
   a gratuitous slowdown. The reason is a comment in the `Makefile` today and
   must survive the move.
+
+*After the roadmap, the rule let in a seventeenth: `review`. Its subject is a
+document of the library — the PDF `make build` made of it — so it is a target,
+not a tool run directly.*
 
 `make help` must keep listing every target that exists — a test already enforces
 it, and that test stays at the root because its subject is the repository.

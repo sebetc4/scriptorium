@@ -11,7 +11,7 @@ comes **entirely** from the repository's CSS cascade: the Markdown content never
 carries a graphic decision.
 
 The scripts live in this skill's `scripts/` and are reached through `make` from
-the repository root: `build.py`, `new.py`, `ingest.py`.
+the repository root: `build.py`, `new.py`, `ingest.py`, `review.py`.
 
 ## Who does what
 
@@ -180,36 +180,40 @@ make watch DOC=<topic>/<slug>     # rebuild on every change
 make check DOC=<topic>/<slug>     # also keeps the HTML, to debug the CSS
 ```
 
-**A PDF is never delivered without having been looked at.** After each build,
-render the pages to images through the shared brick, and actually examine them:
+**A PDF is never delivered without having been looked at.** Looking is paid in
+images — some 1,600 tokens a page, carried by every later turn — so the look is
+prepared first:
 
 ```bash
-.venv/bin/python - <<'PY'
-from pathlib import Path
-from core import pdfpage
-pdf = Path("out/pdf/<topic>/<slug>/<slug>.pdf")
-review = Path("/tmp/review"); review.mkdir(exist_ok=True)
-pages = pdfpage.render(pdf, scale=2)
-for i, image in enumerate(pages):
-    image.save(review / f"page-{i + 1:02d}.png")
-print(len(pages), "pages")
-PY
+make review DOC=<topic>/<slug>              # every built variant
+make review DOC=<topic>/<slug> ZOOM="1 7"   # these pages alone, full resolution
 ```
 
-Then read every image. Check for: no stray blank page, no heading orphaned at
-the bottom of a page, no table cut in the wrong place, no overflowing image,
-correct headers and page numbers, acceptable hyphenation for the document's
-language.
+It writes under `out/review/<topic>/<slug>/<variant>/` and prints:
+
+- **the checks**, read from the PDF's text layer at no image cost: a table of
+  contents whose number is not its target's page, a blank page, text past the
+  text block, a heading left at the bottom of a page, a missing running header
+  or page number, an icon name left as text. A check **points at a page, it does
+  not judge it**.
+- **the sheets**, `sheet-NN.png`: the pages four to an image, labelled, sized
+  just under the budget past which an image is scaled down anyway.
+
+Then the look itself, in this order: every sheet; then, alone and at full
+resolution, the cover — the page read most — and every page a check named or a
+sheet made doubtful. On them: no stray blank page, no heading orphaned at the
+bottom of a page, no table cut in the wrong place, no overflowing image, correct
+headers and page numbers, acceptable hyphenation for the document's language.
+`make review` refuses a PDF older than its sources: build first.
 
 With `theme: both`, two PDFs come out and **both are reviewed**: the dark
 variant has its own contrast pitfalls.
 
 **Delegate the look to the `pdf-reviewer` agent** (`.claude/agents/`) rather
-than reading the images here: it renders the pages, applies this checklist, and
-returns only the defects, so the page images stay out of the conversation. Run
-it once per variant — both at once with `theme: both` — and say when the
-document is an import. Fixing what it reports stays here; then build and review
-again.
+than reading the images here: it runs `make review`, looks as above, and returns
+only the defects, so no page image enters the conversation. Run it once per
+variant — both at once with `theme: both` — and say when the document is an
+import. Fixing what it reports stays here; then build and review again.
 
 ## The art direction
 

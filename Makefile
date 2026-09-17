@@ -5,10 +5,12 @@ SRC     ?=
 URL     ?=
 TO      ?=
 RENDER  ?=
+VARIANT ?=
+ZOOM    ?=
 PRESET  ?= report
 TITLE   ?=
 
-.PHONY: help setup brand icons new import fetch build epub watch test list clean check preview preview-style
+.PHONY: help setup brand icons new import fetch build epub watch test list clean check preview preview-style review
 
 help:
 	@echo "Targets:"
@@ -19,6 +21,7 @@ help:
 	@echo "  make import SRC=x.pdf DOC=topic/slug TO=fr   import an external PDF"
 	@echo "  make fetch URL=https://… DOC=topic/slug [TO=] [RENDER=1]  capture a web page"
 	@echo "  make build [DOC=topic/slug]                 build one document or the whole library"
+	@echo "  make review DOC=topic/slug [VARIANT=] [ZOOM=\"3 7\"]  checks + page sheets of a built PDF"
 	@echo "  make epub [DOC=topic/slug]                  build one EPUB or all of them"
 	@echo "  make preview [DOC=topic/slug]               contact sheet (what does not reflow)"
 	@echo "  make preview-style                          style proof (the whole style guide)"
@@ -61,6 +64,12 @@ fetch:
 
 build:
 	@$(PY) .claude/skills/pdf/scripts/build.py $(DOC)
+
+# The look at a built PDF, made cheap: text-layer checks, then the pages four to
+# an image; ZOOM renders chosen pages alone at full resolution instead.
+review:
+	@test -n "$(DOC)" || { echo "usage: make review DOC=topic/slug [VARIANT=light|dark] [ZOOM=\"3 7\"]"; exit 1; }
+	@$(PY) .claude/skills/pdf/scripts/review.py "$(DOC)" $(if $(VARIANT),--variant $(VARIANT)) $(if $(ZOOM),--zoom $(ZOOM))
 
 # A separate target from `build`: a PDF gets built dozens of times while a
 # document is being brought up to standard, and rasterising twelve diagrams on
