@@ -191,13 +191,21 @@ make review DOC=<topic>/<slug> ZOOM="1 7"   # these pages alone, full resolution
 
 It writes under `out/review/<topic>/<slug>/<variant>/` and prints:
 
-- **the checks**, read from the PDF's text layer at no image cost: a table of
-  contents whose number is not its target's page, a blank page, text past the
-  text block, a heading left at the bottom of a page, a missing running header
-  or page number, an icon name left as text. A check **points at a page, it does
-  not judge it**.
+- **the checks**, read from the PDF's text layer at no image cost. Textual:
+  a table-of-contents number that is not its target's page (`toc`), a glyph set
+  in a font outside the art direction (`font`), a straight apostrophe
+  (`apostrophe`), an address cut by hyphenation (`url-hyphen`), two letters
+  carried over by a hyphenation (`short-hyphen`), text under 5 pt (`tiny-text`),
+  an icon name left as text (`icon`), a missing running header or page number.
+  Layout: a blank or near-blank page, text past the text block (`overflow`), a
+  heading left at the foot of a page (`orphan-heading`), a justified line
+  stretched far wider than the page's (`loose-line`). A check **points at a
+  page**; the layout ones are confirmed by looking.
 - **the sheets**, `sheet-NN.png`: the pages four to an image, labelled, sized
   just under the budget past which an image is scaled down anyway.
+
+Chosen and accepted, so not reported: a justified line stretched because the
+next one opens with inline code, which never breaks (`white-space: nowrap`).
 
 Then the look itself, in this order: every sheet; then, alone and at full
 resolution, the cover — the page read most — and every page a check named or a
@@ -210,10 +218,12 @@ With `theme: both`, two PDFs come out and **both are reviewed**: the dark
 variant has its own contrast pitfalls.
 
 **Delegate the look to the `pdf-reviewer` agent** (`.claude/agents/`) rather
-than reading the images here: it runs `make review`, looks as above, and returns
-only the defects, so no page image enters the conversation. Run it once per
-variant — both at once with `theme: both` — and say when the document is an
-import. Fixing what it reports stays here; then build and review again.
+than reading the images here: it runs `make review`, reads every sheet, zooms on
+the cover and at most five doubtful pages, and returns only the defects — the
+checks as printed, and what it saw. It reviews and does not diagnose: finding
+causes and fixing stay here. Run it once per variant — both at once with
+`theme: both` — and say when the document is an import; then build and review
+again.
 
 ## The art direction
 
