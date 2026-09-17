@@ -92,7 +92,8 @@ code, kbd, samp {
 :not(pre) > code {
   background: var(--paper-2);
   border-radius: var(--radius);
-  padding: 0.1em 0.35em;
+  padding: 0.1em 0.2em;   /* wider, it opens a gap before the punctuation that follows */
+  white-space: nowrap;    /* an identifier is never split, not even on its own hyphens */
 }
 pre {
   background: var(--paper-2);
@@ -243,6 +244,9 @@ p > svg.icon, td > svg.icon { margin-right: 0.15em; }
   font-size: var(--s-1);
 }
 .admonition > :last-child { margin-bottom: 0; }
+/* On the callout's tint the code background disappears, and its padding
+   reads as a stray space before the punctuation. */
+.admonition :not(pre) > code { background: none; padding: 0; }
 .admonition-title {
   display: flex;
   align-items: center;
