@@ -1,0 +1,20 @@
+.venv/
+
+# Build artefacts of the interpreter and the test runner. The patterns are
+# path-independent on purpose: they have to keep matching inside
+# .claude/skills/<name>/, where each skill runs its own suite.
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Scratch written by agent tooling: the superpowers plugin's working files,
+# and each contributor's own Claude Code permissions.
+.superpowers/
+.claude/settings.local.json
+
+# The outputs are build artefacts, rebuilt by `make build` and `make epub`.
+out/
+
+# Source library files.
+library/

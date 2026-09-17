@@ -1,0 +1,16 @@
+/* PRESET letter — a one- to two-page letter or note. */
+
+@page { margin: 25mm 22mm 22mm; }
+@page :first { @top-left { content: none; } @top-right { content: none; } }
+
+h1 { break-before: auto; font-size: var(--s1); }
+body { text-align: left; hyphens: none; }
+
+.letterhead { display: flex; justify-content: space-between; align-items: flex-start;
+              margin-bottom: calc(var(--gap) * 2.5); }
+.letterhead .logo { height: 10mm; }
+.letterhead address { font-style: normal; font-family: var(--font-sans);
+                      font-size: var(--s-1); color: var(--muted); text-align: right; }
+.recipient { margin-bottom: calc(var(--gap) * 1.5); font-family: var(--font-sans); }
+.subject { font-weight: 600; margin-bottom: var(--gap); }
+.signature { margin-top: calc(var(--gap) * 2); break-inside: avoid; }

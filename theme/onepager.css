@@ -1,0 +1,28 @@
+/* PRESET onepager — 1 to 4 pages, dense, no cover and no table of contents.
+   A more graphic register: a head title, two columns. */
+
+@page { margin: 16mm 15mm 14mm; }
+@page :first { @bottom-left { content: none; } }
+
+h1 { break-before: auto; }                 /* no break per chapter */
+body { font-size: calc(var(--size) * 0.95); }
+
+.doc-head {
+  border-bottom: 2pt solid var(--ink);
+  padding-bottom: calc(var(--gap) * 0.6);
+  margin-bottom: calc(var(--gap) * 1.2);
+  break-after: avoid;
+}
+.doc-head .eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--s-2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.doc-head h1 { font-size: var(--s3); margin: 0.25em 0 0; }
+.doc-head .subtitle { color: var(--muted); font-size: var(--s0); margin-top: 0.35em; }
+
+.columns { columns: 2; column-gap: calc(var(--gap) * 1.6); column-rule: 0.5pt solid var(--rule); }
+.columns > h2:first-child { margin-top: 0; }
+.columns figure, .columns table, .columns pre { break-inside: avoid; }

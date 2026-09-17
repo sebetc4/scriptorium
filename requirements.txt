@@ -1,0 +1,14 @@
+weasyprint>=66      # HTML/CSS paged media -> PDF (no browser required)
+markdown>=3.6       # Markdown -> HTML
+pymdown-extensions>=10
+pygments>=2.17      # syntax highlighting of code blocks
+pyyaml>=6
+pypdfium2>=4        # page rendering to images (visual review)
+pypdf>=4            # merging, splitting, metadata
+pymupdf>=1.24       # external PDF import: text + fonts + images (AGPL)
+pillow>=10          # recompression of extracted images
+trafilatura>=2      # web capture: content extraction, without the navigation
+py3langid>=0.3      # detection of a source document's language
+# playwright        # optional, for `make fetch RENDER=1` (JavaScript-rendered pages)
+#   .venv/bin/pip install playwright && .venv/bin/playwright install chromium
+pytest>=8          # tests; plays no part in building documents

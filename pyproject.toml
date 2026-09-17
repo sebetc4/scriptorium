@@ -1,0 +1,24 @@
+# The repository's Python lives in one installable package so that a skill's
+# script, a test and a tool run by hand all resolve the same import. `make setup`
+# installs it editable; nothing else puts anything on sys.path.
+#
+# `core` holds only what two or more skills share (docs/architecture.md §2);
+# each skill's own scripts live in the skill.
+
+[project]
+name = "scriptorium"
+version = "0"
+description = "A library of documents, built from Markdown to PDF and EPUB"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["core"]
+
+# One run, one reported result, covering the repository's own suite and every
+# skill's own suite.
+[tool.pytest.ini_options]
+testpaths = ["tests", ".claude/skills"]

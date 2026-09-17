@@ -1,0 +1,18 @@
+/* PRESET slides — a landscape deck, one slide per H2. */
+
+:root { --page-size: 254mm 190mm; --cover-height: 148mm; }   /* 4:3; the cover height is deliberately
+     under the usable height (154mm): at the exact value, rounding overflows */
+@page {
+  size: var(--page-size);
+  margin: 18mm 20mm;
+  @top-left { content: none; } @top-right { content: none; }
+  @bottom-left { content: string(doc-footer); }
+}
+
+body { font-size: 14pt; text-align: left; hyphens: none; }
+h1 { break-before: page; font-size: 34pt; }
+h2 { break-before: page; font-size: 26pt; margin-top: 0; }
+h3 { font-size: 17pt; }
+ul { padding-left: 1em; }
+li { margin-bottom: 0.5em; }
+.cover h1 { font-size: 44pt; }

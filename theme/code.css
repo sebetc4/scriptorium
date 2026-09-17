@@ -1,0 +1,37 @@
+/* ===========================================================
+   CODE — syntax highlighting reduced to the art direction's roles.
+   Three registers only: ink (the code), soft (the comment),
+   accent (what structures it). No rainbow palette.
+   =========================================================== */
+
+.codehilite { color: var(--ink); }
+
+/* comments */
+.codehilite .c, .codehilite .c1, .codehilite .cm, .codehilite .cs,
+.codehilite .cp, .codehilite .cpf, .codehilite .ch,
+.codehilite .sd { color: var(--soft); font-style: italic; }
+
+/* keywords and structuring operators */
+.codehilite .k, .codehilite .kc, .codehilite .kd, .codehilite .kn,
+.codehilite .kp, .codehilite .kr, .codehilite .kt,
+.codehilite .ow, .codehilite .nt { color: var(--accent); font-weight: 600; }
+
+/* strings and literals */
+.codehilite .s, .codehilite .s1, .codehilite .s2, .codehilite .sb,
+.codehilite .sc, .codehilite .se, .codehilite .sh, .codehilite .si,
+.codehilite .sx, .codehilite .sr, .codehilite .ss, .codehilite .sa,
+.codehilite .m, .codehilite .mb, .codehilite .mf, .codehilite .mh,
+.codehilite .mi, .codehilite .mo, .codehilite .il { color: var(--muted); }
+
+/* names: declarations in bold, the rest at the body's tone */
+.codehilite .nf, .codehilite .nc, .codehilite .nd { font-weight: 600; }
+.codehilite .n, .codehilite .na, .codehilite .nb, .codehilite .nn,
+.codehilite .nv, .codehilite .no, .codehilite .nx, .codehilite .ni,
+.codehilite .ne, .codehilite .nl, .codehilite .py,
+.codehilite .o, .codehilite .p, .codehilite .w { color: inherit; }
+
+/* diff */
+.codehilite .gd { color: var(--muted); }
+.codehilite .gi { color: var(--accent); }
+.codehilite .gh, .codehilite .gu { color: var(--soft); font-weight: 600; }
+.codehilite .err { color: var(--ink); border-bottom: 1pt solid var(--accent); }

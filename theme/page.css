@@ -1,0 +1,174 @@
+/* ===========================================================
+   PAGE — geometry, headers/footers, cover, table of contents
+   =========================================================== */
+
+@page {
+  size: var(--page-size);
+  margin: var(--page-margin);
+  background: var(--paper);
+
+  @top-left {
+    content: string(doc-title);
+    font-family: var(--font-sans);
+    font-size: 7.5pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--soft);
+    vertical-align: bottom;
+    padding-bottom: 3mm;
+  }
+  @top-right {
+    content: string(section);
+    font-family: var(--font-sans);
+    font-size: 7.5pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--soft);
+    vertical-align: bottom;
+    padding-bottom: 3mm;
+  }
+  @bottom-left {
+    content: string(doc-footer);
+    font-family: var(--font-sans);
+    font-size: 7.5pt;
+    color: var(--soft);
+    vertical-align: top;
+    padding-top: 3mm;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: var(--soft);
+    vertical-align: top;
+    padding-top: 3mm;
+  }
+}
+
+@page :first { @top-left { content: none; } @top-right { content: none; } }
+
+/* Running strings. Carried by <body>: a dedicated element would create a
+   box, hence a blank page before the cover (which is a named page). */
+body { string-set: doc-title attr(data-title), doc-footer attr(data-footer); }
+h1   { string-set: section content(); }
+h2   { string-set: section content(); }
+
+/* --- Cover --------------------------------------------------- */
+/* A named page inherits from @page: redeclare neither margin nor background
+   here, or a preset that changes the geometry (slides) would be ignored. */
+@page cover {
+  @top-left { content: none; }    @top-right { content: none; }
+  @bottom-left { content: none; } @bottom-right { content: none; }
+}
+.cover {
+  page: cover;
+  break-after: page;
+  display: flex;
+  flex-direction: column;
+  min-height: var(--cover-height);
+  text-align: left;
+}
+/* Four bands: logo, title block at the top, a free expanding zone, foot.
+   The free zone absorbs the remaining height, which keeps the foot at the
+   bottom of the page whatever it holds. */
+.cover-head  { flex: 0 0 auto; }
+.cover-body  { flex: 0 0 auto; margin-top: calc(var(--gap) * 2.5); }
+.cover-extra { flex: 1 1 auto; margin-top: calc(var(--gap) * 2); min-height: 0; }
+.cover-foot  { flex: 0 0 auto; padding-top: calc(var(--gap) * 1.2); border-top: 1pt solid var(--ink); }
+
+/* The cover's free content (cover.md): a more discreet register than the
+   body, so it does not compete with the title. */
+.cover-extra > :last-child { margin-bottom: 0; }
+.cover-extra p { font-size: var(--s-1); color: var(--muted); max-width: 30em; }
+.cover-extra h2, .cover-extra h3 {
+  font-size: var(--s-1);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--soft);
+  margin: calc(var(--gap) * 1.2) 0 calc(var(--gap) * 0.3);
+}
+.cover-extra ul, .cover-extra ol { font-size: var(--s-1); color: var(--muted); }
+.cover-extra img, .cover-extra svg { max-height: 70mm; }
+
+.cover .eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--s-2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.cover h1 {
+  font-size: var(--s4);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: calc(var(--gap) * 0.8) 0 0;
+  max-width: 18em;
+}
+.cover .subtitle {
+  font-family: var(--font-body);
+  font-size: var(--s1);
+  line-height: 1.35;
+  color: var(--muted);
+  margin-top: calc(var(--gap) * 0.7);
+  max-width: 26em;
+  text-align: left;
+}
+.cover .cover-foot dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(var(--gap) * 2);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--s-1);
+}
+.cover .cover-foot dt {
+  font-size: var(--s-2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.cover .cover-foot dd { margin: 0.15em 0 0; color: var(--ink); }
+.cover .logo { height: 9mm; width: auto; }
+
+/* --- Table of contents --------------------------------------- */
+nav.toc { break-after: page; }
+nav.toc > h2 {
+  font-size: var(--s-1);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  padding-bottom: calc(var(--gap) * 0.4);
+  border-bottom: 1pt solid var(--ink);
+}
+nav.toc ul { list-style: none; padding: 0; margin: 0; }
+nav.toc li { margin: 0; }
+nav.toc a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  text-decoration: none;
+  padding: 0.42em 0;
+  border-bottom: 0.5pt solid var(--rule);
+}
+/* Leader line + page number, computed by WeasyPrint */
+nav.toc a::after {
+  content: target-counter(attr(href url), page);
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--s-1);
+  color: var(--soft);
+}
+nav.toc > ul > li > a { font-weight: 600; }
+nav.toc ul ul a { padding-left: 1.2em; font-size: var(--s-1); color: var(--muted); }
+nav.toc ul ul ul { display: none; }   /* we stop at level 2 */
+
+/* --- Pagination of the body ---------------------------------- */
+h1 { break-before: page; }
+/* The body's first heading causes no break: the cover and the table of
+   contents have already closed their page, and one more break would leave a
+   blank one. A more specific selector than the presets' `h1` / `h2`. */
+h1.no-break, .cover h1, nav.toc h2, main > :first-child { break-before: auto; }

@@ -1,0 +1,214 @@
+# ============================================================
+#  SINGLE SOURCE OF TRUTH FOR THE ART DIRECTION
+# ============================================================
+# This file drives BOTH the PDFs and the diagrams.
+#   make brand  ->  brand/tokens.css                      (read by the PDFs)
+#               ->  ~/.diagram-design/profiles/…          (read by diagram-design)
+#
+# Two levels:
+#   `palette`  the brand ramps, as supplied — touched only to evolve the
+#              brand itself;
+#   `colors`   the mapping onto semantic roles, which refers to the palette
+#              by path (`neutral.light.100`, `primary.600`) rather than
+#              copying hex values. No value can therefore drift.
+#
+# The roles in `colors` are exactly those of diagram-design: a diagram
+# inserted into a PDF matches natively, without retouching.
+
+name: "Ma bibliothèque"
+
+# ------------------------------------------------------------
+# Brand palette
+# ------------------------------------------------------------
+palette:
+  # Green-tinged neutral grey, a 12-step scale.
+  #   100-200 backgrounds · 300-500 components · 600-800 borders
+  #   900-1000 solid fills · 1100-1200 accessible text
+  neutral:
+    light:
+      100: "#FCFDFC"
+      200: "#F8FAF8"
+      300: "#EFF1EF"
+      400: "#E7E9E7"
+      500: "#DFE2DF"
+      600: "#D7DAD7"
+      700: "#CCCFCC"
+      800: "#B9BCB8"
+      900: "#898E87"
+      1000: "#7F847D"
+      1100: "#60655F"
+      1200: "#1D211C"
+    dark:
+      100: "#111210"
+      200: "#181917"
+      300: "#212220"
+      400: "#282A27"
+      500: "#2F312E"
+      600: "#383A36"
+      700: "#454843"
+      800: "#5C625B"
+      900: "#687066"
+      1000: "#767D74"
+      1100: "#AFB5AD"
+      1200: "#ECEEEC"
+
+  # Primary green. The brand is 600; the other steps serve tinted
+  # backgrounds and variants legible on a dark background.
+  primary:
+    100: "#80F7B9"
+    200: "#89C4A5"
+    300: "#78BB98"
+    400: "#68B28B"
+    500: "#58A97F"
+    600: "#4F9872"   # ← the brand colour
+    700: "#4B916D"
+    800: "#3E7659"
+    900: "#36654C"
+    1000: "#2D5440"
+    1100: "#254333"
+
+  # Signalling colours. Unlike the primary green, which is editorial, these
+  # carry a meaning: they are never used to decorate.
+  signal:
+    alert: "#F76B15"    # orange — caution, precaution
+    danger: "#D13415"   # red    — risk of damage or injury
+
+  # Secondary colours. All dark: they are made for a light background.
+  other:
+    teal: "#045468"
+    teal-deep: "#004558"
+    forest: "#2d5736"
+    jade: "#2a7e68"
+
+  # Computed values, absent from the supplied palette. They cover roles the
+  # brand does not name — here a link legible on a dark background, obtained
+  # by lightening `other.teal` at constant hue (H 192°).
+  derived:
+    teal-light: "#66B8CC"
+    # The two signalling colours lightened to stay legible on a dark
+    # background, at constant hue (H 23° and 10°).
+    alert-light: "#F78C4A"
+    danger-light: "#EC6A51"
+    # The two signalling colours darkened for the EPUB, at constant hue
+    # (H 23° and 10°). An e-reader converts colour to grey by luminance: at
+    # brand values, `alert` drops to a contrast of 2.91 and `danger` to 4.89 —
+    # two different strengths, one of them illegible. Darkened, the three
+    # signalling roles fit within 5 grey levels out of 255 and all exceed a
+    # contrast of 6.5.
+    alert-deep: "#953C05"
+    danger-deep: "#A52911"
+
+# ------------------------------------------------------------
+# Mapping onto semantic roles
+# ------------------------------------------------------------
+# Accepted values: a hex, an rgba(), a path into `palette`, or
+# alpha(<path>, <opacity>) for a translucent tint.
+colors:
+  light:
+    paper:        neutral.light.100      # page background
+    paper-2:      neutral.light.300      # secondary background (callouts, code)
+    ink:          neutral.light.1200     # main text
+    muted:        neutral.light.1100     # secondary text
+    soft:         neutral.light.900      # captions, metadata
+    rule:         alpha(neutral.light.1200, 0.12)
+    rule-solid:   neutral.light.800
+    accent:       primary.600            # focal — 1 or 2 uses per page
+    accent-tint:  alpha(primary.600, 0.10)
+    alert:        signal.alert           # caution
+    alert-tint:   alpha(signal.alert, 0.10)
+    danger:       signal.danger          # risk
+    danger-tint:  alpha(signal.danger, 0.10)
+    link:         other.teal
+  dark:
+    paper:        neutral.dark.100
+    paper-2:      neutral.dark.300
+    ink:          neutral.dark.1200
+    muted:        neutral.dark.1100
+    soft:         neutral.dark.1000
+    rule:         alpha(neutral.dark.1200, 0.12)
+    rule-solid:   neutral.dark.800
+    accent:       primary.300            # lightened to stay legible on a dark background
+    accent-tint:  alpha(primary.300, 0.12)
+    alert:        derived.alert-light
+    alert-tint:   alpha(derived.alert-light, 0.14)
+    danger:       derived.danger-light
+    danger-tint:  alpha(derived.danger-light, 0.14)
+    link:         derived.teal-light
+  # EPUB output. An e-reader does not resolve `var()` and cannot tell whether
+  # its screen is monochrome: one sheet is shipped, flattened at build time,
+  # valid on every screen. Hence two departures from `light` — the signalling
+  # roles are taken at equalised luminance, and tinted backgrounds are removed:
+  # a 10 % fill becomes dirty dithering on e-ink.
+  epub:
+    paper:        neutral.light.100      # used by the cover alone
+    paper-2:      neutral.light.300
+    ink:          neutral.light.1200
+    muted:        neutral.light.1100
+    soft:         neutral.light.900
+    rule:         alpha(neutral.light.1200, 0.12)
+    rule-solid:   neutral.light.800
+    accent:       primary.900
+    accent-tint:  transparent
+    alert:        derived.alert-deep
+    alert-tint:   transparent
+    danger:       derived.danger-deep
+    danger-tint:  transparent
+    link:         other.teal
+
+# ------------------------------------------------------------
+# Typography
+# ------------------------------------------------------------
+type:
+  # Families installed on the machine (checked with fc-list).
+  # For a brand font: place the .woff2/.ttf in brand/fonts/, declare them in
+  # `faces:` below, then put them at the head of the stack.
+  serif:  "'Noto Serif', 'Liberation Serif', Georgia, serif"
+  sans:   "'Noto Sans', Cantarell, system-ui, sans-serif"
+  mono:   "'JetBrains Mono', ui-monospace, monospace"
+  body:   serif      # body text family: serif | sans
+  head:   sans       # heading family
+  size:   10.5pt     # reference body size
+  lead:   1.55       # line height
+  scale:  1.25       # ratio of the type scale
+
+  # Embedded fonts, optional. Each entry becomes an @font-face rule.
+  #   faces:
+  #     - family: Marque Sans
+  #       file:   Marque-Sans-Regular.woff2   (relative to brand/fonts/)
+  #       weight: 400
+  #       style:  normal
+  faces: []
+
+# ------------------------------------------------------------
+# Icons (Lucide, shipped in brand/icons/)
+# ------------------------------------------------------------
+icon:
+  # Lucide draws at 24px with a stroke of 2. Scaled down to the body size
+  # (~10.5 pt), the icons look thinner than the text, so the stroke is
+  # thickened slightly. It is applied at build time, since CSS cannot reach
+  # inside an SVG under WeasyPrint.
+  stroke: 2.25
+  size:   1.05em
+
+# ------------------------------------------------------------
+# Layout (defaults, overridable per document)
+# ------------------------------------------------------------
+page:
+  size:    A4
+  margin:  "24mm 20mm 20mm"
+  measure: 34em        # comfortable line length
+  # Usable page height = format minus top and bottom margins.
+  # Anchors the title block at the bottom of the cover. A4: 297 - 24 - 20.
+  cover-height: 250mm
+  # Maximum height of an illustration in the flow.
+  figure-max-height: 95mm
+
+# ------------------------------------------------------------
+# Identity
+# ------------------------------------------------------------
+brand:
+  logo:      brand/logo.svg
+  # Running footer. Empty by default: the footer then carries only the page
+  # number. Put nothing there unless the user asked for it.
+  footer:    ""
+  radius:    2px
