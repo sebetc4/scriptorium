@@ -92,6 +92,7 @@ done.
 **Modified**
 
 - `.claude/settings.json`
+- `docs/roadmap/on-progress/session-review/phase-2-skill-report.md`
 - `.claude/skills/session-review/scripts/metrics.py`
 - `.claude/skills/session-review/scripts/corpus.py`
 - `docs/roadmap/on-progress/session-review/README.md`
@@ -100,7 +101,9 @@ done.
 - `docs/roadmap/on-progress/session-review/phase-4-corpus.md`
 
 The last two entries of each group are Phase 4, opened during this closure: its
-status moved to 🟡 and its report was created.
+status moved to 🟡 and its report was created. Phase 2's report appears because
+`76e968e` corrected its start commit after `12f9234` had been cut, so the
+correction falls inside this phase's span rather than the one it describes.
 
 ---
 
