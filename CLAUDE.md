@@ -16,6 +16,10 @@ Every job has a skill that carries its rules. Open it before acting.
 | Capture one known web page as a document | `fetch` |
 | Investigate a question across unknown sources — produces knowledge, not a document | `sourcing` |
 | Translate a document already in the library | `translate` |
+| Review a finished task — what it cost and what should change | `session-review` |
+
+The last is outside the production chain: it makes no document and
+changes no skill. It runs once a task is done, never during one.
 
 ## Repo map
 

@@ -24,7 +24,9 @@ anywhere.
 
 The repository is organised around five Claude Code skills, one per job. Each
 carries its own rules, scripts and tests under `.claude/skills/<name>/`; what two
-or more of them share lives in the `core/` package.
+or more of them share lives in the `core/` package. A sixth,
+`session-review`, stands outside that chain: it produces no document and
+measures a finished task instead.
 
 | Skill | Job |
 |---|---|
@@ -33,6 +35,7 @@ or more of them share lives in the `core/` package.
 | `fetch` | Capture one web page as a document |
 | `sourcing` | Investigate a question across sources — produces knowledge, not a document |
 | `translate` | Translate a document already in the library, in place |
+| `session-review` | Measure a finished task and write the review to `reviews/` — outside the production chain |
 
 `docs/architecture.md` explains why each directory exists and where each skill
 stops.

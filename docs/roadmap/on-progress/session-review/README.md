@@ -17,15 +17,15 @@
 ```
 Phase 0  The Format                 🟢 ████████████████████ 100%  (5/5)
 Phase 1  The Measurement            🟢 ████████████████████ 100%  (7/7)
-Phase 2  The Skill                  🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-Phase 3  The Ledger                 🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
+Phase 2  The Skill                  🟢 ████████████████████ 100%  (7/7)
+Phase 3  The Ledger                 🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 4  The Corpus In Use          🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                  ████████░░░░░░░░░░░░  40%  (12/30)
+TOTAL                                  █████████████░░░░░░░  63%  (19/30)
 ```
 
-**Current Phase:** Phase 2 — The Skill
+**Current Phase:** Phase 3 — The Ledger
 **Blocked By:** —
-**Next Milestone:** Phase 2 — The Skill
+**Next Milestone:** Phase 3 — The Ledger
 
 ---
 
@@ -131,8 +131,8 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 |---|---|---|---|
 | 0 | [The Format](phase-0-format.md) | 5 | 🟢 Done |
 | 1 | [The Measurement](phase-1-measurement.md) | 7 | 🟢 Done |
-| 2 | [The Skill](phase-2-skill.md) | 7 | 🟡 In Progress |
-| 3 | [The Ledger](phase-3-ledger.md) | 6 | 🔴 Not Started |
+| 2 | [The Skill](phase-2-skill.md) | 7 | 🟢 Done |
+| 3 | [The Ledger](phase-3-ledger.md) | 6 | 🟡 In Progress |
 | 4 | [The Corpus In Use](phase-4-corpus.md) | 5 | 🔴 Not Started |
 
 ---
@@ -159,13 +159,38 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/session-review/`
-**Version:** 1.3.0
+**Version:** 1.4.0
 **Created:** 2026-09-17
 **Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.4.0 (2026-09-18)
+
+Phase 2 closed, 7/7. The skill exists: `SKILL.md`, 122 lines, with a
+description that states in the negative what it never does, a budget of eight
+thousand tokens that names the tooling's own output as part of what it covers,
+and the rule that a review belongs at the end of its task rather than at the end
+of a long session, because compaction takes the half no script can rebuild.
+
+**The obligations are arithmetic, not good faith.** Four of the six are fired by
+`metrics.py --owed` from the measures themselves — the largest costs, every
+measure past one and a half times its median, every non-zero waste and friction
+counter, every correction the user made. The fifth is enforced by `corpus.py`,
+which refuses a finding without a target and a fix. The sixth is a rule about
+writing and is stated. With an empty corpus the median obligation cannot fire,
+so the first one widens from three costs to five: an obligation that cannot fire
+is not a lenient obligation, it is an absent one.
+
+`session-review` is named in `CLAUDE.md` and `README.md` as outside the
+production chain. Its suite is 15 tests, and the repository's is 455.
+
+Two acceptance criteria are left unticked, both because they can only be
+observed from a later session: that the description keeps the skill from
+loading during ordinary work, and that a review costs under eight thousand
+tokens measured by the next one. Phase 4 observes both.
 
 ### 1.3.0 (2026-09-18)
 

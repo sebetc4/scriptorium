@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (0% — 0/7)
+**Current Status:** 🟢 Done (100% — 7/7)
 **Started:** 2026-09-18
-**Completed:**
+**Completed:** 2026-09-18
 **Blocked By:** —
 
 ---
@@ -53,17 +53,17 @@ does not apply one.
 ## Tasks
 
 ### The skill
-- [ ] Write `SKILL.md`, in English, with a description that states in the negative what it never does — it is not part of doing the work, it measures the work once the work is done
-- [ ] Write in the six obligations: explain the three largest costs, explain every measure past one and a half times its median, a finding or a justification for each non-zero waste and friction counter, a finding or a reason for each user correction, no finding without a target and a fix, and no section for what went well
-- [ ] Write in its own budget: two commands, at most two file reads, no rebuild and no subagent, prose under six hundred words, findings of three lines each — and the whole under eight thousand tokens, which the next review will check
-- [ ] State what the eight thousand cover: everything the review puts in the context, the tooling's own output included — `metrics.py`'s block, the medians beside it, `--timeline` when it is asked for — so that a budget cannot be met by moving cost from the prose into a command
+- [x] Write `SKILL.md`, in English, with a description that states in the negative what it never does — it is not part of doing the work, it measures the work once the work is done
+- [x] Write in the six obligations: explain the three largest costs, explain every measure past one and a half times its median, a finding or a justification for each non-zero waste and friction counter, a finding or a reason for each user correction, no finding without a target and a fix, and no section for what went well
+- [x] Write in its own budget: two commands, at most two file reads, no rebuild and no subagent, prose under six hundred words, findings of three lines each — and the whole under eight thousand tokens, which the next review will check
+- [x] State what the eight thousand cover: everything the review puts in the context, the tooling's own output included — `metrics.py`'s block, the medians beside it, `--timeline` when it is asked for — so that a budget cannot be met by moving cost from the prose into a command
 
 ### The loop
-- [ ] Close the loop: at the end of a review, list the `severity: high` findings, ask which are carried to `docs/roadmap/pending/`, and write their `carried:`
+- [x] Close the loop: at the end of a review, list the `severity: high` findings, ask which are carried to `docs/roadmap/pending/`, and write their `carried:`
 
 ### The repository
-- [ ] Add the row to `CLAUDE.md`'s *Which skill* table, marked as outside the production chain, and the mention `README.md` needs
-- [ ] Write the suite: a review produced against a fixture transcript satisfies `corpus.py`, and the obligations fire on the thresholds they claim to
+- [x] Add the row to `CLAUDE.md`'s *Which skill* table, marked as outside the production chain, and the mention `README.md` needs
+- [x] Write the suite: a review produced against a fixture transcript satisfies `corpus.py`, and the obligations fire on the thresholds they claim to
 
 ---
 
@@ -95,11 +95,11 @@ is not for.
 ## Acceptance Criteria
 
 - [ ] A session asked to write a PDF does not load this skill; a session asked to review a finished task does
-- [ ] The skill states a rule for the degraded case: a review belongs at the end of its task, not at the end of a long session, because compaction takes the part no script can rebuild
+- [x] The skill states a rule for the degraded case: a review belongs at the end of its task, not at the end of a long session, because compaction takes the part no script can rebuild
 - [ ] A review written under the skill costs under eight thousand tokens, tooling output included, measured by the next one
-- [ ] `make test` passes, documentation test included
-- [ ] The six obligations are each testable, and tested
-- [ ] `--timeline` is named as optional, and the budget is met without it
+- [x] `make test` passes, documentation test included
+- [x] The six obligations are each testable, and tested
+- [x] `--timeline` is named as optional, and the budget is met without it
 
 ---
 

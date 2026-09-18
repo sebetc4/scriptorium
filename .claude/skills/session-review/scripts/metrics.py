@@ -395,6 +395,57 @@ def baselines(t: Tally, runs: list[dict], reviews: list, skill: str | None,
     return ["# this slice against the median of earlier reviews"] + rows
 
 
+def owed(t: Tally, runs: list[dict], reviews: list, skill: str | None) -> list[str]:
+    """The obligations this slice triggers, printed so they cannot be forgotten.
+
+    The skill never asks a session what went wrong — a session grading itself
+    gives itself a good mark. It sets duties that the measurements trigger, and
+    this is where the triggering happens, in arithmetic rather than in good
+    faith.
+    """
+    rows = []
+    costs = {"the main context": t.fresh,
+             "cache reads": t.cache_read,
+             "the delegated runs": sum(r["fresh"] for r in runs),
+             "images carried": t.image_carry,
+             "output written": t.output}
+    ranked = [name for name, value in
+              sorted(costs.items(), key=lambda kv: -kv[1]) if value]
+
+    # With no baseline, the obligation on medians cannot fire. The review does
+    # not therefore owe less: it owes the wider account instead, because an
+    # obligation that cannot fire is not a lenient obligation, it is an absent
+    # one.
+    has_baseline = any(
+        corpus.median(reviews, m, skill=skill) is not None
+        for m in ("tokens.fresh", "turns"))
+    top = 3 if has_baseline else 5
+    rows.append(f"- explain the {top} largest costs: "
+                + ", ".join(ranked[:top])
+                + ("" if has_baseline else "  (no baseline yet: three becomes five)"))
+
+    for measure, value in (("tokens.fresh", t.fresh),
+                           ("subagents.fresh", sum(r["fresh"] for r in runs)),
+                           ("turns", t.turns), ("images", t.images),
+                           ("derived.context_peak", t.context_peak)):
+        median = corpus.median(reviews, measure, skill=skill)
+        if median and value > 1.5 * median:
+            rows.append(f"- explain {measure}: {value} against a median of "
+                        f"{median:,.0f} (×{value / median:.2f})")
+
+    counters = {"repeated_bash": sum(n - 1 for n in t.bash.values() if n > 1),
+                "files_read_twice": sum(1 for n in t.reads.values() if n > 1),
+                "interruptions": t.interruptions, "api_errors": t.api_errors,
+                "denials": t.denials}
+    for name, value in counters.items():
+        if value:
+            rows.append(f"- a finding or a justification for {name}: {value}")
+
+    rows.append("- a finding or a reason for each correction the user made "
+                "(only the session can count these)")
+    return rows
+
+
 def timeline(t: Tally, width: int = 60) -> list[str]:
     rows = []
     for ts, what in t.timeline:
@@ -434,6 +485,8 @@ def main(argv: list[str] | None = None) -> int:
                     "end of this session's last review)")
     ap.add_argument("--to", dest="end", help="ISO timestamp (default: now)")
     ap.add_argument("--skill", help="the skill whose median to compare against")
+    ap.add_argument("--owed", action="store_true",
+                    help="the obligations these measures trigger")
     ap.add_argument("--timeline", action="store_true",
                     help="what happened, one truncated line a step")
     ap.add_argument("--ledger", action="store_true",
@@ -465,6 +518,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"metrics: corpus not read ({e})", file=sys.stderr)
         reviews = []
     lines += [""] + baselines(tally, runs, reviews, args.skill)
+    if args.owed:
+        lines += ["", "# owed by the review, from the measures above"]
+        lines += owed(tally, runs, reviews, args.skill)
     if args.timeline:
         lines += ["", "# timeline"] + timeline(tally)
     elif len(lines) > MAX_LINES:
