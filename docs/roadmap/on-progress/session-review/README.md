@@ -18,14 +18,14 @@
 Phase 0  The Format                 🟢 ████████████████████ 100%  (5/5)
 Phase 1  The Measurement            🟢 ████████████████████ 100%  (7/7)
 Phase 2  The Skill                  🟢 ████████████████████ 100%  (7/7)
-Phase 3  The Ledger                 🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-Phase 4  The Corpus In Use          🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                  █████████████░░░░░░░  63%  (19/30)
+Phase 3  The Ledger                 🟢 ████████████████████ 100%  (6/6)
+Phase 4  The Corpus In Use          🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/5)
+TOTAL                                  █████████████████░░░  83%  (25/30)
 ```
 
-**Current Phase:** Phase 3 — The Ledger
+**Current Phase:** Phase 4 — The Corpus In Use
 **Blocked By:** —
-**Next Milestone:** Phase 3 — The Ledger
+**Next Milestone:** Phase 4 — The Corpus In Use
 
 ---
 
@@ -132,8 +132,8 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 | 0 | [The Format](phase-0-format.md) | 5 | 🟢 Done |
 | 1 | [The Measurement](phase-1-measurement.md) | 7 | 🟢 Done |
 | 2 | [The Skill](phase-2-skill.md) | 7 | 🟢 Done |
-| 3 | [The Ledger](phase-3-ledger.md) | 6 | 🟡 In Progress |
-| 4 | [The Corpus In Use](phase-4-corpus.md) | 5 | 🔴 Not Started |
+| 3 | [The Ledger](phase-3-ledger.md) | 6 | 🟢 Done |
+| 4 | [The Corpus In Use](phase-4-corpus.md) | 5 | 🟡 In Progress |
 
 ---
 
@@ -159,13 +159,37 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/session-review/`
-**Version:** 1.4.0
+**Version:** 1.5.0
 **Created:** 2026-09-17
 **Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.5.0 (2026-09-18)
+
+Phase 3 closed, 6/6. `.claude/hooks/session-ledger.sh` runs on `SessionStart`
+and sweeps this project's transcripts in the background, writing a ledger entry
+for each one that owes one. The decision logic lives in `metrics.py --sweep`,
+where it can be tested; the hook is fourteen lines that exit zero whatever
+happens.
+
+The sweep takes the top-level `*.jsonl` and nothing else — never `memory/`,
+never a session's `subagents/`, which `metrics.scan` reaches through its own
+session. It skips a transcript of fewer than three assistant turns and the live
+session, whose transcript is a few lines old at `SessionStart` and would
+otherwise be frozen at nearly nothing while looking complete. An entry is keyed
+by transcript and carries the `bytes` it was computed from, so a session that
+has grown is swept again and measured whole, and a damaged entry is rewritten
+rather than trusted.
+
+`corpus.py --coverage` names, per session of the ledger, the spans nobody sat
+down to review — by time, never by content. On this project's four eligible
+transcripts it reports 0/4 fully reviewed, which is the honest state of a corpus
+that has no reviews in it yet.
+
+15 tests for the ledger, 470 for the repository.
 
 ### 1.4.0 (2026-09-18)
 

@@ -14,14 +14,17 @@ the one defence against that which costs nothing to run.
 from __future__ import annotations
 
 import argparse
+import json
 import statistics
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from core.doc import ROOT, split_front_matter
 
 REVIEWS = ROOT / "reviews"
+LEDGER = REVIEWS / ".ledger"
 
 # The current format version. Reviews of different versions are never compared:
 # a measure's meaning is part of the format that defines it.
@@ -184,6 +187,61 @@ def median(reviews: list[Review], measure: str, *, skill: str | None = None,
     return statistics.median(values)
 
 
+def moment(value) -> datetime | None:
+    """A timestamp from YAML or from the ledger's JSON, both shapes allowed."""
+    if isinstance(value, datetime):
+        return value
+    if not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def coverage(reviews: list[Review], ledger_dir: Path | str = LEDGER) -> list[dict]:
+    """Which of the ledger's sessions carry a review, and which slices do not.
+
+    A review is written on purpose and a purpose is selective; the ledger is
+    not. The gap between the two is this function, and it is named **by time**:
+    an uncovered slice is a span of a session that nobody sat down to review,
+    and saying so costs nothing and reveals nothing about what was done in it.
+    """
+    by_session: dict[str, list[tuple[datetime, datetime]]] = {}
+    for review in reviews:
+        window = review.meta.get("slice") or {}
+        start, end = moment(window.get("from")), moment(window.get("to"))
+        if start and end:
+            by_session.setdefault(review.meta["session"], []).append((start, end))
+
+    rows = []
+    for entry_path in sorted(Path(ledger_dir).glob("*.json")):
+        try:
+            entry = json.loads(entry_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        start, end = moment(entry.get("from")), moment(entry.get("to"))
+        if not start or not end:
+            continue
+        uncovered = [(start, end)]
+        for a, b in sorted(by_session.get(entry.get("session"), [])):
+            rest = []
+            for x, y in uncovered:
+                if b <= x or a >= y:
+                    rest.append((x, y))
+                    continue
+                if x < a:
+                    rest.append((x, a))
+                if b < y:
+                    rest.append((b, y))
+            uncovered = rest
+        rows.append({"session": entry.get("session"),
+                     "reviews": len(by_session.get(entry.get("session"), [])),
+                     "turns": entry.get("turns"),
+                     "uncovered": uncovered})
+    return rows
+
+
 def skills(reviews: list[Review]) -> dict[str, int]:
     counts: dict[str, int] = {}
     for r in reviews:
@@ -198,6 +256,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--skill", help="restrict to one skill")
     ap.add_argument("--median", metavar="MEASURE",
                     help="print the median of one measure, e.g. tokens.fresh")
+    ap.add_argument("--coverage", action="store_true",
+                    help="which sessions of the ledger carry a review")
+    ap.add_argument("--ledger-dir", type=Path, default=LEDGER)
     args = ap.parse_args(argv)
 
     try:
@@ -209,6 +270,20 @@ def main(argv: list[str] | None = None) -> int:
     if args.median:
         value = median(reviews, args.median, skill=args.skill)
         print("—" if value is None else f"{value:g}")
+        return 0
+
+    if args.coverage:
+        rows = coverage(reviews, args.ledger_dir)
+        if not rows:
+            print("no ledger yet")
+            return 0
+        for row in rows:
+            gaps = ", ".join(f"{a:%Y-%m-%d %H:%M}–{b:%H:%M}"
+                             for a, b in row["uncovered"]) or "—"
+            print(f"{row['session'][:8]}  {row['turns']:>4} turns  "
+                  f"{row['reviews']} review(s)  uncovered: {gaps}")
+        covered = sum(1 for r in rows if not r["uncovered"])
+        print(f"\n{covered}/{len(rows)} session(s) fully reviewed")
         return 0
 
     if not reviews:

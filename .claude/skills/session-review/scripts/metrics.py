@@ -46,6 +46,11 @@ import corpus  # noqa: E402  (same directory, not an installed package)
 from core.doc import ROOT  # noqa: E402
 
 PROJECTS = Path.home() / ".claude" / "projects"
+LEDGER = corpus.REVIEWS / ".ledger"
+
+# A session shorter than this leaves nothing worth a ledger entry: a start that
+# was abandoned, a question answered in one turn.
+MIN_TURNS = 3
 
 # Derived measures and their rules. The rule travels with the number because a
 # derived measure is an opinion with a number attached, and the rule is what
@@ -476,6 +481,60 @@ def ledger(session: str, t: Tally, runs: list[dict], path: Path) -> str:
     }, sort_keys=True)
 
 
+def needs_sweep(transcript: Path, ledger_dir: Path) -> bool:
+    """True when this transcript has no ledger entry, or has grown since.
+
+    A ledger is always written from outside the session it describes, one
+    session late, so an entry can be written while the session it describes is
+    still running. Keying the entry by transcript and recording the size it was
+    computed from is what makes that decidable: the same session is swept again
+    when it has grown, and measured whole.
+    """
+    entry = ledger_dir / f"{transcript.stem}.json"
+    try:
+        return json.loads(entry.read_text(encoding="utf-8"))["bytes"] \
+            != transcript.stat().st_size
+    except (OSError, json.JSONDecodeError, KeyError):
+        return True
+
+
+def sweep(projects: Path = PROJECTS, ledger_dir: Path = LEDGER,
+          live: str | None = None) -> list[str]:
+    """Write a ledger entry for every transcript of this project that owes one.
+
+    Reviews are written on purpose, and a purpose is selective. The ledger is
+    written by nobody's decision, which is what stops the corpus from becoming
+    a record of the tasks that went well.
+
+    `glob` here is deliberately not `rglob`: the sweep takes the top-level
+    transcripts and nothing else — never `memory/`, never a session's
+    `subagents/` directory, which `metrics.scan` reaches through its own
+    session and would otherwise count twice.
+    """
+    folder = projects / project_slug()
+    if not folder.is_dir():
+        return []
+    written = []
+    for transcript in sorted(folder.glob("*.jsonl")):
+        # The live session's transcript is a few lines old at SessionStart.
+        # A ledger written now would freeze it at nearly nothing while looking
+        # complete; the next session finds it grown and sweeps it whole.
+        if live and transcript.stem == live:
+            continue
+        if not needs_sweep(transcript, ledger_dir):
+            continue
+        tally = scan(transcript, Slice(None, None))
+        if tally.turns < MIN_TURNS:
+            continue
+        runs = subagent_runs(transcript, Slice(None, None))
+        ledger_dir.mkdir(parents=True, exist_ok=True)
+        (ledger_dir / f"{transcript.stem}.json").write_text(
+            ledger(transcript.stem, tally, runs, transcript) + "\n",
+            encoding="utf-8")
+        written.append(transcript.stem)
+    return written
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="One task's slice, counted.")
     ap.add_argument("--session", default=os.environ.get("CLAUDE_CODE_SESSION_ID"))
@@ -491,7 +550,16 @@ def main(argv: list[str] | None = None) -> int:
                     help="what happened, one truncated line a step")
     ap.add_argument("--ledger", action="store_true",
                     help="session-level JSON, whole transcript, no prose")
+    ap.add_argument("--sweep", action="store_true",
+                    help="write a ledger entry for every transcript that owes "
+                         "one, silently (the SessionStart hook)")
+    ap.add_argument("--ledger-dir", type=Path, default=LEDGER)
+    ap.add_argument("--projects", type=Path, default=PROJECTS)
     args = ap.parse_args(argv)
+
+    if args.sweep:
+        sweep(args.projects, args.ledger_dir, args.session)
+        return 0
 
     if args.transcript:
         path, session = args.transcript, args.transcript.stem

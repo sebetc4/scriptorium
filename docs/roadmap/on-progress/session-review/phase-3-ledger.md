@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (0% — 0/6)
+**Current Status:** 🟢 Done (100% — 6/6)
 **Started:** 2026-09-18
-**Completed:**
+**Completed:** 2026-09-18
 **Blocked By:** —
 
 ---
@@ -52,12 +52,12 @@ never carries prose, and never attributes a slice to a task.
 
 ## Tasks
 
-- [ ] Write `.claude/hooks/session-ledger.sh` on `SessionStart`: sweep the project's transcripts, write a ledger for each one that has none, in the background
-- [ ] Bound the sweep: the top-level `*.jsonl` files and nothing else — never `memory/`, never a session's `subagents/` directory, which `metrics.py` reaches through its own session
-- [ ] Skip what is not worth recording — a session under three assistant turns, and the live session itself, whose transcript is a few lines old at `SessionStart` — and re-sweep a transcript that grew since its ledger was written, so a session is measured whole and once
-- [ ] Skip in silence when `.venv` or a tool is missing, always exiting zero
-- [ ] Wire it into `.claude/settings.json`, following the existing hooks' shape
-- [ ] Add coverage to `corpus.py`: which sessions of the ledger carry a review, and which slices do not
+- [x] Write `.claude/hooks/session-ledger.sh` on `SessionStart`: sweep the project's transcripts, write a ledger for each one that has none, in the background
+- [x] Bound the sweep: the top-level `*.jsonl` files and nothing else — never `memory/`, never a session's `subagents/` directory, which `metrics.py` reaches through its own session
+- [x] Skip what is not worth recording — a session under three assistant turns, and the live session itself, whose transcript is a few lines old at `SessionStart` — and re-sweep a transcript that grew since its ledger was written, so a session is measured whole and once
+- [x] Skip in silence when `.venv` or a tool is missing, always exiting zero
+- [x] Wire it into `.claude/settings.json`, following the existing hooks' shape
+- [x] Add coverage to `corpus.py`: which sessions of the ledger carry a review, and which slices do not
 
 ---
 
@@ -93,12 +93,12 @@ computed from, which is what makes the re-sweep decidable.
 
 ## Acceptance Criteria
 
-- [ ] A session started after a crashed one finds the crashed session in the ledger
-- [ ] The session running the hook writes no ledger for itself, and the next session writes its complete one
-- [ ] The two 97-byte transcripts of this project produce no ledger entry
-- [ ] Removing `.venv` makes the hook do nothing, print nothing, and exit zero
-- [ ] The ledger contains no prose and no text from any prompt
-- [ ] Coverage names the uncovered slices by time, not by content
+- [x] A session started after a crashed one finds the crashed session in the ledger
+- [x] The session running the hook writes no ledger for itself, and the next session writes its complete one
+- [x] The two 97-byte transcripts of this project produce no ledger entry
+- [x] Removing `.venv` makes the hook do nothing, print nothing, and exit zero
+- [x] The ledger contains no prose and no text from any prompt
+- [x] Coverage names the uncovered slices by time, not by content
 
 ---
 

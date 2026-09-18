@@ -41,13 +41,24 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/brand-sync.sh",
             "timeout": 120,
-            "statusMessage": "make brand…"
+            "statusMessage": "make brand\u2026"
           },
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/skill-tests.sh",
             "timeout": 600,
             "asyncRewake": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-ledger.sh",
+            "timeout": 10
           }
         ]
       }
