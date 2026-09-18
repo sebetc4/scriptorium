@@ -98,16 +98,27 @@ written from it without guessing. The reference now carries one review in full.
 - `.claude/skills/session-review/tests/fixtures/2026-09-17-4c7bb3d0-round-led.md`
 - `.claude/skills/session-review/tests/fixtures/2026-09-20-9f1e2a3b-transistor.md`
 - `.claude/skills/session-review/tests/fixtures/2026-09-22-77aa11bb-capture.md`
-- `docs/roadmap/pending/session-review/phase-0-format-report.md`
+- `docs/roadmap/on-progress/session-review/phase-0-format-report.md`
+- `docs/roadmap/on-progress/session-review/phase-1-measurement-report.md`
 
 **Modified**
 
 - `.gitignore`
-- `docs/roadmap/pending/session-review/README.md`
-- `docs/roadmap/pending/session-review/phase-0-format.md`
+
+**Renamed**
+
+The closure moved the roadmap out of `pending/`, so every file of the folder
+is a rename against the start commit — two of them modified in passing.
+
+- `docs/roadmap/pending/session-review/README.md` → `docs/roadmap/on-progress/session-review/README.md`
+- `docs/roadmap/pending/session-review/phase-0-format.md` → `docs/roadmap/on-progress/session-review/phase-0-format.md`
+- `docs/roadmap/pending/session-review/phase-1-measurement.md` → `docs/roadmap/on-progress/session-review/phase-1-measurement.md`
+- `docs/roadmap/pending/session-review/phase-2-skill.md` → `docs/roadmap/on-progress/session-review/phase-2-skill.md`
+- `docs/roadmap/pending/session-review/phase-3-ledger.md` → `docs/roadmap/on-progress/session-review/phase-3-ledger.md`
+- `docs/roadmap/pending/session-review/phase-4-corpus.md` → `docs/roadmap/on-progress/session-review/phase-4-corpus.md`
 
 `reviews/` was created on the working machine. It is empty and ignored, so it
-appears in neither list: the corpus is not a repository artefact, and
+appears in none of these lists: the corpus is not a repository artefact, and
 `corpus.load()` treats a missing directory as an empty corpus rather than an
 error, so a fresh clone works without it.
 
