@@ -132,6 +132,7 @@ deduplication trap is reproduced rather than described. `make test`: 440 passed.
 
 - `.claude/skills/session-review/scripts/metrics.py`
 - `.claude/skills/session-review/tests/test_metrics.py`
+- `docs/roadmap/on-progress/session-review/phase-2-skill-report.md`
 
 **Modified**
 
@@ -141,6 +142,10 @@ deduplication trap is reproduced rather than described. `make test`: 440 passed.
 - `docs/roadmap/on-progress/session-review/README.md`
 - `docs/roadmap/on-progress/session-review/phase-1-measurement.md`
 - `docs/roadmap/on-progress/session-review/phase-1-measurement-report.md`
+- `docs/roadmap/on-progress/session-review/phase-2-skill.md`
+
+The last two entries of each group are Phase 2, opened during this
+closure: its status moved to 🟡 and its report was created.
 
 ---
 
