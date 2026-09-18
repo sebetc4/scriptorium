@@ -20,7 +20,8 @@ Phase 1  The Document, In Its Own Directory               🔴 ░░░░░�
 Phase 2  Everything Disposable, In One Place              🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                                        ░░░░░░░░░░░░░░░░░░░░   0%  (0/31)
+Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
+TOTAL                                                        ░░░░░░░░░░░░░░░░░░░░   0%  (0/37)
 ```
 
 **Current Phase:** —
@@ -131,6 +132,7 @@ it runs. The library is never left in two shapes at once.
 | 2 | [Everything Disposable](phase-2-the-work-directory.md) | 6 | 🔴 Not Started |
 | 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 7 | 🔴 Not Started |
 | 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🔴 Not Started |
+| 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🔴 Not Started |
 
 ---
 
@@ -155,13 +157,24 @@ it runs. The library is never left in two shapes at once.
 
 **Roadmap Status:** 🔴 Not Started
 **Location:** `docs/roadmap/pending/document-anatomy/`
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-19
 
 ---
 
 ## Changelog
+
+### 1.1.0 (2026-09-19)
+
+Phase 5 added before the roadmap was opened: the documentation, written last
+because it describes what the five phases before it turned out to build rather
+than the contract Phase 0 wrote before anything moved. `docs/document.md` is
+new — what a document is made of and what each command puts where — and three
+statements that become false the moment Phase 1 runs are reconciled:
+`CLAUDE.md`'s opening sentence, `docs/architecture.md` §1's tree and §9's
+glossary, where *document* and *source material* are both defined against the
+old shape.
 
 ### 1.0.0 (2026-09-19)
 
