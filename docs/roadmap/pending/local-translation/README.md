@@ -48,9 +48,12 @@ already knows how to run.
 the interface. If a model cannot honour it — placeholders, context — the
 engine wraps the model until it does; the contract is not loosened to fit.
 
-**Measure before choosing.** MADLAD-400 10B-MT and NLLB-200 3.3B are the
-candidates recorded in `docs/local-translation.md`. Neither is chosen until
-Phase 0 has measured them on this library's documents, placeholders included.
+**Measure before choosing.** MADLAD-400 10B-MT, its 7B variant and NLLB-200
+3.3B are the candidates, the first and the last recorded in
+`docs/local-translation.md`. None is chosen until Phase 0 has measured them on
+this library's documents, placeholders included. The 7B is in the benchmark
+because a 24 GB card has to hold the model and its context at once, and a
+quantised 10B leaves little room for either.
 
 **`make test` stays offline and GPU-free.** The engine is tested against a stub
 of its runtime; a run against the real model is a documented manual check.
@@ -98,13 +101,19 @@ of its runtime; a run against the real model is a documented manual check.
 
 **Roadmap Status:** 🔴 Not Started
 **Location:** `docs/roadmap/pending/local-translation/`
-**Version:** 1.0.0
+**Version:** 1.0.1
 **Created:** 2026-09-16
-**Last Updated:** 2026-09-16
+**Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.0.1 (2026-09-18)
+
+*Decisions Taken At Opening* named two candidates where Phase 0 scores three.
+MADLAD-400 7B is now named there too, with the reason it is in the benchmark.
+No task changed.
 
 ### 1.0.0 (2026-09-16)
 
