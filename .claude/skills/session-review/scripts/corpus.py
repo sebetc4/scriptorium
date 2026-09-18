@@ -18,7 +18,7 @@ import json
 import statistics
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from core.doc import ROOT, split_front_matter
@@ -215,6 +215,10 @@ def coverage(reviews: list[Review], ledger_dir: Path | str = LEDGER) -> list[dic
             by_session.setdefault(review.meta["session"], []).append((start, end))
 
     rows = []
+    # A review's bounds are written to the second and the ledger's to the
+    # microsecond, so an exactly-reviewed session leaves a sliver of a second
+    # uncovered. A gap nobody could have worked in is not a gap.
+    negligible = timedelta(seconds=30)
     for entry_path in sorted(Path(ledger_dir).glob("*.json")):
         try:
             entry = json.loads(entry_path.read_text(encoding="utf-8"))
@@ -235,6 +239,7 @@ def coverage(reviews: list[Review], ledger_dir: Path | str = LEDGER) -> list[dic
                 if b < y:
                     rest.append((b, y))
             uncovered = rest
+        uncovered = [(a, b) for a, b in uncovered if b - a > negligible]
         rows.append({"session": entry.get("session"),
                      "reviews": len(by_session.get(entry.get("session"), [])),
                      "turns": entry.get("turns"),

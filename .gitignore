@@ -23,6 +23,3 @@ library/
 # names the documents it reviewed. A finding reaches this repository only by
 # becoming a line under docs/roadmap/pending/.
 reviews/
-# The hand-written review this corpus descends from, still under its old name
-# until the session-review roadmap's phase 4 decides what becomes of it.
-agent-reviews/

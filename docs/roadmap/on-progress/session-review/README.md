@@ -15,17 +15,18 @@
 ## Overall Progress
 
 ```
-Phase 0  The Format                 🟢 ████████████████████ 100%  (5/5)
-Phase 1  The Measurement            🟢 ████████████████████ 100%  (7/7)
-Phase 2  The Skill                  🟢 ████████████████████ 100%  (7/7)
-Phase 3  The Ledger                 🟢 ████████████████████ 100%  (6/6)
-Phase 4  The Corpus In Use          🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                  █████████████████░░░  83%  (25/30)
+Phase 0  The Format                      🟢 ████████████████████ 100%  (5/5)
+Phase 1  The Measurement                 🟢 ████████████████████ 100%  (7/7)
+Phase 2  The Skill                       🟢 ████████████████████ 100%  (7/7)
+Phase 3  The Ledger                      🟢 ████████████████████ 100%  (6/6)
+Phase 4  The Corpus In Use               🟢 ████████████████████ 100%  (4/4)
+Phase 5  The Skills Nobody Has Used Yet  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/4)
+TOTAL                                       ██████████████████░░  88%  (29/33)
 ```
 
-**Current Phase:** Phase 4 — The Corpus In Use
-**Blocked By:** —
-**Next Milestone:** Phase 4 — The Corpus In Use
+**Current Phase:** —
+**Blocked By:** Phase 5 waits for a real task under `translate`, `fetch` or `epub`
+**Next Milestone:** Phase 5 — The Skills Nobody Has Used Yet
 
 ---
 
@@ -133,7 +134,8 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 | 1 | [The Measurement](phase-1-measurement.md) | 7 | 🟢 Done |
 | 2 | [The Skill](phase-2-skill.md) | 7 | 🟢 Done |
 | 3 | [The Ledger](phase-3-ledger.md) | 6 | 🟢 Done |
-| 4 | [The Corpus In Use](phase-4-corpus.md) | 5 | 🟡 In Progress |
+| 4 | [The Corpus In Use](phase-4-corpus.md) | 4 | 🟢 Done |
+| 5 | [The Skills Nobody Has Used Yet](phase-5-other-skills.md) | 4 | 🔴 Not Started |
 
 ---
 
@@ -159,13 +161,48 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/session-review/`
-**Version:** 1.5.0
+**Version:** 1.6.0
 **Created:** 2026-09-17
 **Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.6.0 (2026-09-18)
+
+Phase 4 closed, 4/4, and the roadmap grew a sixth phase. `scripts/aggregate.py`
+reads the corpus across reviews: baselines per skill, findings ranked by
+recurrence before severity, the backlog of high findings nobody carried,
+coverage, and a before-and-after around a date. Five reviews were written — the
+re-review of session `4c7bb3d0` with the real tooling, and four of session
+`53a9d27e`, one per phase of this roadmap.
+
+**The instrument found a defect in itself, and the corpus ranked it first.**
+`metrics.py` discards any turn whose tool input mentions the review tooling, so
+the session that built the tooling was measured at 106 API calls of 147 and 43
+Bash calls of 125. It cannot tell running the instrument from working on it, and
+the error is always in the flattering direction. Recorded in four reviews,
+ranked first by recurrence, and carried.
+
+The four findings the user chose are now roadmap work:
+`session-review-accuracy`, `pdf-review-cost` (two phases) and
+`roadmap-contract`. Each review's `carried:` names the phase file it went to,
+and `aggregate.py` reports an empty high-severity backlog.
+
+The re-review of `4c7bb3d0` added accuracy and no insight: every finding it
+reached, the hand-written review had also reached. What it corrected were the
+figures — "≈ 109,500 tokens" and this roadmap's own 196,578 both wrong, both
+reproduced exactly by the arithmetic that produced them.
+
+The hand-written review is retired to `reviews/.origin/` as the origin
+document, and `agent-reviews/` is gone from `.gitignore`.
+
+**Phase 5 added, and the roadmap stays open for it.** Phase 4's task to review
+one task under each of `translate`, `fetch` and `epub` could not be done: no
+session in this project's transcripts has ever used those three skills. Rather
+than invent the evidence — the one thing this roadmap exists to prevent — the
+task moved to a phase that waits for the work to happen.
 
 ### 1.5.0 (2026-09-18)
 
