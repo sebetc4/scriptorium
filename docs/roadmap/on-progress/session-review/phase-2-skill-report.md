@@ -1,7 +1,7 @@
 # Phase 2 Report: The Skill
 
 **Phase:** [phase-2-skill.md](phase-2-skill.md)
-**Start Commit:** d6014e1
+**Start Commit:** 584c06f
 
 ---
 
@@ -12,8 +12,14 @@
 Phase opened. Phase 1's file and report were read in full: 7/7 tasks, six of
 seven acceptance criteria met, one left unticked on purpose because the phase
 file's reference table was wrong and the script is right. No restructuring
-pending. The start commit is `d6014e1`, this phase having been opened during
-Phase 1's closure, before that work was committed.
+pending.
+
+The start commit recorded above is `584c06f`, the commit that closed Phase 1,
+not `d6014e1` — HEAD at the instant this phase was opened. Every phase of this
+roadmap is opened during the previous one's closure, before that closure is
+committed, so HEAD at that moment is always one phase behind and makes the
+previous phase's work look like this one's. The convention from here on: a
+phase's start commit is the commit that closed the phase before it.
 
 Read first: `sourcing/SKILL.md`, named by the phase as the model for a
 description that states what a skill is not for, and `.claude/agents/pdf-reviewer.md`,
@@ -125,6 +131,11 @@ status moved to 🟡 and its report was created.
   own words that it is measured by the next review, and no review exists yet.
   Phase 4 observes both, and they are named here rather than ticked on the
   strength of a design that has never been exercised.
+
+- **The report's start commit was corrected** from `d6014e1` to `584c06f`,
+  for the reason given in the Work Log. Phase 1's report had the same
+  correction made by hand; this is the second time, so the rule is now written
+  down rather than rediscovered.
 
 - **`metrics.py` was modified during this phase**, though it is Phase 1's file
   and Phase 1 is closed. `--owed` needed the tally and the medians, and a phase

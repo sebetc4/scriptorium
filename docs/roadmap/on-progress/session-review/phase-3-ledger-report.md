@@ -1,7 +1,7 @@
 # Phase 3 Report: The Ledger
 
 **Phase:** [phase-3-ledger.md](phase-3-ledger.md)
-**Start Commit:** 584c06f
+**Start Commit:** 12f9234
 
 ---
 
@@ -24,9 +24,10 @@ What this phase inherits:
 - `metrics.scan()` deduplicates usage by `message.id`. Nothing in this phase
   sums usage itself.
 
-The start commit is `584c06f` for the same reason as the two before it: the
-phase was opened during the previous one's closure, before that work was
-committed.
+The start commit is `12f9234`, the commit that closed Phase 2 — the
+convention Phase 2's report writes down, since a phase is always opened before
+the previous closure is committed and HEAD at that instant is one phase
+behind.
 
 ---
 
