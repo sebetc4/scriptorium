@@ -44,8 +44,9 @@ Everything under `measured:`. Its shape:
 ```yaml
 measured:
   tokens:            # the main context
-    fresh: 157402
+    fresh: 157402      # input + cache_creation: what entered the context
     cache_read: 1840551
+    output: 72182      # what was generated, thinking included
     thinking: 21044
   subagents:         # one entry per run, never aggregated by hand
     - type: pdf-reviewer
@@ -103,8 +104,9 @@ explains; the list is what gets counted.
 ## A Complete Review
 
 Written out in full, because a format that cannot be written by hand from its
-own reference is not a format. The subagent figures below are the real ones of
-session `4c7bb3d0`; the rest is illustrative.
+own reference is not a format. The figures are the real ones of session
+`4c7bb3d0`, read by `metrics.py`; only `task`, `corrections` and the findings
+are written by hand.
 
 ```markdown
 ---
@@ -112,8 +114,8 @@ review: 1
 date: 2026-09-17
 session: 4c7bb3d0-7eec-4a1b-9587-e966e5703b8b
 slice:
-  from: 2026-09-17T09:12:41Z
-  to: 2026-09-17T12:29:03Z
+  from: 2026-09-17T14:17:56Z
+  to: 2026-09-17T14:42:54Z
 task: >-
   Add the new sources and turn the standard guide into a teaching guide —
   the schematic, how it works, what each component does.
@@ -123,26 +125,40 @@ outcome: delivered
 corrections: 3
 measured:
   tokens:
-    fresh: 157402
-    cache_read: 1840551
+    fresh: 154333
+    cache_read: 5443404
+    output: 72182
+    thinking: 24684
   subagents:
-    - {type: pdf-reviewer, fresh: 49214, cache_read: 181755, seconds: 50}
-    - {type: pdf-reviewer, fresh: 51103, cache_read: 182004, seconds: 46}
-    - {type: pdf-reviewer, fresh: 47338, cache_read: 181402, seconds: 41}
-    - {type: pdf-reviewer, fresh: 48923, cache_read: 181859, seconds: 42}
-  turns: 143
-  tools: {Bash: 96, Read: 14, Write: 7, Agent: 4}
+    - {type: pdf-reviewer, fresh: 23075, cache_read: 74289, seconds: 44}
+    - {type: pdf-reviewer, fresh: 22200, cache_read: 73117, seconds: 40}
+    - {type: pdf-reviewer, fresh: 20710, cache_read: 71733, seconds: 39}
+    - {type: pdf-reviewer, fresh: 25926, cache_read: 69071, seconds: 48}
+  turns: 46
+  tools: {Bash: 25, Read: 11, Agent: 4, Write: 2, AskUserQuestion: 2, Skill: 1}
   images: 11
-  files_written: 7
-  skills: {pdf: 118}
-  friction: {interruptions: 0, denials: 0}
+  files_written: 2
+  skills: {pdf: 23}
+  friction: {interruptions: 0, api_errors: 0}
   derived:
+    active_minutes:
+      value: 20
+      rule: wall clock minus every gap over 5 min
+    context_peak:
+      value: 176186
+      rule: largest input of one API call, fresh and cached
     image_carry:
-      value: 94000
-      rule: each image's tokens times the turns it stayed in context
+      value: 625600
+      rule: 1600 tokens an image times the API calls it stayed in context
+    build_cycles:
+      value: 5
+      rule: Bash commands running make build
     review_cycles:
-      value: 2
-      rule: builds followed by at least one pdf-reviewer run
+      value: 3
+      rule: Bash commands running make review
+    files_read_twice:
+      value: 1
+      rule: files read again in the same slice
 findings:
   - kind: waste
     severity: high
@@ -151,8 +167,8 @@ findings:
       Accept a page list, so a verification pass re-reads the pages that
       changed instead of the whole document.
     note: >-
-      The second pass cost 96k tokens across both variants to confirm
-      fixes on six pages.
+      The second pass cost 46,636 fresh tokens across both variants to
+      confirm fixes on six pages, all fifteen of them re-read.
   - kind: tooling-noise
     severity: medium
     target: .claude/agents/pdf-reviewer.md
@@ -160,8 +176,8 @@ findings:
     note: Reported as a defect in three passes out of four.
 ---
 
-Three quarters of this task's cost is the four delegated review passes:
-196,578 fresh tokens against 157,402 for everything the main context did.
+The four delegated review passes cost 91,911 fresh tokens against 154,333
+for everything the main context did — a third of the task, spent on looking.
 The second pass bought two real defects for the price of the first.
 
 The eleven images are the second item. Three of them are successive previews

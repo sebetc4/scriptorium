@@ -55,7 +55,7 @@ def test_a_missing_corpus_is_empty_not_an_error(tmp_path):
 
 
 def test_the_body_is_kept_whole_and_never_parsed(reviews):
-    assert reviews[0].body.startswith("Three quarters")
+    assert reviews[0].body.startswith("The four delegated")
 
 
 # --- refusing ----------------------------------------------------------------
@@ -108,18 +108,18 @@ def test_a_review_without_front_matter_is_refused(tmp_path):
 # --- measures ----------------------------------------------------------------
 
 def test_a_measure_is_read_by_dotted_path(reviews):
-    assert reviews[0].measure("tokens.fresh") == 157402
-    assert reviews[0].measure("tools.Bash") == 96
+    assert reviews[0].measure("tokens.fresh") == 154333
+    assert reviews[0].measure("tools.Bash") == 25
 
 
 def test_a_measure_across_subagent_runs_is_summed(reviews):
-    assert reviews[0].measure("subagents.fresh") == 196578
-    assert reviews[0].measure("subagents.cache_read") == 727020
+    assert reviews[0].measure("subagents.fresh") == 91911
+    assert reviews[0].measure("subagents.cache_read") == 288210
 
 
 def test_a_derived_measure_reads_as_its_value(reviews):
-    assert reviews[0].measure("derived.image_carry") == 94000
-    assert reviews[0].measure("derived.image_carry.value") == 94000
+    assert reviews[0].measure("derived.image_carry") == 625600
+    assert reviews[0].measure("derived.image_carry.value") == 625600
 
 
 def test_an_absent_measure_is_none_never_zero(reviews):
@@ -132,8 +132,8 @@ def test_an_absent_measure_is_none_never_zero(reviews):
 # --- medians -----------------------------------------------------------------
 
 def test_the_median_is_computed_per_skill(reviews):
-    assert corpus.median(reviews, "tokens.fresh", skill="pdf") == 109201
-    assert corpus.median(reviews, "turns", skill="pdf") == 93.5
+    assert corpus.median(reviews, "tokens.fresh", skill="pdf") == 107666.5
+    assert corpus.median(reviews, "turns", skill="pdf") == 45
 
 
 def test_a_single_review_has_no_median(reviews):

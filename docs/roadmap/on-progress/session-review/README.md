@@ -16,16 +16,16 @@
 
 ```
 Phase 0  The Format                 🟢 ████████████████████ 100%  (5/5)
-Phase 1  The Measurement            🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-Phase 2  The Skill                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
+Phase 1  The Measurement            🟢 ████████████████████ 100%  (7/7)
+Phase 2  The Skill                  🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 3  The Ledger                 🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 4  The Corpus In Use          🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                  ███░░░░░░░░░░░░░░░░░  17%  (5/30)
+TOTAL                                  ████████░░░░░░░░░░░░  40%  (12/30)
 ```
 
-**Current Phase:** Phase 1 — The Measurement
+**Current Phase:** Phase 2 — The Skill
 **Blocked By:** —
-**Next Milestone:** Phase 1 — The Measurement
+**Next Milestone:** Phase 2 — The Skill
 
 ---
 
@@ -39,9 +39,17 @@ not go — the session that lived it is the only witness, and it closes.
 One such witness statement exists: a session review written by hand on
 2026-09-17. It is the origin of this roadmap, and it is also its best argument,
 because half of it is wrong. It estimates four `pdf-reviewer` passes at
-"≈ 109,500 tokens". The transcript of that session records **196,578 fresh
-tokens and 727,020 cache reads**. The agent counted correctly everything it
-could see pass — tool calls, duration, images — and invented the rest.
+"≈ 109,500 tokens". The transcript of that session records **91,911 fresh
+tokens and 288,210 cache reads** for those passes. The agent counted correctly
+everything it could see pass — tool calls, duration, images — and invented the
+rest.
+
+Those two figures read 196,578 and 727,020 when this roadmap was written, and
+that was the second wrong count of the same session: a transcript writes one
+record per content block and repeats the whole `usage` on each, so summing over
+records inflates every token figure. Phase 1 found it, and it is recorded in
+that phase's file. The argument for this roadmap is not weakened by its own
+example being wrong twice — it is the argument.
 
 This roadmap builds the thing that does not invent. A script reads the
 transcript and writes what is countable. A skill frames what only the session
@@ -62,6 +70,7 @@ so rather than work around it.
 | The transcript flushes live, about two seconds behind | A review written at the end of a task measures the whole task. |
 | `attributionSkill` is a plain string on each assistant record | Turns and output can be attributed per skill, which is what makes a per-skill baseline possible. |
 | Subagents live in `<session>/subagents/agent-<id>.jsonl` with a `.meta.json` carrying `agentType` | Delegated cost is exact, per agent and per run — the largest item in a review session and the one most often guessed. |
+| One assistant message is written as one record per content block, each repeating the whole `usage` | Verified in Phase 1, after it invalidated this roadmap's own reference figures. Usage is deduplicated by `message.id`; content blocks are not. |
 | Images are countable exactly | The hand-written review said eleven; the transcript says eleven. |
 | `SessionStart` fires in this repository | Confirmed by the superpowers hook. `SessionEnd` could not be confirmed on this corpus, which is why the ledger sweeps at start (Phase 3). |
 | Identical repeated Bash commands: zero on the session tested | A waste counter worth keeping, but not the one that will reveal anything here. Recorded so that Phase 1 does not oversell it. |
@@ -121,8 +130,8 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 | # | Phase | Tasks | Status |
 |---|---|---|---|
 | 0 | [The Format](phase-0-format.md) | 5 | 🟢 Done |
-| 1 | [The Measurement](phase-1-measurement.md) | 7 | 🟡 In Progress |
-| 2 | [The Skill](phase-2-skill.md) | 7 | 🔴 Not Started |
+| 1 | [The Measurement](phase-1-measurement.md) | 7 | 🟢 Done |
+| 2 | [The Skill](phase-2-skill.md) | 7 | 🟡 In Progress |
 | 3 | [The Ledger](phase-3-ledger.md) | 6 | 🔴 Not Started |
 | 4 | [The Corpus In Use](phase-4-corpus.md) | 5 | 🔴 Not Started |
 
@@ -150,13 +159,36 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/session-review/`
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Created:** 2026-09-17
 **Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.3.0 (2026-09-18)
+
+Phase 1 closed, 7/7. `scripts/metrics.py` turns a slice of a transcript into the
+`measured:` block: tokens for the main context and for each delegated run
+separately, tool calls by name, images, skill spans, friction, and derived
+measures that each print their rule. `--ledger` gives Phase 3 its session-level
+JSON, `--timeline` is off by default and truncated to sixty characters a line.
+The suite is 22 tests on transcripts built line by line.
+
+**The roadmap's own reference figures were wrong, and the instrument found it.**
+A transcript writes one record per content block and repeats the whole `usage`
+on each; the figures were summed over records, and the fresh column counted
+output tokens as context. Both wrong figures reproduce exactly by that method.
+The four delegated passes read 91,911 fresh tokens and 288,210 cached, not
+196,578 and 727,020. Corrected in the README's opening argument, in the phase
+file's table — which keeps both columns and the arithmetic of the gap — in
+`references/format.md`, whose example is now the script's real output, and in
+the Phase 0 fixture that had enshrined the figure in an assertion.
+
+One acceptance criterion is left unticked on purpose: the script does not
+reproduce that table, and the table was what was wrong. `output:` joined the
+format's `tokens:` block while the corpus is still empty, so no migration.
 
 ### 1.2.0 (2026-09-18)
 

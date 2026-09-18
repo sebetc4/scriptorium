@@ -1,0 +1,477 @@
+#!/usr/bin/env python3
+"""One task's slice of a transcript, turned into the `measured:` block.
+
+This script counts and never judges. It names no cause, calls no number bad,
+and writes no prose. Everything it prints is either read from the transcript or
+derived from what was read by a rule printed beside it.
+
+Three properties of the transcript govern the whole file, and each was verified
+against this project's own sessions rather than taken from documentation:
+
+- **One assistant message is written as one record per content block, and every
+  one of those records repeats the same `usage`.** Summing usage over assistant
+  records therefore counts one API call two or three times. Usage is
+  deduplicated by `message.id`; content blocks are not, because they really are
+  distinct.
+- **A subagent has its own transcript**, in `<session>/subagents/agent-<id>.jsonl`
+  beside a `.meta.json` carrying its `agentType`. Delegated cost is the largest
+  item of a review session and the one most often guessed; here it is read.
+- **A record shape this corpus could never confirm is not counted.** A measure
+  that is absent from the output means “this transcript does not record it”. A
+  zero means “counted, found none”. The distinction is the format's, it is
+  load-bearing for every median computed afterwards, and it is why `denials`
+  below is emitted only when something was actually found.
+
+Usage:
+
+    metrics.py                     # this session, since its last review
+    metrics.py --from <ISO> --to <ISO>
+    metrics.py --timeline          # what happened, one truncated line a step
+    metrics.py --ledger            # session-level JSON, for the ledger hook
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from collections import Counter, defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import corpus  # noqa: E402  (same directory, not an installed package)
+from core.doc import ROOT  # noqa: E402
+
+PROJECTS = Path.home() / ".claude" / "projects"
+
+# Derived measures and their rules. The rule travels with the number because a
+# derived measure is an opinion with a number attached, and the rule is what
+# makes it arguable.
+IDLE_MINUTES = 5
+IMAGE_TOKENS = 1600          # what a page image costs, from pdf/scripts/review.py
+MAX_LINES = 50               # the session that runs this pays for every line
+
+# A turn that ran the review tooling, or wrote into the corpus, is not part of
+# the task being reviewed. Without this the instrument measures itself.
+TOOLING = ("metrics.py", "corpus.py", "aggregate.py", "session-review")
+
+
+def die(message: str) -> None:
+    print(f"metrics: {message}", file=sys.stderr)
+    raise SystemExit(2)
+
+
+def project_slug(root: Path = ROOT) -> str:
+    """`/code/claude/scriptorium` → `-code-claude-scriptorium`."""
+    return str(root.resolve()).replace("/", "-")
+
+
+def transcript_of(session: str, projects: Path = PROJECTS) -> Path:
+    path = projects / project_slug() / f"{session}.jsonl"
+    if not path.exists():
+        die(f"no transcript for session {session} under {path.parent}")
+    return path
+
+
+def when(value) -> datetime | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def records(path: Path):
+    """Every record of a transcript, in order, malformed lines skipped.
+
+    A transcript flushes live, about two seconds behind: the last line can be
+    half-written when this runs, which is a truncated line and not a corrupt
+    session.
+    """
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                yield json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+
+# --- the slice ---------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Slice:
+    start: datetime | None
+    end: datetime | None
+
+    def holds(self, ts: datetime | None) -> bool:
+        if ts is None:
+            return False
+        if self.start and ts < self.start:
+            return False
+        if self.end and ts > self.end:
+            return False
+        return True
+
+
+def resolve_slice(session: str, reviews_dir: Path, start: str | None,
+                  end: str | None) -> Slice:
+    """One task, one review: a review starts where the previous one stopped.
+
+    Nothing is inferred from the shape of the conversation — no heuristic on
+    which user message opens a new task. The default is a cursor, and the
+    override is explicit.
+    """
+    if start:
+        first = when(start) or die(f"--from is not a timestamp: {start}")
+    else:
+        first = None
+        try:
+            for review in corpus.load(reviews_dir):
+                if review.meta.get("session") != session:
+                    continue
+                stop = when(str(review.meta["slice"]["to"]))
+                if stop and (first is None or stop > first):
+                    first = stop
+        except corpus.ReviewError as e:
+            die(f"the corpus is unreadable, so the cursor cannot be read: {e}")
+    return Slice(first, when(end) if end else None)
+
+
+# --- counting ----------------------------------------------------------------
+
+@dataclass
+class Tally:
+    fresh: int = 0
+    cache_read: int = 0
+    output: int = 0
+    thinking: int = 0
+    turns: int = 0
+    context_peak: int = 0
+    tools: Counter = field(default_factory=Counter)
+    skills: Counter = field(default_factory=Counter)
+    images: int = 0
+    files_written: int = 0
+    interruptions: int = 0
+    api_errors: int = 0
+    denials: int = 0
+    bash: Counter = field(default_factory=Counter)
+    reads: Counter = field(default_factory=Counter)
+    builds: int = 0
+    reviews: int = 0
+    image_carry: int = 0
+    stamps: list = field(default_factory=list)
+    timeline: list = field(default_factory=list)
+
+
+def is_tooling(block: dict) -> bool:
+    text = json.dumps(block.get("input") or {})
+    return any(mark in text for mark in TOOLING) or "reviews/" in text
+
+
+def scan(path: Path, window: Slice) -> Tally:
+    t = Tally()
+    seen: set[str] = set()          # message ids whose usage is already counted
+    skip: set[str] = set()          # tool_use ids belonging to the tooling
+    image_at: list[int] = []        # the API call each image arrived on
+
+    for rec in records(path):
+        ts = when(rec.get("timestamp"))
+        if not window.holds(ts):
+            continue
+        kind = rec.get("type")
+        message = rec.get("message") or {}
+        content = message.get("content")
+        blocks = content if isinstance(content, list) else []
+
+        if kind == "assistant":
+            if rec.get("isApiErrorMessage"):
+                t.api_errors += 1
+            tool_uses = [b for b in blocks if b.get("type") == "tool_use"]
+            if any(is_tooling(b) for b in tool_uses):
+                skip.update(b.get("id", "") for b in tool_uses)
+                continue
+
+            mid = message.get("id") or rec.get("requestId") or rec.get("uuid")
+            usage = message.get("usage") or {}
+            if mid not in seen:
+                seen.add(mid)
+                t.turns += 1
+                t.stamps.append(ts)
+                fresh = (usage.get("input_tokens") or 0) \
+                    + (usage.get("cache_creation_input_tokens") or 0)
+                cached = usage.get("cache_read_input_tokens") or 0
+                t.fresh += fresh
+                t.cache_read += cached
+                t.output += usage.get("output_tokens") or 0
+                t.thinking += (usage.get("output_tokens_details")
+                               or {}).get("thinking_tokens") or 0
+                t.context_peak = max(t.context_peak, fresh + cached)
+                if skill := rec.get("attributionSkill"):
+                    t.skills[skill] += 1
+
+            for b in tool_uses:
+                name = b.get("name", "?")
+                t.tools[name] += 1
+                params = b.get("input") or {}
+                if name == "Bash":
+                    command = " ".join(str(params.get("command", "")).split())
+                    t.bash[command] += 1
+                    if "make build" in command:
+                        t.builds += 1
+                    if "make review" in command:
+                        t.reviews += 1
+                elif name == "Read":
+                    t.reads[str(params.get("file_path", ""))] += 1
+                elif name in ("Write", "Edit", "NotebookEdit"):
+                    t.files_written += 1
+                if arg := params.get("description") or params.get("prompt"):
+                    t.timeline.append((ts, f"{name}: {arg}"))
+                else:
+                    t.timeline.append((ts, name))
+
+        elif kind == "user":
+            texts = [b.get("text", "") for b in blocks if b.get("type") == "text"]
+            if isinstance(content, str):
+                texts.append(content)
+            if any("Request interrupted" in x for x in texts):
+                t.interruptions += 1
+            # The permission-denial shape was never observed on this project's
+            # transcripts. Its counter is therefore emitted only when something
+            # matched: a zero here would claim a measurement nobody has made.
+            if any("user doesn't want to take this action" in x
+                   or "tool use was rejected" in x for x in texts):
+                t.denials += 1
+            if any(b.get("tool_use_id") in skip for b in blocks):
+                continue
+            result = rec.get("toolUseResult")
+            found = sum(1 for b in blocks if b.get("type") == "image")
+            if isinstance(result, dict) and result.get("type") == "image":
+                found = max(found, 1)
+            if found:
+                t.images += found
+                image_at.extend([t.turns] * found)
+
+    # An image is paid for again on every later API call it stays in context.
+    t.image_carry = sum(IMAGE_TOKENS * max(t.turns - at, 0) for at in image_at)
+    return t
+
+
+# --- subagents ---------------------------------------------------------------
+
+def subagent_runs(path: Path, window: Slice) -> list[dict]:
+    """One entry per run, never aggregated: a review prices a single pass."""
+    runs = []
+    folder = path.with_suffix("") / "subagents"
+    if not folder.is_dir():
+        return runs
+    for meta_path in sorted(folder.glob("agent-*.meta.json")):
+        transcript = meta_path.with_name(meta_path.name.replace(".meta.json",
+                                                               ".jsonl"))
+        if not transcript.exists():
+            continue
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        inner = scan(transcript, Slice(None, None))
+        stamps = [s for s in inner.stamps if s]
+        if not stamps or not window.holds(stamps[0]):
+            continue
+        run = {"type": meta.get("agentType", "?"),
+               "fresh": inner.fresh, "cache_read": inner.cache_read}
+        if len(stamps) > 1:
+            run["seconds"] = round((max(stamps) - min(stamps)).total_seconds())
+        runs.append(run)
+    return runs
+
+
+# --- output ------------------------------------------------------------------
+
+def yaml_block(t: Tally, runs: list[dict]) -> list[str]:
+    out = ["measured:", "  tokens:",
+           f"    fresh: {t.fresh}", f"    cache_read: {t.cache_read}",
+           f"    output: {t.output}"]
+    if t.thinking:
+        out.append(f"    thinking: {t.thinking}")
+    if runs:
+        out.append("  subagents:")
+        for r in runs:
+            fields = ", ".join(f"{k}: {v}" for k, v in r.items())
+            out.append(f"    - {{{fields}}}")
+    out.append(f"  turns: {t.turns}")
+    if t.tools:
+        pairs = ", ".join(f"{k}: {v}" for k, v in t.tools.most_common())
+        out.append(f"  tools: {{{pairs}}}")
+    if t.images:
+        out.append(f"  images: {t.images}")
+    if t.files_written:
+        out.append(f"  files_written: {t.files_written}")
+    if t.skills:
+        pairs = ", ".join(f"{k}: {v}" for k, v in t.skills.most_common())
+        out.append(f"  skills: {{{pairs}}}")
+    friction = [f"interruptions: {t.interruptions}",
+                f"api_errors: {t.api_errors}"]
+    if t.denials:
+        friction.append(f"denials: {t.denials}")
+    out.append(f"  friction: {{{', '.join(friction)}}}")
+
+    out.append("  derived:")
+    for name, value, rule in derived(t):
+        out.append(f"    {name}:")
+        out.append(f"      value: {value}")
+        out.append(f"      rule: {rule}")
+    return out
+
+
+def derived(t: Tally) -> list[tuple[str, int, str]]:
+    stamps = sorted(s for s in t.stamps if s)
+    active = 0.0
+    for a, b in zip(stamps, stamps[1:]):
+        gap = (b - a).total_seconds()
+        if gap <= IDLE_MINUTES * 60:
+            active += gap
+    rows = [
+        ("active_minutes", round(active / 60),
+         f"wall clock minus every gap over {IDLE_MINUTES} min"),
+        ("context_peak", t.context_peak,
+         "largest input of one API call, fresh and cached"),
+    ]
+    if t.images:
+        rows.append(("image_carry", t.image_carry,
+                     f"{IMAGE_TOKENS} tokens an image times the API calls it "
+                     "stayed in context"))
+    if t.builds:
+        rows.append(("build_cycles", t.builds, "Bash commands running make build"))
+    if t.reviews:
+        rows.append(("review_cycles", t.reviews,
+                     "Bash commands running make review"))
+    repeated = sum(n - 1 for n in t.bash.values() if n > 1)
+    if repeated:
+        rows.append(("repeated_bash", repeated,
+                     "identical Bash commands run more than once"))
+    twice = sum(1 for n in t.reads.values() if n > 1)
+    if twice:
+        rows.append(("files_read_twice", twice,
+                     "files read again in the same slice"))
+    return rows
+
+
+def baselines(t: Tally, runs: list[dict], reviews: list, skill: str | None,
+              own: Path | None = None) -> list[str]:
+    """Each measure beside the median of previous reviews of the same skill.
+
+    Printed apart from the block rather than inside it: a median is computed
+    from the corpus at the moment a review is written and is never stored in
+    one, or a review ends up compared against a baseline it wrote itself.
+    """
+    mine = {
+        "tokens.fresh": t.fresh,
+        "tokens.cache_read": t.cache_read,
+        "subagents.fresh": sum(r["fresh"] for r in runs) or None,
+        "turns": t.turns,
+        "images": t.images or None,
+        "derived.context_peak": t.context_peak,
+    }
+    rows = []
+    for measure, value in mine.items():
+        if value is None:
+            continue
+        median = corpus.median(reviews, measure, skill=skill, exclude=own)
+        if median is None:
+            continue
+        ratio = value / median if median else 0
+        flag = "  ← over 1.5×" if ratio > 1.5 else ""
+        rows.append(f"  {measure:<22} {value:>9}  median {median:>9,.0f}"
+                    f"  ×{ratio:.2f}{flag}")
+    if not rows:
+        return ["# no baseline yet: fewer than two earlier reviews of this skill"]
+    return ["# this slice against the median of earlier reviews"] + rows
+
+
+def timeline(t: Tally, width: int = 60) -> list[str]:
+    rows = []
+    for ts, what in t.timeline:
+        stamp = ts.astimezone().strftime("%H:%M") if ts else "--:--"
+        text = " ".join(str(what).split())
+        rows.append(f"  {stamp}  {text[:width]}")
+    return rows
+
+
+def ledger(session: str, t: Tally, runs: list[dict], path: Path) -> str:
+    """Session-level numbers, for the hook of Phase 3. No prose, ever.
+
+    Keyed by transcript and carrying the size it was computed from, which is
+    what lets a later sweep decide whether the session has grown since.
+    """
+    stamps = sorted(s for s in t.stamps if s)
+    return json.dumps({
+        "session": session,
+        "bytes": path.stat().st_size,
+        "from": stamps[0].isoformat() if stamps else None,
+        "to": stamps[-1].isoformat() if stamps else None,
+        "turns": t.turns,
+        "fresh": t.fresh,
+        "cache_read": t.cache_read,
+        "subagents": [{"type": r["type"], "fresh": r["fresh"]} for r in runs],
+        "tools": dict(t.tools),
+        "skills": dict(t.skills),
+    }, sort_keys=True)
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description="One task's slice, counted.")
+    ap.add_argument("--session", default=os.environ.get("CLAUDE_CODE_SESSION_ID"))
+    ap.add_argument("--transcript", type=Path, help="a transcript, read as is")
+    ap.add_argument("--reviews", type=Path, default=corpus.REVIEWS)
+    ap.add_argument("--from", dest="start", help="ISO timestamp (default: the "
+                    "end of this session's last review)")
+    ap.add_argument("--to", dest="end", help="ISO timestamp (default: now)")
+    ap.add_argument("--skill", help="the skill whose median to compare against")
+    ap.add_argument("--timeline", action="store_true",
+                    help="what happened, one truncated line a step")
+    ap.add_argument("--ledger", action="store_true",
+                    help="session-level JSON, whole transcript, no prose")
+    args = ap.parse_args(argv)
+
+    if args.transcript:
+        path, session = args.transcript, args.transcript.stem
+    elif args.session:
+        path, session = transcript_of(args.session), args.session
+    else:
+        die("no session: CLAUDE_CODE_SESSION_ID is unset and --session was not "
+            "given. This script never guesses a transcript by modification "
+            "time — two conversations run side by side.")
+
+    window = (Slice(None, None) if args.ledger
+              else resolve_slice(session, args.reviews, args.start, args.end))
+    tally = scan(path, window)
+    runs = subagent_runs(path, window)
+
+    if args.ledger:
+        print(ledger(session, tally, runs, path))
+        return 0
+
+    lines = yaml_block(tally, runs)
+    try:
+        reviews = corpus.load(args.reviews)
+    except corpus.ReviewError as e:
+        print(f"metrics: corpus not read ({e})", file=sys.stderr)
+        reviews = []
+    lines += [""] + baselines(tally, runs, reviews, args.skill)
+    if args.timeline:
+        lines += ["", "# timeline"] + timeline(tally)
+    elif len(lines) > MAX_LINES:
+        lines = lines[:MAX_LINES] + [f"# … {len(lines) - MAX_LINES} more line(s)"]
+    print("\n".join(lines))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
