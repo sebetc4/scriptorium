@@ -1,7 +1,7 @@
 # Phase 4 Report: The Corpus In Use
 
 **Phase:** [phase-4-corpus.md](phase-4-corpus.md)
-**Start Commit:** to be filled at the first commit of this phase
+**Start Commit:** 0df5266
 
 ---
 
@@ -24,9 +24,8 @@ What this phase inherits:
   reviews that have a baseline, and is where the corpus stops widening the
   first obligation from three costs to five.
 
-Per the convention Phase 2 wrote down, this phase's start commit is the commit
-that closes Phase 3, which does not exist yet as this report is created; it is
-filled in when that commit lands.
+Per the convention Phase 2 wrote down, this phase's start commit is `0df5266`,
+the commit that closed Phase 3.
 
 ---
 
