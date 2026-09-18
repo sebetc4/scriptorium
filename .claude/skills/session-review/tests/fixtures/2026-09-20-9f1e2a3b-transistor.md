@@ -1,0 +1,24 @@
+---
+review: 1
+date: 2026-09-20
+session: 9f1e2a3b-0000-4000-8000-000000000000
+slice:
+  from: 2026-09-20T08:00:00Z
+  to: 2026-09-20T09:30:00Z
+task: Rebuild the transistor primer from its sources.
+skill: pdf
+outcome: delivered
+corrections: 0
+measured:
+  tokens:
+    fresh: 61000
+    cache_read: 410000
+  subagents:
+    - {type: pdf-reviewer, fresh: 21000, cache_read: 90000, seconds: 38}
+  turns: 44
+  tools: {Bash: 30, Read: 4}
+  images: 2
+findings: []
+---
+
+A short task. No delegated second pass, and it shows in the cost.

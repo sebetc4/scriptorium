@@ -15,17 +15,17 @@
 ## Overall Progress
 
 ```
-Phase 0  The Format                 🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-Phase 1  The Measurement            🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
+Phase 0  The Format                 🟢 ████████████████████ 100%  (5/5)
+Phase 1  The Measurement            🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 2  The Skill                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 3  The Ledger                 🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 4  The Corpus In Use          🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                  ░░░░░░░░░░░░░░░░░░░░   0%  (0/30)
+TOTAL                                  ███░░░░░░░░░░░░░░░░░  17%  (5/30)
 ```
 
-**Current Phase:** —
+**Current Phase:** Phase 1 — The Measurement
 **Blocked By:** —
-**Next Milestone:** Phase 0 — The Format
+**Next Milestone:** Phase 1 — The Measurement
 
 ---
 
@@ -120,8 +120,8 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [The Format](phase-0-format.md) | 5 | 🔴 Not Started |
-| 1 | [The Measurement](phase-1-measurement.md) | 7 | 🔴 Not Started |
+| 0 | [The Format](phase-0-format.md) | 5 | 🟢 Done |
+| 1 | [The Measurement](phase-1-measurement.md) | 7 | 🟡 In Progress |
 | 2 | [The Skill](phase-2-skill.md) | 7 | 🔴 Not Started |
 | 3 | [The Ledger](phase-3-ledger.md) | 6 | 🔴 Not Started |
 | 4 | [The Corpus In Use](phase-4-corpus.md) | 5 | 🔴 Not Started |
@@ -148,15 +148,33 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
-**Location:** `docs/roadmap/pending/session-review/`
-**Version:** 1.1.0
+**Roadmap Status:** 🟡 In Progress
+**Location:** `docs/roadmap/on-progress/session-review/`
+**Version:** 1.2.0
 **Created:** 2026-09-17
 **Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.2.0 (2026-09-18)
+
+Phase 0 closed, 5/5. The review format, the finding vocabulary and the corpus
+reader exist: `references/format.md` carries one complete review written out in
+full, `references/findings.md` closes the `kind` vocabulary at eight — each with
+the origin review's own case as its worked example — and `scripts/corpus.py`
+reads the corpus through `core.doc`, adding nothing to `requirements.txt`. Its
+suite is 27 tests on three hand-written fixtures and reads no transcript.
+
+Two of the format's rules are code rather than prose: a measure the transcript
+does not carry is absent and never zero, and a median needs two reviews, so an
+empty corpus and a corpus of one both answer "no baseline yet". Phase 1 depends
+on both.
+
+One deviation, recorded in the phase report: `.gitignore` keeps a line for
+`agent-reviews/` beside the new `reviews/`, so that the hand-written review does
+not become visible to git before Phase 4 decides what becomes of it.
 
 ### 1.1.0 (2026-09-18)
 

@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/5)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 5/5)
+**Started:** 2026-09-18
+**Completed:** 2026-09-18
 **Blocked By:** —
 
 ---
@@ -51,15 +51,15 @@ reviews written by hand.
 ## Tasks
 
 ### The format
-- [ ] Write `references/format.md`: every front matter field, its type, who owns it — script or session — and one complete review as an example
-- [ ] Write `references/findings.md`: the closed `kind` vocabulary, one worked example per kind, and the rule that a finding without a `target:` and a `fix:` is not written
+- [x] Write `references/format.md`: every front matter field, its type, who owns it — script or session — and one complete review as an example
+- [x] Write `references/findings.md`: the closed `kind` vocabulary, one worked example per kind, and the rule that a finding without a `target:` and a `fix:` is not written
 
 ### The reader
-- [ ] Write `scripts/corpus.py`: read `reviews/*.md`, parse the front matter, refuse a malformed one by name, and expose the records
-- [ ] Add the median API `corpus.py` owes Phase 1: per skill, per measure, and only across reviews sharing the same `review:` version
+- [x] Write `scripts/corpus.py`: read `reviews/*.md`, parse the front matter, refuse a malformed one by name, and expose the records
+- [x] Add the median API `corpus.py` owes Phase 1: per skill, per measure, and only across reviews sharing the same `review:` version
 
 ### The ground
-- [ ] Create `reviews/`, replace `agent-reviews` with it in `.gitignore` — and give that file the trailing newline it currently lacks
+- [x] Create `reviews/`, replace `agent-reviews` with it in `.gitignore` — and give that file the trailing newline it currently lacks
 
 ---
 
@@ -86,11 +86,11 @@ reaching for a dependency.
 
 ## Acceptance Criteria
 
-- [ ] A review can be written by hand from `references/format.md` alone, without reading any code
-- [ ] `corpus.py` refuses a review carrying an unknown `kind` and names the file and the value
-- [ ] A median is computed per skill, and never mixes two `review:` versions
-- [ ] The median of an empty or single-review corpus is absent, not zero — Phase 2 must be able to tell "no baseline yet" from "baseline of nothing"
-- [ ] The suite passes on a fresh clone, reading only its own fixtures
+- [x] A review can be written by hand from `references/format.md` alone, without reading any code
+- [x] `corpus.py` refuses a review carrying an unknown `kind` and names the file and the value
+- [x] A median is computed per skill, and never mixes two `review:` versions
+- [x] The median of an empty or single-review corpus is absent, not zero — Phase 2 must be able to tell "no baseline yet" from "baseline of nothing"
+- [x] The suite passes on a fresh clone, reading only its own fixtures
 
 ---
 
