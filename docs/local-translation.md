@@ -1,6 +1,6 @@
 # Local translation — the target engines
 
-Handed over by Phase 7 of the [repo-overhaul roadmap](roadmap/on-progress/repo-overhaul/README.md).
+Handed over by Phase 7 of the [repo-overhaul roadmap](roadmap/completed/repo-overhaul/README.md).
 Nothing described here is implemented. No model is downloaded, no inference
 code exists, and no dependency was added to `requirements.txt`. The work that
 implements it has its own roadmap: [local-translation](roadmap/pending/local-translation/README.md).

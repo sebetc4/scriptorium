@@ -20,13 +20,13 @@ Phase 1  The Document, In Its Own Directory               🟢 █████�
 Phase 2  Everything Disposable, In One Place              🟢 ████████████████████ 100%  (5/5)
 Phase 3  What Was Received, What Was Learned, What Makes  🟢 ████████████████████ 100%  (8/8)
 Phase 4  Keeping It True                                  🟢 ████████████████████ 100%  (5/5)
-Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-TOTAL                                                        █████████████████░░░  84%  (31/37)
+Phase 5  The Documentation That Follows                   🟢 ████████████████████ 100%  (6/6)
+TOTAL                                                        ████████████████████ 100%  (37/37)
 ```
 
-**Current Phase:** Phase 4 — Keeping It True
+**Current Phase:** Phase 5 — The Documentation That Follows
 **Blocked By:** —
-**Next Milestone:** Phase 5 — The Documentation That Follows
+**Next Milestone:** —
 
 ---
 
@@ -140,7 +140,7 @@ it runs. The library is never left in two shapes at once.
 | 2 | [Everything Disposable](phase-2-the-work-directory.md) | 5 | 🟢 Done |
 | 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 8 | 🟢 Done |
 | 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🟢 Done |
-| 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🔴 Not Started |
+| 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🟢 Done |
 
 ---
 
@@ -165,13 +165,38 @@ it runs. The library is never left in two shapes at once.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/document-anatomy/`
-**Version:** 1.6.0
+**Version:** 1.7.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 1.7.0 (2026-09-20)
+
+Phase 5 closed, 6/6, and the roadmap is complete. `docs/document.md` is new: what
+a document is made of, and what `make new`, `import`, `fetch`, `rederive`,
+`build`, `review`, `epub`, `preview`, `translate` and `clean` each put where. Its
+table carries four columns — the fourth, *yours to edit*, is the question Phase 0
+could only answer in prose.
+
+Three statements were known to have become false; five had. `README.md` still
+defined a document as a directory holding an `index.md`, and two routing rules
+sent work to `pdf` on the same wording. And two links had been dead since the
+`repo-overhaul` roadmap moved to `completed/`, because the closure ritual's link
+check runs over the roadmap folder and never over `docs/*.md`. Both fixed, and
+the glob widened.
+
+`docs/architecture.md` §9's glossary gained the vocabulary this roadmap put into
+the repository — *study*, *workspace*, *disposable* — and §11 stays last, with
+§1 and §10 now pointing at it: moving it would have renumbered seven
+cross-references in silence.
+
+The documentation test pins the agreement rather than the words: the five
+constants in `core/doc.py`, the three documents that describe them, and every
+`make` target that writes into a document. Both halves were proved to fail for
+the right reason. 510 tests.
 
 ### 1.6.0 (2026-09-20)
 

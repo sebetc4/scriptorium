@@ -36,7 +36,8 @@ out to be capturing one page after all, hand it to `fetch`.
 ## What this skill refuses
 
 - **Writing a document.** No `index.md` is ever written by an investigation. Its
-  material may live in the `sources/` of the document it feeds — as the
+  material may live in the `sources/` of the document it feeds, and the journal
+  in its `study/` (`docs/document.md`) — as the
   Electribe investigation did, in `library/electronique/repair/electribe-2/sources/`
   — but the document itself is written separately, with `pdf`.
 - **Presenting a second-hand rendering as a primary source.** A search engine's

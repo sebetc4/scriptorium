@@ -1,6 +1,6 @@
 # Target Architecture
 
-Written by Phase 0 of the [repo-overhaul roadmap](roadmap/on-progress/repo-overhaul/README.md),
+Written by Phase 0 of the [repo-overhaul roadmap](roadmap/completed/repo-overhaul/README.md),
 before a single file moves. Its job is to make the eight phases that follow
 mechanical: every one of them is a move, and a move is only cheap when the
 destination is already decided.
@@ -41,7 +41,7 @@ conftest.py             the fixtures every suite shares, the core's and the skil
 core/                   the shared core (§3)
 brand/                  the single source of the art direction (§4)
 theme/                  the CSS cascade, indivisible (§4)
-library/                user content — outside this roadmap's scope
+library/                user content; a document's five directories are §11
 tests/                  the core's suite and the repository-level suite (§7)
 out/                    build artefacts, ignored by git
 docs/                   this document, the roadmaps, the design notes
@@ -57,7 +57,7 @@ Reason, directory by directory:
 | `core/` | What two or more skills need, or what something outside every skill needs. An installable package rather than a loose directory, so a skill's script and a hand-run tool resolve the same import. |
 | `brand/` | The art direction's only source. `tokens.yaml` feeds the PDF cascade, the EPUB colour mapping and the `diagram-design` profile: three consumers, none of them a single skill. |
 | `theme/` | The CSS cascade. Indivisible: `core/doc.py` derives the preset registry from this directory's listing. |
-| `library/` | User content, at whatever depth and in whatever language its author chose. Nothing in this roadmap touches it. |
+| `library/` | User content, at whatever depth and in whatever language its author chose. Nothing in *this* roadmap touched it; the `document-anatomy` roadmap declared what a document is made of, in §11, and moved the library into that shape. |
 | `tests/` | The core's suite, plus the tests whose subject is the repository itself — its layout, its documentation, its `make` targets. Each skill's own suite lives inside the skill. |
 | `out/` | Build artefacts, reconstructible by `make build` and `make epub`. Gitignored. |
 | `docs/` | Prose about the repository: this document, the roadmaps under `docs/roadmap/`, and the design notes a roadmap hands over (`docs/local-translation.md`, Phase 7). |
@@ -233,7 +233,7 @@ They do not carry the document.
 **`pdf` / `sourcing` — sorted by destination, not by format.** The same PDF file
 is the subject of both skills, so the format cannot discriminate.
 
-> **Does the operation end in an `index.md` under `library/`? → `pdf`.
+> **Does the operation end in a document under `library/`? → `pdf`.
 > Does the PDF stay a source, the output being knowledge? → `sourcing`.**
 
 Read to be rebuilt — text extracted, images carried over, pages rendered as a
@@ -486,7 +486,7 @@ that mixes the two reads as two authors.
 | dépôt | repository | |
 | thème (folder under `library/`) | **topic** | `library/<topic>/<slug>`. Frees `theme` for the other sense. |
 | thème (front matter `light`/`dark`/`both`) | **theme** | stays `theme:` — it is a front-matter key |
-| document | document | a directory holding an `index.md` |
+| document | document | a directory holding a `document/index.md` (§11) |
 | preset | preset | unchanged, it is already the front-matter key |
 | registre (of a document, of an admonition) | register | |
 | squelette, gabarit | template | what `.claude/skills/pdf/assets/templates/` holds |
@@ -504,7 +504,10 @@ that mixes the two reads as two authors.
 | tableau | table | |
 | seuil (de transposition) | threshold | `table-threshold` |
 | niveau (de découpe) | level | |
-| matière d'origine | source material | what `sources/` holds |
+| matière d'origine | source material | what `sources/` holds: what the user gave the document (§11) |
+| ce qui a été appris | study | what a tool derived from the sources and keeps: `study/` (§11) |
+| atelier | workspace | a translation under way, in `study/translate/` |
+| jetable | disposable | remade by a command, in `.work/`, removed by `make clean` (§11) |
 | provenance | provenance | |
 | empreinte | digest | SHA-256 |
 | horodatage | timestamp | |
@@ -602,7 +605,9 @@ tool is already named `contact-sheet`.*
 ## 10. What this document does not decide
 
 - **`library/`.** User content. Nothing here translates it, moves it, or imposes
-  a convention on it.
+  a convention on it. *Superseded by §11: the `document-anatomy` roadmap imposes
+  a convention on the directories a tool writes inside a document, and on
+  nothing the user puts there.*
 - **The art direction itself.** `brand/tokens.yaml` and the cascade are moved
   and documented, not redesigned.
 - **`diagram-design`.** A plugin installed outside the repository, reached
@@ -625,6 +630,12 @@ tool is already named `contact-sheet`.*
 bullet of §10: `library/` remains user content, and this section imposes a
 convention on the directories a tool writes inside it, not on what the user puts
 there or on how the topic tree above is arranged.*
+
+*It sits last rather than beside §1's tree because this document's prose refers
+to its sections by number, and inserting one would have renumbered the rest in
+silence. Phase 5 kept it here for the same reason and pointed §1 at it instead.
+The reference manual, written for a reader rather than for this argument, is*
+[`docs/document.md`](document.md).
 
 Until now a document's anatomy was never declared. `core/doc.py` knows one fact
 — `index.md` is the entry — and the rest was habit: `assets/` because the first

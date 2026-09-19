@@ -158,7 +158,7 @@ A block larger than the budget stays whole, in a chunk of its own.
 A document's glossary lives at **the document's root**, beside `document/`,
 as `glossary.yaml`. It is neither read by the build nor produced by it, so it
 does not belong inside `document/`; the anatomy has no settled place for it yet
-(`docs/architecture.md` §11):
+(`docs/document.md`, *One document does not fit*):
 
 ```yaml
 terms:                      # source term → the translation to use

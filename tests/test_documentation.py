@@ -43,3 +43,29 @@ def test_every_makefile_target_is_in_the_help(repo):
     targets = set(re.findall(r"^([a-z-]+):", src, re.M)) - {"help", "check"}
     for t in targets:
         assert f"make {t}" in help_text, f"target {t} missing from `make help`"
+
+
+def test_the_anatomy_is_named_where_a_reader_looks(repo):
+    """The layout lives in core/doc.py; the prose that claims to describe it
+    must name the same five directories.
+
+    Pinning a filename would buy nothing — a rename moves both in one commit.
+    What this pins is the agreement between the constants and the documents a
+    person actually reads.
+    """
+    from core import doc
+    roles = [doc.DOCUMENT, doc.SOURCES, doc.STUDY, doc.GENERATORS, doc.WORK]
+    for name in ("docs/document.md", "CLAUDE.md", "docs/architecture.md"):
+        src = (repo / name).read_text(encoding="utf-8")
+        for role in roles:
+            assert f"`{role}/`" in src or f"  {role}/" in src, f"{name}: {role}"
+
+
+def test_the_manual_covers_every_make_target_that_touches_a_document(repo):
+    """`docs/document.md` says what each command puts where. A target that
+    writes into a document and is not there is a command whose output nobody
+    can place."""
+    manual = (repo / "docs" / "document.md").read_text(encoding="utf-8")
+    for target in ("new", "import", "fetch", "rederive", "build", "review",
+                   "epub", "preview", "clean"):
+        assert f"make {target}" in manual, target

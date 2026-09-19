@@ -18,9 +18,12 @@ make build DOC=finance/report-q3
 `index.md` → HTML → **WeasyPrint** → PDF. No browser, no LaTeX: the only
 dependencies are Python and the Pango/Cairo system libraries.
 
-A document is any directory under `library/` holding an `index.md`. The
-directories above it are topics, at any depth, and nothing has to be declared
-anywhere.
+A document is any directory under `library/` holding a `document/index.md`.
+The directories above it are topics, at any depth, and nothing has to be
+declared anywhere. Beside `document/` a document may hold four more directories,
+each with one job — `sources/` is yours, `study/` is what the tools learned,
+`generators/` is code that draws, `.work/` is anything a command can remake.
+[`docs/document.md`](docs/document.md) is the manual.
 
 The repository is organised around five Claude Code skills, one per job. Each
 carries its own rules, scripts and tests under `.claude/skills/<name>/`; what two

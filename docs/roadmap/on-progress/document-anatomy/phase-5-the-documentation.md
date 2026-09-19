@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/6)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 6/6)
+**Started:** 2026-09-20
+**Completed:** 2026-09-20
 **Blocked By:** —
 
 ---
@@ -68,12 +68,12 @@ over in prose.
 
 ## Tasks
 
-- [ ] Write `docs/document.md`: what a document is made of, and its life — what `make new`, `make import`, `make fetch`, `make build`, `make review`, `make epub`, `make translate` and `make clean` each put where, and what is left after each
-- [ ] State in it, for every one of the five directories, the three answers a person actually needs: who writes it, does the build read it, may I delete it
-- [ ] Reconcile `docs/architecture.md`: §1's tree, where `library/` is no longer out of scope, and §9's glossary, where *document* and *source material* are both defined wrongly after this roadmap
-- [ ] Reconcile `CLAUDE.md`: its opening sentence, and the repo map — the few lines that make a session place a file correctly without opening `docs/document.md`
-- [ ] Check the four `SKILL.md` against the new anatomy, and point each at `docs/document.md` where it currently describes a document's parts itself
-- [ ] Add the documentation test, in the shape of `test_claude_md_maps_the_core`: the five directories named by `core/doc.py`'s layout are named in `docs/document.md` and in `CLAUDE.md`
+- [x] Write `docs/document.md`: what a document is made of, and its life — what `make new`, `make import`, `make fetch`, `make build`, `make review`, `make epub`, `make translate` and `make clean` each put where, and what is left after each
+- [x] State in it, for every one of the five directories, the three answers a person actually needs: who writes it, does the build read it, may I delete it
+- [x] Reconcile `docs/architecture.md`: §1's tree, where `library/` is no longer out of scope, and §9's glossary, where *document* and *source material* are both defined wrongly after this roadmap
+- [x] Reconcile `CLAUDE.md`: its opening sentence, and the repo map — the few lines that make a session place a file correctly without opening `docs/document.md`
+- [x] Check the four `SKILL.md` against the new anatomy, and point each at `docs/document.md` where it currently describes a document's parts itself
+- [x] Add the documentation test, in the shape of `test_claude_md_maps_the_core`: the five directories named by `core/doc.py`'s layout are named in `docs/document.md` and in `CLAUDE.md`
 
 ---
 
@@ -108,11 +108,11 @@ it.
 
 ## Acceptance Criteria
 
-- [ ] A person who has never seen this repository can place any file of a document from `docs/document.md` alone
-- [ ] No document in the repository still says a document is a directory holding an `index.md`
-- [ ] The five directories are named in `CLAUDE.md`, briefly enough that it stays a map
-- [ ] A test fails when `core/doc.py`'s layout and the documentation disagree
-- [ ] `make test` passes, documentation test included
+- [x] A person who has never seen this repository can place any file of a document from `docs/document.md` alone
+- [x] No document in the repository still says a document is a directory holding an `index.md`
+- [x] The five directories are named in `CLAUDE.md`, briefly enough that it stays a map
+- [x] A test fails when `core/doc.py`'s layout and the documentation disagree
+- [x] `make test` passes, documentation test included
 
 ---
 

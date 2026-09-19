@@ -65,7 +65,7 @@ Status, size, the content type the server claimed, and the **effective URL**,
 which is where the request actually ended up. Read it: a page that redirects to
 an index of brands still answers 200.
 
-It writes:
+It writes — `docs/document.md` says what each directory of a document is for:
 
 | Path | Content |
 |---|---|

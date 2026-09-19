@@ -27,7 +27,7 @@ the repository root: `build.py`, `new.py`, `ingest.py`, `review.py`.
 | Read a PDF as evidence — find a term, read a schematic | `sourcing` |
 
 The boundary with `sourcing`, since both open PDFs: **does the operation end in
-an `index.md` under `library/`? Then it is this skill.** If the PDF stays a
+a document under `library/`? Then it is this skill.** If the PDF stays a
 source and the output is knowledge, it is `sourcing`, and nothing is written
 under `library/`.
 
@@ -85,7 +85,8 @@ make new DOC=<topic>/<slug> PRESET=<preset> TITLE="Title"
 (`finance/2026/report-q3`). Intermediate directories are created as needed;
 there is no register to update. A directory becomes a document as soon as it
 holds a `document/index.md` — a document is five directories and the build
-reads one of them (`docs/architecture.md` §11).
+reads one of them. `docs/document.md` is the manual: what each one holds, and
+what every command puts where.
 
 The seeds are in this skill's `assets/templates/`, one `index.md` per preset:
 creating a document is this skill's job alone, and nothing reads a seed after.
