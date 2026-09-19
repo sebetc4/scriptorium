@@ -433,6 +433,11 @@ seventeenth ever appears is:
 | Target | After the roadmap |
 |---|---|
 | `setup` `brand` `icons` `test` `list` `clean` `help` | unchanged — the harness itself |
+
+*The `document-anatomy` roadmap, phase 2, revised `clean`: it takes an
+optional `DOC=`, and it now deletes inside `library/` — every document's
+`.work/`, and nothing else. What it may remove is decided by `core/doc.py`,
+never by a pattern written in the `Makefile` (§11).*
 | `new` `build` `watch` `check` `import` `review` | facades over `pdf` |
 | `epub` `preview` `preview-style` | facades over `epub` |
 | `fetch` | facade over `fetch` |

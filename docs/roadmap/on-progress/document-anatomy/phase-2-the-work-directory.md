@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (0% — 0/5)
+**Current Status:** 🟢 Done (100% — 5/5)
 **Started:** 2026-09-19
-**Completed:**
+**Completed:** 2026-09-19
 **Blocked By:** —
 
 ---
@@ -57,11 +57,11 @@ that is one thing in one place.
 
 ## Tasks
 
-- [ ] Add `work_dir(root, kind)` beside `out_dir()` in `core/doc.py`, resolving to `<slug>/.work/<kind>/`, and make it the only place that knows the layout
-- [ ] Move `review.py`'s sheets and zooms from `OUT / "review"` to `.work/review/<variant>/`
-- [ ] Move `preview.py`'s sheets from `out_dir(d, "preview")` to `.work/preview/`
-- [ ] Make `make clean` safe: it removes `out/` and every `.work/` under `library/`, and nothing else — proven on a fixture tree holding a `sources/`, a `document/` and a `.work/`
-- [ ] Add `make clean DOC=topic/slug`, since a clean that can only be total is a clean nobody runs
+- [x] Add `work_dir(root, kind)` beside `out_dir()` in `core/doc.py`, resolving to `<slug>/.work/<kind>/`, and make it the only place that knows the layout
+- [x] Move `review.py`'s sheets and zooms from `OUT / "review"` to `.work/review/<variant>/`
+- [x] Move `preview.py`'s sheets from `out_dir(d, "preview")` to `.work/preview/`
+- [x] Make `make clean` safe: it removes `out/` and every `.work/` under `library/`, and nothing else — proven on a fixture tree holding a `sources/`, a `document/` and a `.work/`
+- [x] Add `make clean DOC=topic/slug`, since a clean that can only be total is a clean nobody runs
 
 ---
 
@@ -91,11 +91,11 @@ Nothing new is needed for git: `library/` is already ignored whole.
 
 ## Acceptance Criteria
 
-- [ ] After a full build, review and preview, `out/` holds `pdf/` and `epub/` and nothing else
-- [ ] `make review` and `make preview` write inside the document and find their own output on the next run
-- [ ] `make clean` on a tree holding `sources/`, `document/` and `.work/` removes only `.work/`, proven by a test
-- [ ] `make clean DOC=topic/slug` removes one document's `.work/` and leaves the others
-- [ ] `make test` passes
+- [x] After a full build, review and preview, `out/` holds `pdf/` and `epub/` and nothing else
+- [x] `make review` and `make preview` write inside the document and find their own output on the next run
+- [x] `make clean` on a tree holding `sources/`, `document/` and `.work/` removes only `.work/`, proven by a test
+- [x] `make clean DOC=topic/slug` removes one document's `.work/` and leaves the others
+- [x] `make test` passes
 
 ---
 

@@ -190,7 +190,8 @@ make review DOC=<topic>/<slug>              # every built variant
 make review DOC=<topic>/<slug> ZOOM="1 7"   # these pages alone, full resolution
 ```
 
-It writes under `out/review/<topic>/<slug>/<variant>/` and prints:
+It writes under `library/<topic>/<slug>/.work/review/<variant>/` — beside the
+document, and removed by `make clean` — and prints:
 
 - **the checks**, read from the PDF's text layer at no image cost. Textual:
   a table-of-contents number that is not its target's page (`toc`), a glyph set

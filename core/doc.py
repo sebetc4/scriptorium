@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import html
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -32,6 +33,10 @@ ENTRY = "index.md"
 # ends up with; `sources/`, `study/`, `generators/` and `.work/` sit beside it
 # and the build never opens them.
 DOCUMENT = "document"
+# Everything a command can make again, inside the document because that is what
+# it is about, hidden because it is disposable, and the only directory
+# `make clean` removes from a document.
+WORK = ".work"
 # `epub` is not a preset but the reflowable output's stylesheet: it lives in
 # theme/ to stay inside the cascade, without being offered as a register.
 PRESETS = {p.stem for p in THEME.glob("*.css")} - {"base", "page", "code", "epub"}
@@ -165,6 +170,48 @@ def load_doc(d: Path) -> tuple[dict, str]:
 def out_dir(d: Path, kind: str = "pdf") -> Path:
     """A document's output directory, under out/<kind>/<relative path>."""
     return OUT / kind / d.relative_to(LIBRARY)
+
+
+def work_dir(d: Path, kind: str) -> Path:
+    """A document's disposable working directory, `<root>/.work/<kind>/`."""
+    return d / WORK / kind
+
+
+def work_dirs(library: Path | None = None) -> list[Path]:
+    """Every `.work/` of the library — exactly what `clean()` may remove.
+
+    Taken from the document roots rather than from a glob for `.work`: a
+    directory of that name inside `sources/` is the user's, whatever it is
+    called, and nothing here deletes it.
+    """
+    library = LIBRARY if library is None else library
+    roots = sorted(p.parent.parent
+                   for p in library.rglob(f"{DOCUMENT}/{ENTRY}"))
+    return [r / WORK for r in roots if (r / WORK).is_dir()]
+
+
+def clean(targets: list[str] | None = None) -> list[Path]:
+    """Remove the build outputs and the documents' `.work/`, and nothing else.
+
+    With targets, only those documents' `.work/`, and `out/` is left alone:
+    a clean that can only be total is a clean nobody runs.
+
+    This deletes inside `library/`, which is user content and is not versioned.
+    What it may remove is decided here, by the layout, and never by a pattern
+    written at the call site.
+    """
+    removed = []
+    if targets:
+        wanted = {d / WORK for d in find_docs(targets)}
+        paths = [w for w in work_dirs() if w in wanted]
+    else:
+        paths = work_dirs()
+        if OUT.exists():
+            paths.append(OUT)
+    for path in paths:
+        shutil.rmtree(path)
+        removed.append(path)
+    return removed
 
 
 # --------------------------------------------------------------------------

@@ -28,7 +28,7 @@ help:
 	@echo "  make watch [DOC=topic/slug]                 rebuild on every change"
 	@echo "  make list                                   list the documents"
 	@echo "  make test                                   run the tests"
-	@echo "  make clean                                  remove the out/ outputs"
+	@echo "  make clean [DOC=topic/slug]                 remove out/ and the documents' .work/"
 	@echo ""
 	@echo "Presets: $(patsubst theme/%.css,%,$(filter-out theme/base.css theme/page.css theme/code.css,$(wildcard theme/*.css)))"
 
@@ -97,5 +97,4 @@ list:
 	@find library -path '*/document/index.md' -printf '%h\n' 2>/dev/null | sed 's|^library/||;s|/document$$||' | sort || true
 
 clean:
-	@rm -rf out
-	@echo "outputs removed"
+	@$(PY) -c "import sys; from core.doc import clean, ROOT; [print('removed', p.relative_to(ROOT)) for p in clean(sys.argv[1:] or None)]" $(DOC)

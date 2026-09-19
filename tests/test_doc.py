@@ -132,3 +132,56 @@ def test_a_library_with_no_document_raises(library):
     topic.mkdir()
     with pytest.raises(doc.DocError, match=doc.DOCUMENT):
         doc.find_docs([str(topic)])
+
+
+# --------------------------------------------------------------------------
+# `.work/`: what a command can make again, and what `make clean` may remove
+# --------------------------------------------------------------------------
+def test_the_work_directory_sits_beside_the_document(library):
+    root = make_doc(library, "topic/slug")
+    assert doc.work_dir(root, "review") == root / ".work" / "review"
+
+
+def test_work_dirs_finds_every_document_that_has_one(library):
+    a = make_doc(library, "topic/a")
+    make_doc(library, "topic/b")
+    (a / ".work" / "review").mkdir(parents=True)
+    assert doc.work_dirs(library) == [a / ".work"]
+
+
+def test_a_work_directory_a_user_left_in_their_sources_is_not_swept(library):
+    # `sources/` is the user's: what they keep in it is theirs, whatever it is
+    # called, and nothing here deletes it.
+    root = make_doc(library, "topic/slug")
+    (root / "sources" / ".work").mkdir(parents=True)
+    assert doc.work_dirs(library) == []
+
+
+def test_clean_removes_the_work_directories_and_nothing_else(library, tmp_path):
+    root = make_doc(library, "topic/slug")
+    (root / ".work" / "review").mkdir(parents=True)
+    (root / ".work" / "review" / "sheet-01.png").write_bytes(b"x")
+    (root / "sources").mkdir()
+    (root / "sources" / "received.pdf").write_bytes(b"x")
+    (root / "study").mkdir()
+    (root / "study" / "extracted.md").write_text("x", encoding="utf-8")
+    out = tmp_path / "out"
+    (out / "pdf").mkdir(parents=True)
+
+    doc.clean()
+
+    assert not (root / ".work").exists()
+    assert not out.exists()
+    assert (root / "sources" / "received.pdf").is_file()
+    assert (root / "study" / "extracted.md").is_file()
+    assert (doc.doc_dir(root) / doc.ENTRY).is_file()
+
+
+def test_clean_takes_one_document(library):
+    a = make_doc(library, "topic/a")
+    b = make_doc(library, "topic/b")
+    for d in (a, b):
+        (d / ".work" / "review").mkdir(parents=True)
+    doc.clean(["topic/a"])
+    assert not (a / ".work").exists()
+    assert (b / ".work").is_dir()

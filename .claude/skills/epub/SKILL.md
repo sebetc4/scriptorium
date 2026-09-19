@@ -167,7 +167,7 @@ make preview-style                # the style proof
 
 - **The contact sheet** gathers a document's non-reflowing objects, numbered,
   at the real scale of a six-inch e-ink screen (1072 × 1448 px, 300 dpi), in
-  one or two images: `out/preview/<topic>/<slug>/contact-NN.png`. Review it for
+  one or two images: `library/<topic>/<slug>/.work/preview/contact-NN.png`. Review it for
   **every** document that has an EPUB. Read each image: is every diagram legible
   at that size, does every transposed table read as blocks, is any code line
   cut off? A document with nothing that does not reflow produces no sheet, and

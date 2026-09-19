@@ -28,8 +28,8 @@ from pathlib import Path
 import pymupdf
 
 from core import imaging, pdfpage
-from core.doc import (OUT, ROOT, DocError, doc_dir, find_docs, load_doc,
-                      out_dir, token_map)
+from core.doc import (ROOT, DocError, doc_dir, find_docs, load_doc, out_dir,
+                      token_map, work_dir)
 
 # Past about 1.15 megapixels an image is scaled down before the model sees it,
 # and its cost stops growing: a sheet or a zoom is sized just under that line.
@@ -561,7 +561,7 @@ def main(argv: list[str] | None = None) -> int:
 
     failed = 0
     for variant, pdf in built:
-        dest = OUT / "review" / rel / variant
+        dest = work_dir(doc, "review") / variant
         if stale(pdf, doc):
             print(f"error: {pdf.relative_to(ROOT)} is older than its sources "
                   f"— run make build DOC={rel}", file=sys.stderr)

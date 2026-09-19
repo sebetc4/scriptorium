@@ -17,16 +17,16 @@
 ```
 Phase 0  The Anatomy Of A Document                        🟢 ████████████████████ 100%  (6/6)
 Phase 1  The Document, In Its Own Directory               🟢 ████████████████████ 100%  (7/7)
-Phase 2  Everything Disposable, In One Place              🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/5)
+Phase 2  Everything Disposable, In One Place              🟢 ████████████████████ 100%  (5/5)
 Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
 Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
 Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-TOTAL                                                        ███████░░░░░░░░░░░░░  35%  (13/37)
+TOTAL                                                        ██████████░░░░░░░░░░  49%  (18/37)
 ```
 
 **Current Phase:** Phase 2 — Everything Disposable, In One Place
 **Blocked By:** —
-**Next Milestone:** Phase 2 — Everything Disposable, In One Place
+**Next Milestone:** Phase 3 — What Was Received, What Was Learned, What Makes
 
 ---
 
@@ -137,7 +137,7 @@ it runs. The library is never left in two shapes at once.
 |---|---|---|---|
 | 0 | [The Anatomy Of A Document](phase-0-the-anatomy.md) | 6 | 🟢 Done |
 | 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🟢 Done |
-| 2 | [Everything Disposable](phase-2-the-work-directory.md) | 5 | 🟡 In Progress |
+| 2 | [Everything Disposable](phase-2-the-work-directory.md) | 5 | 🟢 Done |
 | 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 8 | 🔴 Not Started |
 | 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🔴 Not Started |
 | 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🔴 Not Started |
@@ -165,13 +165,32 @@ it runs. The library is never left in two shapes at once.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/document-anatomy/`
-**Version:** 1.3.0
+**Version:** 1.4.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-19
 
 ---
 
 ## Changelog
+
+### 1.4.0 (2026-09-19)
+
+Phase 2 closed, 5/5. **`out/` holds `pdf/` and `epub/` and nothing else.** The
+review sheets and the EPUB proofs moved to `<document>/.work/`, beside the
+document they describe rather than in a parallel tree joined to it by a path
+convention. 211 files, identical in content and at equivalent paths — 96 review
+files and 115 preview files, compared one by one.
+
+`core/doc.py` gained `work_dir()`, `work_dirs()` and `clean()`: what `make
+clean` may delete is decided by the layout, never by a pattern in the
+`Makefile`. `work_dirs()` reads the document roots rather than globbing for
+`.work`, so a directory of that name a user keeps in their own `sources/` is
+never swept — that is a test. `make clean DOC=topic/slug` removes one
+document's `.work/` and leaves `out/` alone, because a clean that can only be
+total is a clean nobody runs.
+
+Verified live: a full clean removed seven `.work/` and `out/`, and the library's
+221 other files came through untouched — nothing lost, nothing changed.
 
 ### 1.3.0 (2026-09-19)
 

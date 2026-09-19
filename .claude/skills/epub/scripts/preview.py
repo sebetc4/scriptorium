@@ -87,7 +87,7 @@ def contact_sheet(d: Path) -> list[Path]:
     if not objects:
         return []
 
-    dest = doc.out_dir(d, "preview")
+    dest = doc.work_dir(d, "preview")
     dest.mkdir(parents=True, exist_ok=True)
     # The images must be on disk for WeasyPrint to load them.
     for name, data in images.items():
@@ -102,7 +102,7 @@ def style_screens(d: Path) -> list[Path]:
     """The style guide in full — reviewed when the art direction or sheet changes."""
     fm, body_md = doc.load_doc(d)
     tokens = doc.token_map(d, {**fm, "theme": "epub"})
-    dest = doc.out_dir(d, "preview")
+    dest = doc.work_dir(d, "preview")
     dest.mkdir(parents=True, exist_ok=True)
 
     body, _ = doc.convert(body_md, tokens, d.name, icon_color="currentColor")
