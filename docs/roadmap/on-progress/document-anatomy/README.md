@@ -15,18 +15,18 @@
 ## Overall Progress
 
 ```
-Phase 0  The Anatomy Of A Document                        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
+Phase 0  The Anatomy Of A Document                        🟢 ████████████████████ 100%  (6/6)
 Phase 1  The Document, In Its Own Directory               🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 2  Everything Disposable, In One Place              🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
 Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-TOTAL                                                        ░░░░░░░░░░░░░░░░░░░░   0%  (0/37)
+TOTAL                                                        ███░░░░░░░░░░░░░░░░░  16%  (6/37)
 ```
 
-**Current Phase:** —
+**Current Phase:** Phase 0 — The Anatomy Of A Document
 **Blocked By:** —
-**Next Milestone:** Phase 0 — The Anatomy Of A Document
+**Next Milestone:** Phase 1 — The Document, In Its Own Directory
 
 ---
 
@@ -127,7 +127,7 @@ it runs. The library is never left in two shapes at once.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [The Anatomy Of A Document](phase-0-the-anatomy.md) | 6 | 🔴 Not Started |
+| 0 | [The Anatomy Of A Document](phase-0-the-anatomy.md) | 6 | 🟢 Done |
 | 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🔴 Not Started |
 | 2 | [Everything Disposable](phase-2-the-work-directory.md) | 6 | 🔴 Not Started |
 | 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 7 | 🔴 Not Started |
@@ -155,15 +155,30 @@ it runs. The library is never left in two shapes at once.
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
-**Location:** `docs/roadmap/pending/document-anatomy/`
-**Version:** 1.1.0
+**Roadmap Status:** 🟡 In Progress
+**Location:** `docs/roadmap/on-progress/document-anatomy/`
+**Version:** 1.2.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-19
 
 ---
 
 ## Changelog
+
+### 1.2.0 (2026-09-19)
+
+Phase 0 closed, 6/6. The anatomy is written: `docs/architecture.md` §11 states
+the five roles, the cut that decides the rest — the build reads `document/` and
+nothing else — and the acquire / derive line that `ingest.py` and `fetch.py`
+both cross today. `CLAUDE.md`'s repo map carries the five directories in a
+paragraph, with an italic note that the library is not yet in that shape.
+
+Two things came out of writing it. The cut is about **what a file is for, not
+who made it**: a schematic drawn by hand over an afternoon lives beside a
+photograph a script extracted, because the document references both. And
+`extracted.md` is the one genuinely ambiguous file — regenerable, so it could be
+disposable, but only if regeneration is deterministic, which Phase 3 now
+verifies instead of assuming.
 
 ### 1.1.0 (2026-09-19)
 

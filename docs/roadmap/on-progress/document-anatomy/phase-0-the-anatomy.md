@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/6)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 6/6)
+**Started:** 2026-09-19
+**Completed:** 2026-09-19
 **Blocked By:** —
 
 ---
@@ -52,12 +52,12 @@ changes no behaviour.
 
 ## Tasks
 
-- [ ] Write the five roles into `docs/architecture.md`, one section each — `document/`, `sources/`, `study/`, `generators/`, `.work/` — stating for each who writes it, whether the build reads it, and what `make clean` does to it
-- [ ] State the cut that decides the rest: **the build reads `document/` and nothing else**, which is the only boundary a wrong answer makes visible
-- [ ] State the rule for `sources/`: it is the user's, they fill it with what they judge relevant, and no tool ever modifies what is in it
-- [ ] Draw the line the scripts blur today: a tool may *acquire* into `sources/` on the user's behalf — an imported PDF, a captured page — and may never *derive* into it
-- [ ] Say what makes a file durable rather than disposable, and check the rule against the awkward cases by name: `extracted.md`, `meta.json`, `NOTES.md`, `figures.py`, a hand-drawn SVG
-- [ ] Add the anatomy to `CLAUDE.md`'s repo map, in the few lines it deserves there
+- [x] Write the five roles into `docs/architecture.md`, one section each — `document/`, `sources/`, `study/`, `generators/`, `.work/` — stating for each who writes it, whether the build reads it, and what `make clean` does to it
+- [x] State the cut that decides the rest: **the build reads `document/` and nothing else**, which is the only boundary a wrong answer makes visible
+- [x] State the rule for `sources/`: it is the user's, they fill it with what they judge relevant, and no tool ever modifies what is in it
+- [x] Draw the line the scripts blur today: a tool may *acquire* into `sources/` on the user's behalf — an imported PDF, a captured page — and may never *derive* into it
+- [x] Say what makes a file durable rather than disposable, and check the rule against the awkward cases by name: `extracted.md`, `meta.json`, `NOTES.md`, `figures.py`, a hand-drawn SVG
+- [x] Add the anatomy to `CLAUDE.md`'s repo map, in the few lines it deserves there
 
 ---
 
@@ -89,10 +89,10 @@ definition.
 
 ## Acceptance Criteria
 
-- [ ] `docs/architecture.md` answers, for any file in a document: who wrote it, may I edit it, does the build read it, will `make clean` remove it
-- [ ] The acquire / derive line is drawn in a sentence, not as a list of filenames
-- [ ] Each of the five awkward cases is placed, with its reason
-- [ ] `make test` passes, documentation test included
+- [x] `docs/architecture.md` answers, for any file in a document: who wrote it, may I edit it, does the build read it, will `make clean` remove it
+- [x] The acquire / derive line is drawn in a sentence, not as a list of filenames
+- [x] Each of the five awkward cases is placed, with its reason
+- [x] `make test` passes, documentation test included
 
 ---
 

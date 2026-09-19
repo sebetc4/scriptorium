@@ -36,6 +36,18 @@ changes no skill. It runs once a task is done, never during one.
 | `docs/architecture.md` | Why each directory exists and where each skill stops |
 | `out/` | Build outputs, gitignored |
 
+A document is five directories, and the build reads one of them
+(`docs/architecture.md` §11). `library/<topic…>/<slug>/` holds `document/`
+(`index.md`, `cover.md`, `assets/` — the only one the build reads), `sources/`
+(the user's: a tool may acquire into it, never derive into it, and never
+modifies what is in it), `study/` (what the agent learned — extracted text,
+provenance, an investigation's journal), `generators/` (code that draws an
+asset) and `.work/` (regenerable, removed by `make clean`).
+
+*The `document-anatomy` roadmap is moving the library into this shape; until it
+closes, a document still holds `index.md` and `assets/` at its root and
+`sources/` still carries derived files.*
+
 ## Commands
 
 ```bash

@@ -611,3 +611,120 @@ tool is already named `contact-sheet`.*
 - **The number of skills.** Five, settled at the roadmap's opening. This
   document draws their borders and records the escape hatch to a sixth (§5); it
   does not reopen the count.
+
+---
+
+## 11. The inside of a document
+
+*Added by the `document-anatomy` roadmap, phase 0. It supersedes the first
+bullet of §10: `library/` remains user content, and this section imposes a
+convention on the directories a tool writes inside it, not on what the user puts
+there or on how the topic tree above is arranged.*
+
+Until now a document's anatomy was never declared. `core/doc.py` knows one fact
+— `index.md` is the entry — and the rest was habit: `assets/` because the first
+document had images, `sources/` because the first import needed somewhere to put
+a PDF. Four skills write into a document directory and none of them agreed with
+the others about what belongs where.
+
+The cost was never tidiness. It was that nobody could say whether a given file
+may be deleted, regenerated or edited, and so nothing ever was.
+
+### The cut that decides the rest
+
+**The build reads `document/` and nothing else.**
+
+It is the only boundary the machine checks for you: a file on the wrong side of
+it breaks a build, which is visible on the next run. Every other misplacement is
+silent, and a silent convention is the one that decays.
+
+Note what the cut is not. It is not authorship: a schematic drawn by hand over
+an afternoon lives in `document/assets/` beside a photograph extracted from a
+PDF by a script, because the document references both and the build embeds both.
+It is not cost either: an expensive file and a cheap one sit together if they
+are read together. **What a file is for decides where it lives; who made it does
+not.**
+
+### The five roles
+
+```
+library/<topic…>/<slug>/
+  document/     index.md, cover.md, assets/
+  sources/      what was received
+  study/        extracted text, provenance, the investigation journal
+  generators/   the code that draws an asset
+  .work/        review sheets, EPUB proofs, translation workspace, page renders
+```
+
+| | Written by | Read by the build | `make clean` |
+|---|---|---|---|
+| `document/` | the agent, with the user | **yes, and only this** | never |
+| `sources/` | the user — a tool may acquire into it, never derive | no | never |
+| `study/` | the agent | no | never |
+| `generators/` | the agent | no | never |
+| `.work/` | the tools | no | **removed** |
+
+A document has only the directories it needs. `make new` creates `document/`;
+the rest appear when something has to go in them. An empty directory created in
+advance teaches nothing and invites the wrong file — `out/translate/` existed
+for three days, empty, because a skill made it before it had anything to write.
+
+**`document/`** holds what a reader ends up with: `index.md`, `cover.md` and the
+`assets/` they reference. `assets/` sits inside rather than beside it so that
+every relative link a document already writes keeps working unchanged.
+
+**`sources/` belongs to the user.** It is the only directory they write into,
+and they fill it with whatever they judge relevant to the task. **No tool ever
+modifies what is in it.** That half of the rule is enforced; the other half —
+that the user leaves the rest alone — is advice, not a fence. It is their
+repository.
+
+**`study/`** is what the agent learned from the sources and must keep: the text
+extracted from an imported PDF, the provenance of a capture, the journal an
+investigation wrote. The build never reads it, and `make clean` never touches
+it.
+
+**`generators/`** is code that produces something in `document/assets/`. It is
+kept apart from `study/` so that neither directory has an exception to its own
+rule: one holds prose and data, the other holds programs.
+
+**`.work/`** is everything a command can make again: review sheets, EPUB
+contact sheets, the translation workspace, page renders. It is hidden because it
+is disposable, inside the document because that is what it is about, and removed
+by `make clean` without a thought.
+
+### Acquire, derive
+
+A tool may **acquire** into `sources/` and may never **derive** into it.
+
+Copying an imported PDF or saving a captured page fills the user's directory on
+their behalf: the result is received material like any other, and the user could
+have put it there themselves. Computing `extracted.md` from that PDF is a
+different act — it produces something the user never had — and it goes to
+`study/`.
+
+The line does not exist in the code today. `ingest.py` and `fetch.py` each do
+both, into the same directory, which is why `sources/` became a place where a
+user cannot tell what they put there from what a script left behind.
+
+### Durable, disposable
+
+A file is **disposable** when a command can make it again *and* nothing is lost
+by making it later. Both halves matter, and the second is the one that catches
+the interesting cases.
+
+| | Where | Why |
+|---|---|---|
+| `extracted.md` | `study/` | Regenerable from `sources/`, but its worth is that it does not change: a translation reads it to check that nothing was invented. Durable by choice. |
+| `meta.json` | `study/` | A URL, a date, a digest. Nothing recomputes when a page was fetched. Durable by necessity. |
+| `NOTES.md` | `study/` | An investigation's journal. Written, neither received nor derived, and no command makes it again. |
+| `figures.py` | `generators/` | Code. Deleting it loses the ability to redraw what it drew. |
+| a hand-drawn SVG | `document/assets/` | Expensive, durable, agent-made — and the document references it, so the cut sends it with the document. |
+| review sheets, page renders | `.work/` | A command makes them again, and nothing is lost by making them later. |
+
+The ambiguous case is `extracted.md`, and it is ambiguous in a way worth naming:
+it is regenerable, so it *could* live in `.work/`, but only if regeneration is
+deterministic. If it is not — a library version moves, an extraction changes —
+then the reference a translation checked against is gone, and the file was never
+disposable. It is placed in `study/` on that argument, and the roadmap's phase 3
+verifies the premise rather than assuming it.
