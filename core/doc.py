@@ -27,6 +27,11 @@ LIBRARY = ROOT / "library"
 OUT = ROOT / "out"
 THEME = ROOT / "theme"
 ENTRY = "index.md"
+# A document is a root directory holding five roles, and the build reads one of
+# them (docs/architecture.md §11). Everything under `document/` is what a reader
+# ends up with; `sources/`, `study/`, `generators/` and `.work/` sit beside it
+# and the build never opens them.
+DOCUMENT = "document"
 # `epub` is not a preset but the reflowable output's stylesheet: it lives in
 # theme/ to stay inside the cascade, without being offered as a register.
 PRESETS = {p.stem for p in THEME.glob("*.css")} - {"base", "page", "code", "epub"}
@@ -71,8 +76,26 @@ class DocError(Exception):
 # --------------------------------------------------------------------------
 # Discovery and reading
 # --------------------------------------------------------------------------
+def doc_dir(d: Path) -> Path:
+    """The one directory of a document that the build reads.
+
+    Every path inside a document goes through here rather than being built at
+    the call site, so that the layout is stated once.
+    """
+    return d / DOCUMENT
+
+
+def is_doc(d: Path) -> bool:
+    return (d / DOCUMENT / ENTRY).is_file()
+
+
 def find_docs(targets: list[str]) -> list[Path]:
-    """Resolve CLI paths into document directories."""
+    """Resolve CLI paths into document roots.
+
+    A root is the directory *holding* `document/`, not `document/` itself: its
+    name is the slug, and its path under `library/` is the output path. Given
+    the entry or the directory that holds it, both resolve to the root.
+    """
     if not targets:
         roots = [LIBRARY]
     else:
@@ -83,19 +106,24 @@ def find_docs(targets: list[str]) -> list[Path]:
                 p = (ROOT / p).resolve() if (ROOT / p).exists() else (LIBRARY / p).resolve()
             if p.is_file() and p.name == ENTRY:
                 p = p.parent
+            if p.name == DOCUMENT and (p / ENTRY).is_file():
+                p = p.parent
             if not p.exists():
                 raise DocError(f"path not found: {t}")
             roots.append(p)
 
     found: list[Path] = []
     for r in roots:
-        if (r / ENTRY).exists():
+        if is_doc(r):
             found.append(r)
         else:
-            found.extend(sorted(p.parent for p in r.rglob(ENTRY)))
+            # `document/` and not just the entry: an index.md a user keeps in
+            # their own material is not a document, and `sources/` is theirs.
+            found.extend(sorted(p.parent.parent
+                                for p in r.rglob(f"{DOCUMENT}/{ENTRY}")))
     if not found:
         where = ", ".join(targets) or str(LIBRARY.relative_to(ROOT))
-        raise DocError(f"no document ({ENTRY}) found in: {where}")
+        raise DocError(f"no document ({DOCUMENT}/{ENTRY}) found in: {where}")
     # de-duplicate, preserving order
     return list(dict.fromkeys(found))
 
@@ -113,7 +141,8 @@ def split_front_matter(text: str) -> tuple[dict, str]:
 
 
 def load_doc(d: Path) -> tuple[dict, str]:
-    meta, body = split_front_matter((d / ENTRY).read_text(encoding="utf-8"))
+    meta, body = split_front_matter(
+        (doc_dir(d) / ENTRY).read_text(encoding="utf-8"))
     fm = {**DEFAULTS, **meta}
 
     if fm["theme"] not in THEMES:
@@ -175,7 +204,7 @@ def token_map(d: Path, fm: dict) -> dict[str, str]:
     theme = fm.get("theme")
     if theme in ("dark", "epub"):
         sources.append(block(css, f'[data-theme="{theme}"]'))
-    local = d / "theme.css"
+    local = doc_dir(d) / "theme.css"
     if local.exists():
         sources.append(block(local.read_text(encoding="utf-8"), ":root"))
     for src in sources:

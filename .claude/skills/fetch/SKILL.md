@@ -21,7 +21,7 @@ the browser user agent, the TLS fallback — is `core/net.py`, shared with
 Ask two questions. **How many sources, and were they known before starting?**
 
 - **One URL, given up front, whose content *becomes* the document** → this skill.
-  The output is an `index.md` under `library/`.
+  The output is a `document/index.md` under `library/`.
 - **Several sources, found along the way and checked against each other** — live
   pages, archived pages, forums, PDFs, photographs — → `sourcing`. The output is
   a journal and its pieces, never a document.
@@ -69,8 +69,8 @@ It writes:
 
 | Path | Content |
 |---|---|
-| `index.md` | front matter + extracted content, to prune |
-| `assets/` | the downloaded images, recompressed |
+| `document/index.md` | front matter + extracted content, to prune |
+| `document/assets/` | the downloaded images, recompressed |
 | `sources/extracted.md` | the raw extraction, an immutable reference |
 | `sources/page.html.gz` | **the page as it was received**, byte for byte |
 | `sources/meta.json` | provenance: URL, effective URL, HTTP status, content type, TLS verification, date, SHA-256 digest, images that failed |
@@ -154,7 +154,7 @@ browser assembled rather than the bytes the server sent.
    on a web capture, but that is the user's call.
 6. **Build and review** (the `pdf` skill, *Build, then review*).
 
-The comment block at the top of `index.md` repeats what is left to do for this
+The comment block at the top of `document/index.md` repeats what is left to do for this
 page. Delete it once done.
 
 ## Options

@@ -93,7 +93,7 @@ def flatten_css(css: str, tokens: dict[str, str]) -> str:
 def epub_css(d: Path, tokens: dict[str, str]) -> str:
     """The embedded stylesheet: theme/epub.css, plus the document's departure."""
     parts = [EPUB_SHEET.read_text(encoding="utf-8")]
-    local = d / "theme.css"
+    local = doc.doc_dir(d) / "theme.css"
     if local.exists():
         # A document's local departure carries its content typography — the
         # formulae in components/led/, for instance. So it follows into the
@@ -310,8 +310,9 @@ def collect_images(html_text: str, d: Path, tokens: dict[str, str],
         before, src, after = m.group(1), m.group(2), m.group(3)
         if "://" in src:
             return m.group(0)
-        f = (d / src).resolve()
-        if not f.is_file() or d.resolve() not in f.parents:
+        inside = doc.doc_dir(d).resolve()
+        f = (inside / src).resolve()
+        if not f.is_file() or inside not in f.parents:
             return m.group(0)
 
         # The name derives from the file's stem plus a short digest of its
@@ -320,7 +321,10 @@ def collect_images(html_text: str, d: Path, tokens: dict[str, str],
         # the second image would overwrite the first in silence. The
         # subdirectories are not carried over as they are — a “/” would make
         # the XML identifier the manifest derives from it illegal.
-        rel = str(f.relative_to(d.resolve()))
+        # Relative to `document/`, not to the root: the name depends on
+        # where the file sits *inside* the document, so moving a document
+        # does not rename every image in its archive.
+        rel = str(f.relative_to(inside))
         digest = hashlib.sha1(rel.encode("utf-8")).hexdigest()[:8]
         if f.suffix.lower() == ".svg":
             svg = XML_HEAD_RE.sub("", f.read_text(encoding="utf-8")).strip()

@@ -84,7 +84,8 @@ make new DOC=<topic>/<slug> PRESET=<preset> TITLE="Title"
 `<topic>` is a free directory under `library/`, at whatever depth
 (`finance/2026/report-q3`). Intermediate directories are created as needed;
 there is no register to update. A directory becomes a document as soon as it
-holds an `index.md`.
+holds a `document/index.md` — a document is five directories and the build
+reads one of them (`docs/architecture.md` §11).
 
 The seeds are in this skill's `assets/templates/`, one `index.md` per preset:
 creating a document is this skill's job alone, and nothing reads a seed after.
@@ -161,7 +162,7 @@ Two traps, both seen:
   most, and only what identifies the document for its reader.
 
 ```markdown
-<!-- library/<topic>/<slug>/cover.md -->
+<!-- library/<topic>/<slug>/document/cover.md -->
 ## What this document covers
 
 - :target.accent: The scope
@@ -268,14 +269,14 @@ only its departure:
 
 ```
 brand/tokens.css → theme/base.css → theme/code.css → theme/page.css
-  → theme/<preset>.css → front matter `page:` → <doc>/theme.css → front matter `css:`
+  → theme/<preset>.css → front matter `page:` → <doc>/document/theme.css → front matter `css:`
 ```
 
 A one-off format need goes through the front matter. A graphic need specific to
-the document goes through a `theme.css` **in its directory**:
+the document goes through a `theme.css` **beside its `index.md`**:
 
 ```css
-/* library/finance/report-q3/theme.css */
+/* library/finance/report-q3/document/theme.css */
 :root { --accent: var(--link); }
 .cover h1 { font-size: 48pt; }
 ```
@@ -286,7 +287,7 @@ the **whole** library — and say so explicitly to the user.
 ## Inserting a diagram
 
 1. Invoke `diagram-design`; it reads the art direction through the marker.
-2. Save the rendering **as SVG** in `library/<topic>/<slug>/assets/`.
+2. Save the rendering **as SVG** in `library/<topic>/<slug>/document/assets/`.
 3. **Replace the SVG's hex values with roles**: `fill="var(--paper-2)"`,
    `stroke="var(--accent)"`, `font-family="var(--font-sans)"`.
 4. Reference it as a captioned figure (see *Writing the content*), class
@@ -356,11 +357,11 @@ It writes:
 
 | Path | Content |
 |---|---|
-| `index.md` | front matter + extracted text, **to translate in place** |
+| `document/index.md` | front matter + extracted text, **to translate in place** |
+| `document/assets/` | the extracted raster images, at their original resolution |
 | `sources/extracted.md` | the raw extraction — an immutable reference, never edit it |
 | `sources/meta.json` | provenance: path, SHA-256 digest, pages, metadata |
 | `sources/pages/*.png` | each source page as an image (not versioned) |
-| `assets/` | the extracted raster images, at their original resolution |
 
 ### The procedure
 

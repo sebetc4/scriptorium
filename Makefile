@@ -94,7 +94,7 @@ test:
 	@$(PY) -m pytest -q
 
 list:
-	@find library -name index.md -printf '%h\n' 2>/dev/null | sed 's|^library/||' | sort || true
+	@find library -path '*/document/index.md' -printf '%h\n' 2>/dev/null | sed 's|^library/||;s|/document$$||' | sort || true
 
 clean:
 	@rm -rf out

@@ -54,7 +54,7 @@ fixed by widening a definition.
 - [ ] Add `sources/` to what `protect-paths.sh` guards, so a tool writing a derived file into it is refused at the hook
 - [ ] Check the guard does not refuse acquisition — `make import` and `make fetch` must still be able to put received material there
 - [ ] Rebuild the whole library one last time and confirm every output matches what Phase 1 recorded
-- [ ] Record in the report every file that needed a hand across the four phases, since twelve documents written before the anatomy will not all have fitted it
+- [ ] Record in the report every file that needed a hand across the four phases, since documents written before the anatomy will not all have fitted it
 
 ---
 

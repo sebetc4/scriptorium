@@ -44,7 +44,7 @@ def test_a_page_is_captured_with_its_provenance(web, library):
     assert fetch.main([url, "watch/led"]) == 0
 
     dest = library / "watch" / "led"
-    assert "triple the current" in (dest / "index.md").read_text(encoding="utf-8")
+    assert "triple the current" in (dest / "document" / "index.md").read_text(encoding="utf-8")
     received = gzip.decompress((dest / "sources" / "page.html.gz").read_bytes())
     assert received == ARTICLE.encode("utf-8")
     meta = json.loads((dest / "sources" / "meta.json").read_text(encoding="utf-8"))
@@ -64,7 +64,7 @@ def test_the_received_page_is_kept_as_received(web, library):
     assert fetch.main([url, "watch/led"]) == 0
     dest = library / "watch" / "led"
     assert gzip.decompress((dest / "sources" / "page.html.gz").read_bytes()) == body
-    assert "à éviter" in (dest / "index.md").read_text(encoding="utf-8")
+    assert "à éviter" in (dest / "document" / "index.md").read_text(encoding="utf-8")
 
 
 def test_the_probe_line_is_printed(web, library, capsys):
@@ -153,7 +153,7 @@ def test_the_capture_ignores_the_working_directory(web, library, tmp_path):
         assert fetch.main([url, "watch/led"]) == 0
     finally:
         os.chdir(cwd)
-    assert (library / "watch" / "led" / "index.md").is_file()
+    assert (library / "watch" / "led" / "document" / "index.md").is_file()
     assert list(elsewhere.iterdir()) == []
 
 

@@ -64,7 +64,7 @@ class TranslateError(Exception):
 # --------------------------------------------------------------------------
 def document(path: str) -> Path:
     d = LIBRARY / path
-    if not (d / "index.md").is_file():
+    if not (doc.doc_dir(d) / doc.ENTRY).is_file():
         raise TranslateError(f"{path}: no index.md under library/")
     return d
 
@@ -137,7 +137,7 @@ def chunk_table(job: dict, chunk: dict) -> dict[str, str]:
 # --------------------------------------------------------------------------
 def prepare(args) -> int:
     d = document(args.doc)
-    text = (d / "index.md").read_text(encoding="utf-8")
+    text = (doc.doc_dir(d) / doc.ENTRY).read_text(encoding="utf-8")
     front, body = split_front(text)
     meta = yaml.safe_load(front.strip().strip("-")) if front else {}
     meta = meta or {}
@@ -311,7 +311,7 @@ def answers(d: Path, job: dict, engine: str) -> dict[int, str]:
 def apply(args) -> int:
     d = document(args.doc)
     job = load_job(d)
-    current = (d / "index.md").read_text(encoding="utf-8")
+    current = (doc.doc_dir(d) / doc.ENTRY).read_text(encoding="utf-8")
     if digest(current) != job["index_sha256"]:
         raise TranslateError("index.md has changed since prepare — prepare again, "
                              "the answers of unchanged chunks are not reused across a change")
@@ -345,7 +345,8 @@ def apply(args) -> int:
     front = zones.set_front_matter_strings(job["front"], strings) if job["front"] else ""
     if front and "translated_from:" not in front:
         front = re.sub(r"\n---[ \t]*\n\Z", f"\ntranslated_from: {job['source_lang']}\n---\n", front)
-    (d / "index.md").write_text(front + "".join(body), encoding="utf-8")
+    (doc.doc_dir(d) / doc.ENTRY).write_text(front + "".join(body),
+                                            encoding="utf-8")
     print(f"  ✓ {d / 'index.md'}  {job['source_lang']} → {job['target_lang']}, "
           f"{len(job['chunks'])} chunk(s), {len(findings) - len(errors)} warning(s)\n"
           f"    the untranslated version stays in {workspace(d) / 'original.md'}\n"

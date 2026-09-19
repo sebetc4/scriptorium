@@ -61,7 +61,7 @@ them, on the user's behalf, and they are as received as an imported PDF.
 - [ ] Move `figures.py` to `generators/`, and say in the `pdf` skill that a generator lives there and writes into `document/assets/`
 - [ ] Make both derivations re-runnable from `sources/` alone, and add the command that does it
 - [ ] Update every instruction that names `sources/extracted.md` — the four `SKILL.md`, `ingest.py`'s and `fetch.py`'s own notes — since a path in a skill is an instruction, not a comment
-- [ ] Migrate the twelve documents behind a dry run, then rebuild them all and compare
+- [ ] Migrate the documents behind a dry run, then rebuild them all and compare
 
 ---
 

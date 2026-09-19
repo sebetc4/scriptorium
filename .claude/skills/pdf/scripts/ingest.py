@@ -32,7 +32,7 @@ import pymupdf
 from PIL import Image
 
 # ROOT from the core, not from this file's parents: it lives inside a skill.
-from core.doc import LIBRARY, ROOT
+from core.doc import ENTRY, LIBRARY, ROOT, doc_dir
 from core.imaging import store
 
 BULLET_RE = re.compile(r"^\s*[•‣▪◦·–—*]\s+")
@@ -424,7 +424,7 @@ def main() -> int:
 
     parts = [slugify(p) for p in Path(args.path).parts if p not in (".", "..")]
     dest = LIBRARY.joinpath(*parts)
-    if (dest / "index.md").exists() and not args.force:
+    if (doc_dir(dest) / ENTRY).exists() and not args.force:
         print(f"error: the document already exists — {dest.relative_to(ROOT)} "
               f"(--force to overwrite)", file=sys.stderr)
         return 1
@@ -440,7 +440,7 @@ def main() -> int:
         last = int(m.group(2) or m.group(1)) - 1
     first, last = max(0, first), min(len(doc) - 1, last)
 
-    assets = dest / "assets"
+    assets = doc_dir(dest) / "assets"
     source_dir = dest / "sources"
     for p in (assets, source_dir):
         p.mkdir(parents=True, exist_ok=True)
@@ -541,7 +541,7 @@ def main() -> int:
         "",
         "",
     ])
-    (dest / "index.md").write_text(front + extracted, encoding="utf-8")
+    (doc_dir(dest) / ENTRY).write_text(front + extracted, encoding="utf-8")
 
     rel = dest.relative_to(ROOT)
     print(f"  ✓ {rel}/index.md")

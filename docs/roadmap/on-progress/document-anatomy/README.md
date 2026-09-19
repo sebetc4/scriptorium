@@ -16,17 +16,17 @@
 
 ```
 Phase 0  The Anatomy Of A Document                        🟢 ████████████████████ 100%  (6/6)
-Phase 1  The Document, In Its Own Directory               🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
+Phase 1  The Document, In Its Own Directory               🟢 ████████████████████ 100%  (7/7)
 Phase 2  Everything Disposable, In One Place              🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
 Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-TOTAL                                                        ███░░░░░░░░░░░░░░░░░  16%  (6/37)
+TOTAL                                                        ███████░░░░░░░░░░░░░  35%  (13/37)
 ```
 
-**Current Phase:** Phase 0 — The Anatomy Of A Document
+**Current Phase:** Phase 1 — The Document, In Its Own Directory
 **Blocked By:** —
-**Next Milestone:** Phase 1 — The Document, In Its Own Directory
+**Next Milestone:** Phase 2 — Everything Disposable, In One Place
 
 ---
 
@@ -101,7 +101,7 @@ behalf, and the result is received material like any other. Computing
 **`assets/` moves inside `document/`.** Every `index.md` links its images with a
 relative path of the form `assets/img-001.jpg`. Moving the document and its
 assets together leaves every relative path in every document untouched; moving them apart would mean
-rewriting twelve documents' links to gain nothing.
+rewriting every document's links to gain nothing.
 
 **Durable is split in two.** `study/` is what the agent learned — extracted
 text, provenance, the journal. `generators/` is code. Both survive `make clean`;
@@ -128,7 +128,7 @@ it runs. The library is never left in two shapes at once.
 | # | Phase | Tasks | Status |
 |---|---|---|---|
 | 0 | [The Anatomy Of A Document](phase-0-the-anatomy.md) | 6 | 🟢 Done |
-| 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🔴 Not Started |
+| 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🟢 Done |
 | 2 | [Everything Disposable](phase-2-the-work-directory.md) | 6 | 🔴 Not Started |
 | 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 7 | 🔴 Not Started |
 | 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🔴 Not Started |
@@ -157,13 +157,34 @@ it runs. The library is never left in two shapes at once.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/document-anatomy/`
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-19
 
 ---
 
 ## Changelog
+
+### 1.3.0 (2026-09-19)
+
+Phase 1 closed, 7/7. `document/` exists: `core/doc.py` discovers a document at
+its root, the slug and the output path come from that root, and `doc_dir()` is
+the one place that knows where the build looks. Eight documents migrated behind
+a dry run — not twelve, which the roadmap had counted wrong from a listing of
+directory names.
+
+**Two silent failures were caught by comparing outputs rather than by the
+suite.** SVGs stopped being inlined, so figures still rendered but lost their
+colour roles — invisible in a build that succeeds, and found only because the
+PDF text layer lost every label inside a schematic. And the EPUB names its
+images after a digest of their path relative to the document's root, so moving
+the document renamed every image in every archive; the digest now covers the
+path *inside* `document/`, which is what it always meant.
+
+After both fixes: 15 PDFs and 292 pages content-identical, 8 EPUBs and 180
+entries identical, 221 library files byte-identical. `make build` is not
+byte-reproducible — two builds of the same source differ — so the comparison is
+on content, which is what the criterion's second branch allows.
 
 ### 1.2.0 (2026-09-19)
 

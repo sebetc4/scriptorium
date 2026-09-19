@@ -45,8 +45,9 @@ def test_rasterize_applies_the_resolved_colour():
 
 def test_collect_images_rasterises_and_rewrites_the_src(repo, tmp_path):
     d = tmp_path
-    (d / "assets").mkdir()
-    (d / "assets" / "x.svg").write_text(SQUARE, encoding="utf-8")
+    inside = doc.doc_dir(d)
+    (inside / "assets").mkdir(parents=True)
+    (inside / "assets" / "x.svg").write_text(SQUARE, encoding="utf-8")
     html = '<p><img alt="x" src="assets/x.svg" /></p>'
     out, assets = epub.collect_images(html, d, {"accent": "#36654C"}, 200)
     # The exact name (stem + digest) is not contractual; only its shape is
@@ -68,10 +69,11 @@ def test_collect_images_leaves_the_external_urls(tmp_path):
 def test_collect_images_does_not_collide_across_directories(tmp_path):
     """The case reproduced in review: two paths a plain '-' would conflate."""
     d = tmp_path
-    (d / "assets-a").mkdir()
-    (d / "assets-a" / "x.svg").write_text(SQUARE, encoding="utf-8")
-    (d / "assets").mkdir()
-    (d / "assets" / "a-x.svg").write_text(SQUARE, encoding="utf-8")
+    inside = doc.doc_dir(d)
+    (inside / "assets-a").mkdir(parents=True)
+    (inside / "assets-a" / "x.svg").write_text(SQUARE, encoding="utf-8")
+    (inside / "assets").mkdir()
+    (inside / "assets" / "a-x.svg").write_text(SQUARE, encoding="utf-8")
     html = ('<img src="assets-a/x.svg" />'
             '<img src="assets/a-x.svg" />')
     out, assets = epub.collect_images(html, d, {"accent": "#36654C"}, 200)

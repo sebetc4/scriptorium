@@ -32,6 +32,7 @@ from weasyprint import CSS, HTML
 # tests/test_pdf_layout.py pins. ROOT comes from the core too: this file lives
 # inside a skill, so its own parent directories say nothing about the repository.
 from core.doc import (LIBRARY, OUT, ROOT, THEME, XML_HEAD_RE, DocError, convert,
+                      doc_dir,
                       e, find_docs, load_doc, out_dir, subst_vars, token_map)
 # A table of contents with a single entry is not a table of contents: it is
 # only laid down from two entries on, and never when empty.
@@ -111,8 +112,9 @@ def inline_svgs(doc_html: str, d: Path, tokens: dict[str, str]) -> str:
         src = m.group(1)
         if "://" in src:
             return m.group(0)
-        f = (d / src).resolve()
-        if not f.is_file() or d.resolve() not in f.parents or f.stat().st_size > SVG_MAX:
+        inside = doc_dir(d).resolve()
+        f = (inside / src).resolve()
+        if not f.is_file() or inside not in f.parents or f.stat().st_size > SVG_MAX:
             return m.group(0)
 
         svg = XML_HEAD_RE.sub("", f.read_text(encoding="utf-8")).strip()
@@ -144,7 +146,7 @@ def render_html(d: Path, fm: dict, body_md: str) -> str:
 
     parts = []
     if fm["cover"]:
-        cover_md = d / "cover.md"
+        cover_md = doc_dir(d) / "cover.md"
         if cover_md.exists():
             extra, _ = convert(cover_md.read_text(encoding="utf-8"), tokens, d.name)
             extra = inline_svgs(extra, d, tokens)
@@ -187,11 +189,11 @@ def stylesheets(d: Path, fm: dict) -> list[CSS]:
     if decls:
         sheets.append(CSS(string=f":root{{{decls}}}"))
 
-    local = d / "theme.css"
+    local = doc_dir(d) / "theme.css"
     if local.exists():
         sheets.append(CSS(filename=str(local)))
     for extra in fm.get("css") or []:
-        p = d / extra
+        p = doc_dir(d) / extra
         if not p.exists():
             raise DocError(f"stylesheet not found: {extra}")
         sheets.append(CSS(filename=str(p)))
@@ -217,7 +219,7 @@ def build(d: Path, keep_html: bool = False) -> list[Path]:
         if keep_html:
             (out / f"{name}.html").write_text(doc_html, encoding="utf-8")
         pdf = out / f"{name}.pdf"
-        HTML(string=doc_html, base_url=str(d) + "/").write_pdf(
+        HTML(string=doc_html, base_url=str(doc_dir(d)) + "/").write_pdf(
             pdf, stylesheets=stylesheets(d, variant))
         written.append(pdf)
     return written

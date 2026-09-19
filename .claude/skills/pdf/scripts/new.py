@@ -17,7 +17,7 @@ from pathlib import Path
 import yaml
 
 # From the core, not from this file's parents: it lives inside a skill.
-from core.doc import LIBRARY, ROOT
+from core.doc import DOCUMENT, ENTRY, LIBRARY, ROOT, doc_dir
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "assets" / "templates"
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -47,7 +47,7 @@ def main() -> int:
             print(f"error: invalid path segment “{p}”", file=sys.stderr)
             return 1
     dest = LIBRARY.joinpath(*parts)
-    if (dest / "index.md").exists():
+    if (doc_dir(dest) / ENTRY).exists():
         print(f"error: the document already exists — {dest.relative_to(ROOT)}",
               file=sys.stderr)
         return 1
@@ -60,17 +60,21 @@ def main() -> int:
         "{{AUTHOR}}": "First Last",
     }
 
-    dest.mkdir(parents=True, exist_ok=True)
-    (dest / "assets").mkdir(exist_ok=True)
-    (dest / "assets" / ".gitkeep").touch()
+    # Only `document/` is created. The four roles beside it — sources/,
+    # study/, generators/, .work/ — appear when something has to go in them:
+    # an empty directory made in advance teaches nothing and invites the wrong
+    # file (docs/architecture.md §11).
+    inside = doc_dir(dest)
+    (inside / "assets").mkdir(parents=True, exist_ok=True)
+    (inside / "assets" / ".gitkeep").touch()
 
     src = (TEMPLATES / args.preset / "index.md").read_text(encoding="utf-8")
     for k, v in values.items():
         src = src.replace(k, v)
-    (dest / "index.md").write_text(src, encoding="utf-8")
+    (inside / ENTRY).write_text(src, encoding="utf-8")
 
     rel = dest.relative_to(ROOT)
-    print(f"✓ {rel}/index.md  (preset: {args.preset})")
+    print(f"✓ {rel}/{DOCUMENT}/{ENTRY}  (preset: {args.preset})")
     print(f"  edit the content, then: make build DOC={'/'.join(parts)}")
     return 0
 

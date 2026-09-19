@@ -34,7 +34,7 @@ import trafilatura.utils
 from PIL import Image
 
 # ROOT from the core, not from this file's parents: it lives inside a skill.
-from core.doc import LIBRARY, ROOT
+from core.doc import ENTRY, LIBRARY, ROOT, doc_dir
 from core import net
 from core.imaging import store
 
@@ -309,7 +309,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parts = [slugify(p) for p in Path(args.path).parts if p not in (".", "..")]
     dest = LIBRARY.joinpath(*parts)
-    if (dest / "index.md").exists() and not args.force:
+    if (doc_dir(dest) / ENTRY).exists() and not args.force:
         print(f"error: the document already exists — {dest.relative_to(ROOT)} "
               f"(--force to overwrite)", file=sys.stderr)
         return 1
@@ -334,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
         hint = ("the page looks client-rendered: very little text for a lot of "
                 "markup. Run again with --render.")
 
-    assets, source_dir = dest / "assets", dest / "sources"
+    assets, source_dir = doc_dir(dest) / "assets", dest / "sources"
     for p in (assets, source_dir):
         p.mkdir(parents=True, exist_ok=True)
 
@@ -410,7 +410,7 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "",
     ])
-    (dest / "index.md").write_text(front + body, encoding="utf-8")
+    (doc_dir(dest) / ENTRY).write_text(front + body, encoding="utf-8")
 
     rel = dest.relative_to(ROOT)
     print(f"  ✓ {rel}/index.md")

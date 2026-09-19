@@ -6,6 +6,7 @@ import pytest
 
 import engines
 import translate
+from core import doc
 import zones
 
 DOC = """---
@@ -66,7 +67,8 @@ def library(tmp_path, monkeypatch):
     lib = tmp_path / "library"
     d = lib / "watch" / "led"
     (d / "sources").mkdir(parents=True)
-    (d / "index.md").write_text(DOC, encoding="utf-8")
+    (doc.doc_dir(d)).mkdir(parents=True)
+    (doc.doc_dir(d) / doc.ENTRY).write_text(DOC, encoding="utf-8")
     (d / "sources" / "meta.json").write_text(json.dumps({"source_language": "en"}))
     monkeypatch.setattr(translate, "LIBRARY", lib)
     monkeypatch.setattr(translate, "WORKSPACES", tmp_path / "out" / "translate")
@@ -107,7 +109,7 @@ def test_a_document_already_in_its_target_language_is_refused(library, capsys):
 
 
 def test_a_document_without_an_explicit_lang_is_refused(library, capsys):
-    (library / "index.md").write_text(DOC.replace("lang: fr\n", ""), encoding="utf-8")
+    (doc.doc_dir(library) / doc.ENTRY).write_text(DOC.replace("lang: fr\n", ""), encoding="utf-8")
     assert translate.main(["prepare", "watch/led"]) == 1
     assert "lang:" in capsys.readouterr().err
 
@@ -124,7 +126,7 @@ def test_the_agent_engine_goes_through_requests_and_answers(library):
     assert (workspace(library) / "requests" / "000.md").is_file()
     answer_all_as_agent(library)
     assert translate.main(["apply", "watch/led"]) == 0
-    out = (library / "index.md").read_text(encoding="utf-8")
+    out = (doc.doc_dir(library) / doc.ENTRY).read_text(encoding="utf-8")
     assert "## La résistance" in out and "## Câblage" in out
     assert "r = (5 - 2.1) / 0.020" in out                      # the code block, intact
     assert '!!! warning "Vérifier la polarité"' in out           # the admonition type, intact
@@ -135,7 +137,7 @@ def test_apply_rewrites_the_front_matter_strings_only(library):
     translate.main(["prepare", "watch/led"])
     translate.main(["run", "watch/led", "--engine", "dictionary"])
     assert translate.main(["apply", "watch/led", "--engine", "dictionary"]) == 0
-    front = (library / "index.md").read_text(encoding="utf-8").split("---")[1]
+    front = (doc.doc_dir(library) / doc.ENTRY).read_text(encoding="utf-8").split("---")[1]
     assert "title: Piloter une LED        # the cover's title" in front
     assert "subtitle: Dimensionner la résistance" in front
     for line in ("preset: report", "lang: fr", "theme: light", "translated_from: en"):
@@ -169,13 +171,13 @@ def test_a_qc_error_blocks_apply_and_leaves_the_document_untouched(library, caps
     answer_all_as_agent(library, transform=lambda t: fake_translate(t).replace("145 Ω", "154 Ω"))
     assert translate.main(["apply", "watch/led"]) == 1
     assert "145" in capsys.readouterr().err
-    assert (library / "index.md").read_text(encoding="utf-8") == DOC
+    assert (doc.doc_dir(library) / doc.ENTRY).read_text(encoding="utf-8") == DOC
 
 
 def test_apply_refuses_a_document_changed_since_prepare(library, capsys):
     translate.main(["prepare", "watch/led"])
     translate.main(["run", "watch/led", "--engine", "dictionary"])
-    (library / "index.md").write_text(DOC + "\nA late edit.\n", encoding="utf-8")
+    (doc.doc_dir(library) / doc.ENTRY).write_text(DOC + "\nA late edit.\n", encoding="utf-8")
     assert translate.main(["apply", "watch/led", "--engine", "dictionary"]) == 1
     assert "changed since" in capsys.readouterr().err
 

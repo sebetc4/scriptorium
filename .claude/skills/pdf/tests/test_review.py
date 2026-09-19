@@ -370,16 +370,17 @@ def test_a_dark_only_document_names_its_single_pdf_dark(tmp_path):
 def test_a_pdf_older_than_any_source_file_is_stale(tmp_path):
     import os
     doc = tmp_path / "doc"
-    (doc / "assets").mkdir(parents=True)
-    (doc / "index.md").write_text("x")
-    (doc / "assets" / "figure.svg").write_text("x")
+    inside = doc / "document"
+    (inside / "assets").mkdir(parents=True)
+    (inside / "index.md").write_text("x")
+    (inside / "assets" / "figure.svg").write_text("x")
     pdf = tmp_path / "doc.pdf"
     pdf.write_bytes(b"%PDF")
     os.utime(pdf, (1_000, 1_000))
-    os.utime(doc / "index.md", (500, 500))
-    os.utime(doc / "assets" / "figure.svg", (2_000, 2_000))
+    os.utime(inside / "index.md", (500, 500))
+    os.utime(inside / "assets" / "figure.svg", (2_000, 2_000))
     assert review.stale(pdf, doc)
-    os.utime(doc / "assets" / "figure.svg", (500, 500))
+    os.utime(inside / "assets" / "figure.svg", (500, 500))
     assert not review.stale(pdf, doc)
 
 
@@ -387,12 +388,13 @@ def test_the_sources_of_an_import_do_not_make_a_pdf_stale(tmp_path):
     import os
     doc = tmp_path / "doc"
     (doc / "sources").mkdir(parents=True)
-    (doc / "index.md").write_text("x")
+    (doc / "document").mkdir(parents=True)
+    (doc / "document" / "index.md").write_text("x")
     (doc / "sources" / "meta.json").write_text("x")
     pdf = tmp_path / "doc.pdf"
     pdf.write_bytes(b"%PDF")
     os.utime(pdf, (1_000, 1_000))
-    os.utime(doc / "index.md", (500, 500))
+    os.utime(doc / "document" / "index.md", (500, 500))
     os.utime(doc / "sources" / "meta.json", (2_000, 2_000))
     assert not review.stale(pdf, doc)
 

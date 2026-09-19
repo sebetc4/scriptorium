@@ -28,7 +28,8 @@ from pathlib import Path
 import pymupdf
 
 from core import imaging, pdfpage
-from core.doc import OUT, ROOT, DocError, find_docs, load_doc, out_dir, token_map
+from core.doc import (OUT, ROOT, DocError, doc_dir, find_docs, load_doc,
+                      out_dir, token_map)
 
 # Past about 1.15 megapixels an image is scaled down before the model sees it,
 # and its cost stops growing: a sheet or a zoom is sized just under that line.
@@ -509,11 +510,13 @@ def variants(pdf_dir: Path, slug: str, theme: str) -> list[tuple[str, Path]]:
 def stale(pdf: Path, doc: Path) -> bool:
     """Whether a source file changed after the PDF was built.
 
-    `sources/` is left out: it is the immutable record of an import or a
-    capture, not something the build reads.
+    Only `document/` is walked, because it is the only directory the build
+    reads (docs/architecture.md §11). What the user received, what the agent
+    learned and what a command can make again all sit beside it and none of
+    them changes the page.
     """
-    newest = max((f.stat().st_mtime for f in doc.rglob("*")
-                  if f.is_file() and "sources" not in f.relative_to(doc).parts), default=0)
+    newest = max((f.stat().st_mtime for f in doc_dir(doc).rglob("*")
+                  if f.is_file()), default=0)
     return pdf.stat().st_mtime < newest
 
 

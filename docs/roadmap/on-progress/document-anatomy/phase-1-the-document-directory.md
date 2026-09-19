@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/7)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 7/7)
+**Started:** 2026-09-19
+**Completed:** 2026-09-19
 **Blocked By:** —
 
 ---
@@ -37,7 +37,7 @@ every remaining directory can be defined by not being it.
 `assets/` moves **with** the document rather than staying at the root, and that
 is not a detail: every `index.md` links its images with a relative path of the
 form `assets/img-001.jpg`. Moving both together leaves every relative path in every document exactly as it is. Moving
-them apart would mean rewriting twelve documents' links to gain nothing.
+them apart would mean rewriting every document's links to gain nothing.
 
 ### What It Enables
 A document root that holds only directories, each with one role.
@@ -50,13 +50,13 @@ one; here they stay exactly where they are, however wrong that is.
 
 ## Tasks
 
-- [ ] Change discovery in `core/doc.py`: `find_docs` returns the parent of the directory holding `index.md`, and `load_doc` reads `<root>/document/index.md`
-- [ ] Fix what `d.name` and `d.relative_to(LIBRARY)` feed — the slug, the default title and `out_dir()` — all three of which would otherwise become `document`
-- [ ] Update `new.py` so a new document is created in the new shape, and check that `make new` then `make build` works on an empty document
-- [ ] Migrate the twelve existing documents, behind a dry run that prints every move and touches nothing
-- [ ] Rebuild every document and compare each PDF and EPUB with the one built before the migration
-- [ ] Update every instruction that names a path inside a document — the four `SKILL.md`, `docs/architecture.md`, `CLAUDE.md`
-- [ ] Add the test that a document is discovered at its root, not at `document/`
+- [x] Change discovery in `core/doc.py`: `find_docs` returns the parent of the directory holding `index.md`, and `load_doc` reads `<root>/document/index.md`
+- [x] Fix what `d.name` and `d.relative_to(LIBRARY)` feed — the slug, the default title and `out_dir()` — all three of which would otherwise become `document`
+- [x] Update `new.py` so a new document is created in the new shape, and check that `make new` then `make build` works on an empty document
+- [x] Migrate the existing documents, behind a dry run that prints every move and touches nothing
+- [x] Rebuild every document and compare each PDF and EPUB with the one built before the migration
+- [x] Update every instruction that names a path inside a document — the four `SKILL.md`, `docs/architecture.md`, `CLAUDE.md`
+- [x] Add the test that a document is discovered at its root, not at `document/`
 
 ---
 
@@ -87,11 +87,11 @@ more than any amount of care in the script.
 
 ## Acceptance Criteria
 
-- [ ] A document is discovered at `<slug>/`, and its slug is `<slug>`
-- [ ] Every PDF and EPUB is byte-identical to the one built before the migration, or the difference is explained
-- [ ] No `index.md` had a relative link rewritten
-- [ ] `make new` produces the new shape and it builds
-- [ ] `make test` passes
+- [x] A document is discovered at `<slug>/`, and its slug is `<slug>`
+- [x] Every PDF and EPUB is byte-identical to the one built before the migration, or the difference is explained
+- [x] No `index.md` had a relative link rewritten
+- [x] `make new` produces the new shape and it builds
+- [x] `make test` passes
 
 ---
 
