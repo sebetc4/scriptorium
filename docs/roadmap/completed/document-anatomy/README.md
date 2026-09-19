@@ -24,7 +24,7 @@ Phase 5  The Documentation That Follows                   🟢 █████�
 TOTAL                                                        ████████████████████ 100%  (37/37)
 ```
 
-**Current Phase:** Phase 5 — The Documentation That Follows
+**Current Phase:** —
 **Blocked By:** —
 **Next Milestone:** —
 
@@ -163,15 +163,38 @@ it runs. The library is never left in two shapes at once.
 
 ## Metadata
 
-**Roadmap Status:** 🟡 In Progress
-**Location:** `docs/roadmap/on-progress/document-anatomy/`
-**Version:** 1.7.0
+**Roadmap Status:** 🟢 Done
+**Location:** `docs/roadmap/completed/document-anatomy/`
+**Version:** 2.0.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 2.0.0 (2026-09-20)
+
+Roadmap closed, 37/37 across six phases, and moved to
+`docs/roadmap/completed/document-anatomy/`. `summary.md` records where it
+started, where it landed, what each phase delivered, what was learned that
+outlives it, and the five things it leaves open.
+
+A document is now five directories and the build reads one of them. `out/` holds
+`pdf/` and `epub/` and nothing else. Eight documents migrated across three
+phases, each behind a dry run; 15 PDFs and 8 EPUBs are identical to the
+fingerprints taken before anything moved. A hook refuses an edit to `sources/`
+or `.work/`, one test fails when a document holds anything the anatomy does not
+place, and another when the five constants in `core/doc.py` and the three
+documents describing them stop agreeing. 510 tests, up from 485.
+
+Four silent breakages were produced and caught along the way — an SVG path, an
+EPUB image name, an investigation guard, and two dead links — all of the same
+shape: a rule written as a filename pattern, and a file that moved. Every one
+was found by comparing outputs or by probing behaviour, none by the suite that
+passed over it.
+
+No restructuring was left pending.
 
 ### 1.7.0 (2026-09-20)
 
