@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/5)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 5/5)
+**Started:** 2026-09-20
+**Completed:** 2026-09-20
 **Blocked By:** —
 
 ---
@@ -53,11 +53,11 @@ from the same transcript whenever anyone wants them.
 
 ## Tasks
 
-- [ ] Decide the rule that separates running from editing — the command's shape rather than any path it mentions — and write it down where the current markers are
-- [ ] Exclude a turn only when its tool call *invokes* the review tooling: `metrics.py`, `corpus.py` or `aggregate.py` run as a program, and a write under `reviews/`
-- [ ] Keep excluding what must stay excluded, and test it: a review that runs `metrics.py --owed` does not count that turn
-- [ ] Add the case that fails today: a turn that edits or tests a file under `.claude/skills/session-review/` is the task, and is counted
-- [ ] Re-run the instrument over session `53a9d27e` and record the corrected figures in this phase's report, against 106/147 and 43/125
+- [x] Decide the rule that separates running from editing — the command's shape rather than any path it mentions — and write it down where the current markers are
+- [x] Exclude a turn only when its tool call *invokes* the review tooling: `metrics.py`, `corpus.py` or `aggregate.py` run as a program, and a write under `reviews/`
+- [x] Keep excluding what must stay excluded, and test it: a review that runs `metrics.py --owed` does not count that turn
+- [x] Add the case that fails today: a turn that edits or tests a file under `.claude/skills/session-review/` is the task, and is counted
+- [x] Re-run the instrument over session `53a9d27e` and record the corrected figures in this phase's report, against 106/147 and 43/125
 
 ---
 
@@ -81,10 +81,10 @@ which is why the current rule reached for paths in the first place.
 
 ## Acceptance Criteria
 
-- [ ] A turn that runs the review tooling is excluded; a turn that edits or tests it is counted
+- [x] A turn that runs the review tooling is excluded; a turn that edits or tests it is counted
 - [ ] Session `53a9d27e` measures 147 API calls and 125 Bash calls across its four slices
-- [ ] `test_a_review_tooling_turn_is_excluded` still passes, unchanged
-- [ ] The suite passes on a fresh clone, reading only synthetic fixtures
+- [x] `test_a_review_tooling_turn_is_excluded` still passes, unchanged
+- [x] The suite passes on a fresh clone, reading only synthetic fixtures
 
 ---
 

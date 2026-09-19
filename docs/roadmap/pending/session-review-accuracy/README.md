@@ -15,13 +15,13 @@
 ## Overall Progress
 
 ```
-Phase 0  What Belongs To The Task   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                  ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
+Phase 0  What Belongs To The Task   🟢 ████████████████████ 100%  (5/5)
+TOTAL                                  ████████████████████ 100%  (5/5)
 ```
 
 **Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 0 — What Belongs To The Task
+**Next Milestone:** —
 
 ---
 
@@ -55,7 +55,7 @@ it, ranked first by `aggregate.py` on recurrence and severity.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [What Belongs To The Task](phase-0-attribution.md) | 5 | 🔴 Not Started |
+| 0 | [What Belongs To The Task](phase-0-attribution.md) | 5 | 🟢 Done |
 
 ---
 
@@ -74,15 +74,37 @@ it, ranked first by `aggregate.py` on recurrence and severity.
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
+**Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/pending/session-review-accuracy/`
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Created:** 2026-09-18
-**Last Updated:** 2026-09-18
+**Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 1.1.0 (2026-09-20)
+
+Phase 0 closed, 5/5. The exclusion now asks what a tool call *does* rather than
+what it names: a command that executes one of the three scripts, the skill being
+invoked, or a write into `reviews/`. Reading, editing, testing or grepping those
+same files is the task.
+
+A second defect surfaced while measuring and is fixed with it: the exclusion was
+applied record by record, and the transcript writes one record per content
+block, so a message whose call sat in one record and whose thinking sat in
+another had its call dropped and its turn counted. A turn is excluded now, not a
+line of the file.
+
+On the four slices of session `53a9d27e`: 106 API calls and 43 Bash calls
+before, **132 and 110** after, against a raw 141 and 119 with no exclusion at
+all. Two thirds of that session's commands had been discarded.
+
+One acceptance criterion is left unticked. Its figures — 147 and 125 — were
+taken over the whole file on 2026-09-19, and the four slices cover 09:16 to
+10:09 while the session ran to 17:49. Both halves of the gap are measured in the
+phase report.
 
 ### 1.0.0 (2026-09-18)
 

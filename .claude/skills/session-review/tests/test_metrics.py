@@ -360,3 +360,46 @@ def test_without_a_session_it_fails_rather_than_guessing(capsys):
     with pytest.raises(SystemExit):
         metrics.main(["--session", "", "--reviews", "/nowhere"])
     assert "never guesses" in capsys.readouterr().err
+
+
+# --- running the instrument, versus working on it ----------------------------
+
+def test_a_turn_that_edits_the_instrument_is_the_task(tmp_path):
+    """The exclusion is there so a review does not bill a task for the cost of
+    reviewing it. Work *on* the review tooling is a task like any other, and
+    the first version could not tell the two apart: it matched any mention of a
+    path, so the four phases that built this instrument measured a third short.
+    """
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Edit", tid="t0",
+                         file_path=".claude/skills/session-review/scripts/metrics.py")])
+    t.assistant(1, [tool("Bash", tid="t1", command=(
+        ".venv/bin/python -m pytest -q .claude/skills/session-review/tests"))])
+    t.assistant(2, [tool("Bash", tid="t2", command=(
+        "cat .claude/skills/session-review/scripts/corpus.py"))])
+    t.assistant(3, [tool("Bash", tid="t3", command=(
+        "grep -n 'median' .claude/skills/session-review/scripts/corpus.py"))])
+    t.assistant(4, [tool("Read", tid="t4",
+                         file_path=".claude/skills/session-review/references/format.md")])
+    m = metrics.scan(t.write(), Slice(None, None))
+    assert m.turns == 5
+    assert m.tools["Bash"] == 3
+    assert m.tools["Edit"] == 1
+
+
+def test_a_turn_that_runs_the_instrument_is_not_the_task(tmp_path):
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Bash", tid="t0", command="make build")])
+    for i, command in enumerate((
+            ".venv/bin/python .claude/skills/session-review/scripts/metrics.py --owed",
+            "cd /code/x && .venv/bin/python .claude/skills/session-review/scripts/corpus.py",
+            ".venv/bin/python .claude/skills/session-review/scripts/aggregate.py --coverage",
+    ), start=1):
+        t.assistant(i, [tool("Bash", tid=f"t{i}", command=command)])
+    t.assistant(4, [tool("Write", tid="t4", file_path="reviews/2026-09-20-x.md")])
+    t.assistant(5, [{"type": "tool_use", "id": "t5", "name": "Skill",
+                     "input": {"skill": "session-review"}}])
+    m = metrics.scan(t.write(), Slice(None, None))
+    assert m.turns == 1                  # only the build
+    assert m.tools["Bash"] == 1
+    assert "Write" not in m.tools and "Skill" not in m.tools

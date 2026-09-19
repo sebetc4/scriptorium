@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -59,9 +60,22 @@ IDLE_MINUTES = 5
 IMAGE_TOKENS = 1600          # what a page image costs, from pdf/scripts/review.py
 MAX_LINES = 50               # the session that runs this pays for every line
 
-# A turn that ran the review tooling, or wrote into the corpus, is not part of
+# A turn that *ran* the review tooling, or wrote into the corpus, is not part of
 # the task being reviewed. Without this the instrument measures itself.
-TOOLING = ("metrics.py", "corpus.py", "aggregate.py", "session-review")
+#
+# Running is the act, not the subject: a command that executes one of these
+# scripts, the skill being invoked, a write into `reviews/`. Reading, editing or
+# testing those same files is work **on** the instrument, and work on the
+# instrument is a task like any other. The first rule matched any mention of a
+# path, so it could not tell the two apart — and the four phases that built this
+# script measured 106 API calls of 147 and 43 Bash calls of 125, always short,
+# always in the flattering direction.
+TOOLING_SCRIPTS = ("metrics.py", "corpus.py", "aggregate.py")
+# A python interpreter, its flags, then a path ending in one of those scripts.
+# `-m pytest <path>` does not match: the token after the flags is `pytest`.
+RUNS_TOOLING = re.compile(
+    r"(?:^|[|&;]|\s)(?:\S*\bpython[\d.]*|\S*/\w+\.py)\s+(?:-\S+\s+)*"
+    r"\S*(?:" + "|".join(t.replace(".", r"\.") for t in TOOLING_SCRIPTS) + r")\b")
 
 
 def die(message: str) -> None:
@@ -176,14 +190,43 @@ class Tally:
 
 
 def is_tooling(block: dict) -> bool:
-    text = json.dumps(block.get("input") or {})
-    return any(mark in text for mark in TOOLING) or "reviews/" in text
+    """Whether this tool call ran the review tooling rather than the task."""
+    name, params = block.get("name"), block.get("input") or {}
+    if name == "Bash":
+        return bool(RUNS_TOOLING.search(str(params.get("command", ""))))
+    if name == "Skill":
+        return str(params.get("skill", "")).endswith("session-review")
+    if name in ("Write", "Edit", "NotebookEdit"):
+        path = str(params.get("file_path") or params.get("notebook_path") or "")
+        return path.startswith("reviews/") or "/reviews/" in path
+    return False
+
+
+def tooling_messages(path: Path, window: Slice) -> set[str]:
+    """The ids of the messages that ran the review tooling.
+
+    A first pass, because one message is written as one record per content
+    block: its tool call and its thinking sit in different records, and
+    skipping record by record would drop the call while still counting the
+    turn. What is excluded is a turn, not a line of the file.
+    """
+    found = set()
+    for rec in records(path):
+        if rec.get("type") != "assistant" or not window.holds(when(rec.get("timestamp"))):
+            continue
+        message = rec.get("message") or {}
+        content = message.get("content")
+        blocks = content if isinstance(content, list) else []
+        if any(b.get("type") == "tool_use" and is_tooling(b) for b in blocks):
+            found.add(message.get("id") or rec.get("requestId") or rec.get("uuid"))
+    return found
 
 
 def scan(path: Path, window: Slice) -> Tally:
     t = Tally()
     seen: set[str] = set()          # message ids whose usage is already counted
     skip: set[str] = set()          # tool_use ids belonging to the tooling
+    tooling = tooling_messages(path, window)
     image_at: list[int] = []        # the API call each image arrived on
 
     for rec in records(path):
@@ -199,11 +242,11 @@ def scan(path: Path, window: Slice) -> Tally:
             if rec.get("isApiErrorMessage"):
                 t.api_errors += 1
             tool_uses = [b for b in blocks if b.get("type") == "tool_use"]
-            if any(is_tooling(b) for b in tool_uses):
+            mid = message.get("id") or rec.get("requestId") or rec.get("uuid")
+            if mid in tooling:
                 skip.update(b.get("id", "") for b in tool_uses)
                 continue
 
-            mid = message.get("id") or rec.get("requestId") or rec.get("uuid")
             usage = message.get("usage") or {}
             if mid not in seen:
                 seen.add(mid)
