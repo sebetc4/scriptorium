@@ -74,15 +74,30 @@ it, ranked first by `aggregate.py` on recurrence and severity.
 
 ## Metadata
 
-**Roadmap Status:** 🟡 In Progress
-**Location:** `docs/roadmap/pending/session-review-accuracy/`
-**Version:** 1.1.0
+**Roadmap Status:** 🟢 Done
+**Location:** `docs/roadmap/completed/session-review-accuracy/`
+**Version:** 2.0.0
 **Created:** 2026-09-18
 **Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 2.0.0 (2026-09-20)
+
+Roadmap closed, 5/5, and moved to
+`docs/roadmap/completed/session-review-accuracy/` — straight from `pending/`,
+since a roadmap of one phase never passes through `on-progress/`. `summary.md`
+records where it started, where it landed, what was learned that outlives it,
+and the two things it leaves open.
+
+The instrument no longer under-measures work done on itself. What stays open is
+named rather than buried: a turn that runs the tooling is excluded even when
+running it was the work, and the five reviews already in the corpus keep the
+figures the old rule produced.
+
+No restructuring was left pending.
 
 ### 1.1.0 (2026-09-20)
 
