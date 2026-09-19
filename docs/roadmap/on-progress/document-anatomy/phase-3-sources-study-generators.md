@@ -4,7 +4,7 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/7)
+**Current Status:** 🔴 Not Started (0% — 0/8)
 **Started:**
 **Completed:**
 **Blocked By:** —
@@ -58,6 +58,7 @@ them, on the user's behalf, and they are as received as an imported PDF.
 - [ ] Move `ingest.py`'s derivation — `extracted.md`, `meta.json` — to `study/`, and `pages/` to `.work/`, since page renders are regenerable and large
 - [ ] Move `fetch.py`'s derivation to `study/`, leaving `page.html.gz` in `sources/` as received material
 - [ ] Move the sourcing journal `NOTES.md` to `study/`, where written knowledge belongs beside what it was written from
+- [ ] Move `translate.py`'s workspace to `study/translate/`, and decide when one is retired — it is spent once `apply` has run, and nothing says so today
 - [ ] Move `figures.py` to `generators/`, and say in the `pdf` skill that a generator lives there and writes into `document/assets/`
 - [ ] Make both derivations re-runnable from `sources/` alone, and add the command that does it
 - [ ] Update every instruction that names `sources/extracted.md` — the four `SKILL.md`, `ingest.py`'s and `fetch.py`'s own notes — since a path in a skill is an instruction, not a comment
@@ -69,6 +70,7 @@ them, on the user's behalf, and they are as received as an imported PDF.
 
 ### Files to Modify
 ```
+.claude/skills/translate/scripts/translate.py   WORKSPACES → study/translate/
 .claude/skills/pdf/scripts/ingest.py     the derivation targets, and its notes
 .claude/skills/fetch/scripts/fetch.py    the derivation targets, and its notes
 .claude/skills/pdf/SKILL.md              where a generator lives

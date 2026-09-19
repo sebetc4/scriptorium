@@ -653,7 +653,7 @@ library/<topic…>/<slug>/
   sources/      what was received
   study/        extracted text, provenance, the investigation journal
   generators/   the code that draws an asset
-  .work/        review sheets, EPUB proofs, translation workspace, page renders
+  .work/        review sheets, EPUB proofs, page renders
 ```
 
 | | Written by | Read by the build | `make clean` |
@@ -689,9 +689,9 @@ kept apart from `study/` so that neither directory has an exception to its own
 rule: one holds prose and data, the other holds programs.
 
 **`.work/`** is everything a command can make again: review sheets, EPUB
-contact sheets, the translation workspace, page renders. It is hidden because it
-is disposable, inside the document because that is what it is about, and removed
-by `make clean` without a thought.
+contact sheets, page renders. It is hidden because it is disposable, inside the
+document because that is what it is about, and removed by `make clean` without a
+thought.
 
 ### Acquire, derive
 
@@ -720,7 +720,14 @@ the interesting cases.
 | `NOTES.md` | `study/` | An investigation's journal. Written, neither received nor derived, and no command makes it again. |
 | `figures.py` | `generators/` | Code. Deleting it loses the ability to redraw what it drew. |
 | a hand-drawn SVG | `document/assets/` | Expensive, durable, agent-made — and the document references it, so the cut sends it with the document. |
+| a translation workspace | `study/` | A command re-runs a translation, but not the same one: an engine's answers are the work itself, and for the `agent` engine they are an agent's writing. Both halves of the rule fail. |
 | review sheets, page renders | `.work/` | A command makes them again, and nothing is lost by making them later. |
+
+A translation workspace is the case that shows why the second half of the rule
+carries the weight. It *looks* like working state — a job in progress, named
+after a command — and `make clean` would have taken a half-translated hundred-page
+document with it. What a command can produce again is *a* translation, not *the*
+translation that was under way.
 
 The ambiguous case is `extracted.md`, and it is ambiguous in a way worth naming:
 it is regenerable, so it *could* live in `.work/`, but only if regeneration is

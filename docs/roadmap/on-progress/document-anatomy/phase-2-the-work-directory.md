@@ -4,8 +4,8 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/6)
-**Started:**
+**Current Status:** 🟡 In Progress (0% — 0/5)
+**Started:** 2026-09-19
 **Completed:**
 **Blocked By:** —
 
@@ -40,12 +40,18 @@ state of a job, not an output of it.
 They are also kept away from the document they describe, in a parallel tree
 joined to it by nothing but a path convention.
 
+`out/translate/` started this phase as a fourth and is not one. An engine's
+answers are not regenerable in the sense the rule means — re-running gives *a*
+translation, not *the* one under way — so the workspace is durable and moves to
+`study/` in Phase 3, not here.
+
 ### What It Enables
 `out/` as an export folder a person can hand to someone else, and a document
 that is one thing in one place.
 
 ### Out of Scope
 `out/pdf/` and `out/epub/`. They hold the finished documents and do not move.
+`out/translate/`, which is durable and belongs to Phase 3.
 
 ---
 
@@ -54,7 +60,6 @@ that is one thing in one place.
 - [ ] Add `work_dir(root, kind)` beside `out_dir()` in `core/doc.py`, resolving to `<slug>/.work/<kind>/`, and make it the only place that knows the layout
 - [ ] Move `review.py`'s sheets and zooms from `OUT / "review"` to `.work/review/<variant>/`
 - [ ] Move `preview.py`'s sheets from `out_dir(d, "preview")` to `.work/preview/`
-- [ ] Move `translate.py`'s workspace from `OUT / "translate"` to `.work/translate/`
 - [ ] Make `make clean` safe: it removes `out/` and every `.work/` under `library/`, and nothing else — proven on a fixture tree holding a `sources/`, a `document/` and a `.work/`
 - [ ] Add `make clean DOC=topic/slug`, since a clean that can only be total is a clean nobody runs
 
@@ -67,7 +72,6 @@ that is one thing in one place.
 core/doc.py                                    work_dir(), beside out_dir()
 .claude/skills/pdf/scripts/review.py           OUT / "review" → work_dir
 .claude/skills/epub/scripts/preview.py         out_dir(d, "preview") → work_dir
-.claude/skills/translate/scripts/translate.py  WORKSPACES → work_dir
 Makefile                                       clean, and clean DOC=
 docs/architecture.md                           follows the change
 ```

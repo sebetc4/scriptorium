@@ -17,14 +17,14 @@
 ```
 Phase 0  The Anatomy Of A Document                        🟢 ████████████████████ 100%  (6/6)
 Phase 1  The Document, In Its Own Directory               🟢 ████████████████████ 100%  (7/7)
-Phase 2  Everything Disposable, In One Place              🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
+Phase 2  Everything Disposable, In One Place              🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/5)
+Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
 Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
 Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 TOTAL                                                        ███████░░░░░░░░░░░░░  35%  (13/37)
 ```
 
-**Current Phase:** Phase 1 — The Document, In Its Own Directory
+**Current Phase:** Phase 2 — Everything Disposable, In One Place
 **Blocked By:** —
 **Next Milestone:** Phase 2 — Everything Disposable, In One Place
 
@@ -64,7 +64,7 @@ library/<topic…>/<slug>/
   sources/      what was received                the user's
   study/        extracted text, provenance, the investigation journal
   generators/   the code that draws an asset
-  .work/        review sheets, EPUB proofs, translation workspace, page renders
+  .work/        review sheets, EPUB proofs, page renders
 ```
 
 | | Written by | Read by the build | `make clean` |
@@ -104,8 +104,16 @@ assets together leaves every relative path in every document untouched; moving t
 rewriting every document's links to gain nothing.
 
 **Durable is split in two.** `study/` is what the agent learned — extracted
-text, provenance, the journal. `generators/` is code. Both survive `make clean`;
-keeping them apart means neither directory has an exception to its own rule.
+text, provenance, the journal, a translation's workspace. `generators/` is code.
+Both survive `make clean`; keeping them apart means neither directory has an
+exception to its own rule.
+
+**A translation workspace is durable, not working state.** It looks like the
+second — a job in progress, named after a command, written under `out/` today —
+and it is the first: an engine's answers are the work itself, and re-running
+gives *a* translation rather than *the* one under way. `make clean` would have
+taken a half-translated hundred-page document with it. Added on 2026-09-19,
+during Phase 2, from a reading of the rule the anatomy already carried.
 
 **Each phase migrates the documents it affects**, behind a dry run shown before
 it runs. The library is never left in two shapes at once.
@@ -129,8 +137,8 @@ it runs. The library is never left in two shapes at once.
 |---|---|---|---|
 | 0 | [The Anatomy Of A Document](phase-0-the-anatomy.md) | 6 | 🟢 Done |
 | 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🟢 Done |
-| 2 | [Everything Disposable](phase-2-the-work-directory.md) | 6 | 🔴 Not Started |
-| 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 7 | 🔴 Not Started |
+| 2 | [Everything Disposable](phase-2-the-work-directory.md) | 5 | 🟡 In Progress |
+| 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 8 | 🔴 Not Started |
 | 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🔴 Not Started |
 | 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🔴 Not Started |
 
