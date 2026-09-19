@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # PreToolUse (Edit|Write|NotebookEdit): refuses the files the repository treats
-# as generated or as immutable evidence. Scripts still write them through Bash.
+# as generated, as the user's, or as immutable evidence. Scripts still write
+# them through Bash — which is what keeps `make import` and `make fetch` able to
+# acquire into `sources/` while this refuses an edit by hand.
 set -u
 root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 file=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty')
@@ -15,16 +17,23 @@ case "$file" in
     deny "brand/icons/ is the pinned Lucide set: regenerate it with make icons." ;;
   "$HOME/.claude/plugins/"*diagram-design*|"$HOME/.diagram-design/"*)
     deny "diagram-design is never modified: change brand/sync.py and run make brand." ;;
+  # The anatomy of a document, docs/architecture.md §11. Two of its five
+  # directories are not this agent's to write by hand.
   "$root/library/"*/sources/*)
-    deny "sources/ is the immutable record of an import or a capture: edit index.md instead." ;;
+    deny "sources/ belongs to the user: they fill it, and no tool modifies what is in it. Derived material goes to study/, the document to document/index.md." ;;
+  "$root/library/"*/.work/*)
+    deny ".work/ is remade by a command and removed by make clean: change what produces it, not the output." ;;
 esac
 
-# A sourcing investigation is any folder holding NOTES.md; its pieces are proof.
+# An investigation's pieces are proof, wherever the document keeps them. The
+# journal marks one: `study/NOTES.md` since the document-anatomy roadmap, and
+# `NOTES.md` at the root for a document written before it.
 dir=$(dirname "$file")
 while [ "$dir" != "/" ] && [ "$dir" != "." ]; do
   case "$(basename "$dir")" in
     raw|datasheets|images)
-      [ -f "$(dirname "$dir")/NOTES.md" ] &&
+      up=$(dirname "$dir")
+      { [ -f "$up/study/NOTES.md" ] || [ -f "$up/NOTES.md" ]; } &&
         deny "$(basename "$dir")/ holds pieces of an investigation, kept as received: never edited." ;;
   esac
   dir=$(dirname "$dir")

@@ -19,14 +19,14 @@ Phase 0  The Anatomy Of A Document                        🟢 █████�
 Phase 1  The Document, In Its Own Directory               🟢 ████████████████████ 100%  (7/7)
 Phase 2  Everything Disposable, In One Place              🟢 ████████████████████ 100%  (5/5)
 Phase 3  What Was Received, What Was Learned, What Makes  🟢 ████████████████████ 100%  (8/8)
-Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
+Phase 4  Keeping It True                                  🟢 ████████████████████ 100%  (5/5)
 Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-TOTAL                                                        ██████████████░░░░░░  70%  (26/37)
+TOTAL                                                        █████████████████░░░  84%  (31/37)
 ```
 
-**Current Phase:** Phase 3 — What Was Received, What Was Learned, What Makes
+**Current Phase:** Phase 4 — Keeping It True
 **Blocked By:** —
-**Next Milestone:** Phase 4 — Keeping It True
+**Next Milestone:** Phase 5 — The Documentation That Follows
 
 ---
 
@@ -139,7 +139,7 @@ it runs. The library is never left in two shapes at once.
 | 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🟢 Done |
 | 2 | [Everything Disposable](phase-2-the-work-directory.md) | 5 | 🟢 Done |
 | 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 8 | 🟢 Done |
-| 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🔴 Not Started |
+| 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🟢 Done |
 | 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🔴 Not Started |
 
 ---
@@ -165,13 +165,34 @@ it runs. The library is never left in two shapes at once.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/document-anatomy/`
-**Version:** 1.5.0
+**Version:** 1.6.0
 **Created:** 2026-09-19
-**Last Updated:** 2026-09-19
+**Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 1.6.0 (2026-09-20)
+
+Phase 4 closed, 5/5. `tests/test_anatomy.py` fails when a document holds
+anything the anatomy does not place, naming the file and the document, and
+skips on a fresh clone where `library/` is user content that is not there.
+
+**The guard was rewritten against the anatomy, and phase 3 had broken it.**
+`protect-paths.sh` recognised an investigation by a `NOTES.md` beside its
+`raw/`; moving the journal to `study/` turned that check off, in silence, for
+every investigation. Reproduced — exit 2 before, exit 0 after — and both shapes
+are recognised now. The guard refuses a write into `sources/`, which is the
+user's, and into `.work/`, which a command remakes; it allows `document/`,
+`study/` and `generators/`. Acquisition is untouched, because a script writes
+through Bash and the hook only sees an edit by hand.
+
+Rebuilt one last time: 15 PDFs and 8 EPUBs identical to what Phase 1 recorded
+before any of this began. Four phases of reorganisation, and nothing a reader
+sees has changed. 508 tests.
+
+Six files needed a hand across the roadmap, and the phase report names each one.
 
 ### 1.5.0 (2026-09-19)
 

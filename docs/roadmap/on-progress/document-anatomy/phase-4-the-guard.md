@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/5)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 5/5)
+**Started:** 2026-09-19
+**Completed:** 2026-09-20
 **Blocked By:** —
 
 ---
@@ -50,11 +50,11 @@ fixed by widening a definition.
 
 ## Tasks
 
-- [ ] Add the test that fails when a document directory holds anything the anatomy does not place, naming the file and the document
-- [ ] Add `sources/` to what `protect-paths.sh` guards, so a tool writing a derived file into it is refused at the hook
-- [ ] Check the guard does not refuse acquisition — `make import` and `make fetch` must still be able to put received material there
-- [ ] Rebuild the whole library one last time and confirm every output matches what Phase 1 recorded
-- [ ] Record in the report every file that needed a hand across the four phases, since documents written before the anatomy will not all have fitted it
+- [x] Add the test that fails when a document directory holds anything the anatomy does not place, naming the file and the document
+- [x] Add `sources/` to what `protect-paths.sh` guards, so a tool writing a derived file into it is refused at the hook
+- [x] Check the guard does not refuse acquisition — `make import` and `make fetch` must still be able to put received material there
+- [x] Rebuild the whole library one last time and confirm every output matches what Phase 1 recorded
+- [x] Record in the report every file that needed a hand across the four phases, since documents written before the anatomy will not all have fitted it
 
 ---
 
@@ -82,11 +82,11 @@ documents kept outside the repository.
 
 ## Acceptance Criteria
 
-- [ ] A stray file in a document directory fails the test, by name
-- [ ] A script writing a derived file into `sources/` is refused by the hook
-- [ ] `make import` and `make fetch` still work end to end
-- [ ] The test skips on a fresh clone rather than failing
-- [ ] `make test` passes
+- [x] A stray file in a document directory fails the test, by name
+- [x] A script writing a derived file into `sources/` is refused by the hook
+- [x] `make import` and `make fetch` still work end to end
+- [x] The test skips on a fresh clone rather than failing
+- [x] `make test` passes
 
 ---
 
