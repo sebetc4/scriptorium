@@ -161,13 +161,32 @@ suite, this one passes on a fresh clone: it never reads a real conversation.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/session-review/`
-**Version:** 1.6.0
+**Version:** 1.6.1
 **Created:** 2026-09-17
 **Last Updated:** 2026-09-18
 
 ---
 
 ## Changelog
+
+### 1.6.1 (2026-09-19)
+
+Phase 5 gains a fourth standing hypothesis, and the corpus loses a `carried:`.
+
+The recurring `process` finding — a phase's start commit is one phase behind —
+was carried to `docs/roadmap/pending/roadmap-contract/`, then resolved at its
+root instead: the `roadmap` skill reordered its closing ritual so that a phase
+opens after the closure is committed, and `HEAD` at that moment is the commit
+that closed the phase before it. The two lines the roadmap existed to add to
+`CLAUDE.md` became unnecessary, and the roadmap was deleted rather than kept as
+an empty shell.
+
+That left the four reviews pointing at a file that no longer exists. Their
+`carried:` is removed and the resolution is written into each finding's `note:`,
+because the format has no field for a finding fixed upstream in a repository
+this one only consumes. It is the same limit as `target` not being able to name
+a file outside this repository, seen from the other end, and Phase 5 now carries
+both as one question.
 
 ### 1.6.0 (2026-09-18)
 

@@ -81,8 +81,15 @@ the decision is cheap, not so that it is frequent.
 The three strains Phase 4 recorded are the standing hypotheses, and each is
 either confirmed or dropped here: that no `kind` fits a defect in the
 instrument's own measurement; that `target` cannot name a file outside this
-repository; and that `document` and `images` mean nothing for a task that
-produces no document.
+repository; that `carried:` cannot say a finding was resolved upstream rather
+than in this repository, which is the same limit seen from the other end; and
+that `document` and `images` mean nothing for a task that produces no document.
+
+The third and fourth are one question asked twice: the format assumes a single
+repository, and this tooling lives in two. A finding raised here may have its
+target and its fix in the skill repository, and today neither field can say so.
+Four reviews already carry the case, written into their `note:` for want of a
+field.
 
 ---
 
