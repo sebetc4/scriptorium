@@ -12,7 +12,7 @@ without touching what must not move: code, icons, links, markup, numbers, the
 front matter's keys.
 
 Translation happens **on the Markdown**, never on a PDF: that is where the
-meaning is reachable and the formatting already normalised. `sources/extracted.md`
+meaning is reachable and the formatting already normalised. `study/extracted.md`
 is the immutable record of the extraction and is never edited.
 
 ## Where it sits
@@ -45,11 +45,11 @@ table, translated.
 | What | Where it is stated | Who reads it |
 |---|---|---|
 | The target language | `TO=` on `make import` or `make fetch`, written as `lang:` in the front matter | this skill, the hyphenation, the EPUB |
-| The source language | recorded by the import and the capture as `source_language` in `sources/meta.json` | this skill |
+| The source language | recorded by the import and the capture as `source_language` in `study/meta.json` | this skill |
 
 So `translate.py` asks nothing. The target is `lang:` — and a document with no
 explicit `lang:` is refused rather than given the build's default. The source
-is `sources/meta.json`, or `--from`, or, for a document with neither, detected
+is `study/meta.json`, or `--from`, or, for a document with neither, detected
 and printed.
 
 **A capture without `TO=` keeps the page's language**, and its `lang:` says so.
@@ -73,11 +73,13 @@ $T apply   <topic>/<slug>          # check every chunk, then write index.md
 make build DOC=<topic>/<slug>      # and review it — the pdf skill
 ```
 
-1. **Look at the source pages first**, after an import: `sources/pages/` shows
+1. **Look at the source pages first**, after an import: `.work/pages/` shows
    what the extraction lost — borderless tables, columns, boxes. Restore the
    structure (above) before anything else.
 2. **Write the glossary if the document has terms to hold** (see *Terminology*).
-3. **`prepare`** writes the job into `out/translate/<topic>/<slug>/`: the
+3. **`prepare`** writes the job into `study/translate/` — durable, because an
+   engine's answers are the work itself and `make clean` must not take a
+   translation under way: the
    protected zones, the chunks, the languages, a copy of the untranslated
    `index.md` as `original.md`.
 4. **`run`, answer, `run` again.** With the `agent` engine, each `run` stops at
@@ -103,8 +105,11 @@ change are kept; the others are discarded, and `run` asks for them again. After
 an edit to `index.md`, `apply` refuses until `prepare` has been rerun — it
 never writes a translation over text it did not translate.
 
-The workspace is under `out/`: `make clean` removes a translation that was not
-yet applied.
+The workspace is durable, under `study/translate/`: `make clean` never touches
+it, so a translation under way survives one. It is **spent** once `apply` has
+written the document — the answers are the translation and the translation is
+now in `index.md` — and `apply` says so. Nothing removes it automatically:
+deleting a translation is exactly what moving it out of `.work/` prevented.
 
 ## What an engine is given, and what it keeps
 

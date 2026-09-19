@@ -66,19 +66,18 @@ class DictionaryEngine:
 def library(tmp_path, monkeypatch):
     lib = tmp_path / "library"
     d = lib / "watch" / "led"
-    (d / "sources").mkdir(parents=True)
+    (d / doc.STUDY).mkdir(parents=True)
     (doc.doc_dir(d)).mkdir(parents=True)
     (doc.doc_dir(d) / doc.ENTRY).write_text(DOC, encoding="utf-8")
-    (d / "sources" / "meta.json").write_text(json.dumps({"source_language": "en"}))
+    (d / doc.STUDY / "meta.json").write_text(json.dumps({"source_language": "en"}))
     monkeypatch.setattr(translate, "LIBRARY", lib)
-    monkeypatch.setattr(translate, "WORKSPACES", tmp_path / "out" / "translate")
     monkeypatch.setitem(engines.ENGINES, "dictionary", DictionaryEngine)
     DictionaryEngine.seen = []
     return d
 
 
 def workspace(d):
-    return translate.WORKSPACES / "watch" / "led"
+    return d / doc.STUDY / translate.WORKSPACE
 
 
 def answer_all_as_agent(d, transform=fake_translate):
@@ -103,7 +102,7 @@ def test_the_target_is_lang_and_the_source_comes_from_the_import(library, capsys
 
 
 def test_a_document_already_in_its_target_language_is_refused(library, capsys):
-    (library / "sources" / "meta.json").write_text(json.dumps({"source_language": "fr"}))
+    (library / doc.STUDY / "meta.json").write_text(json.dumps({"source_language": "fr"}))
     assert translate.main(["prepare", "watch/led"]) == 1
     assert "set lang:" in capsys.readouterr().err
 
@@ -115,7 +114,7 @@ def test_a_document_without_an_explicit_lang_is_refused(library, capsys):
 
 
 def test_a_captured_page_gives_its_language_through_its_metadata(library):
-    (library / "sources" / "meta.json").write_text(json.dumps({"metadata": {"language": "en-GB"}}))
+    (library / doc.STUDY / "meta.json").write_text(json.dumps({"metadata": {"language": "en-GB"}}))
     assert translate.main(["prepare", "watch/led"]) == 0
     assert json.loads((workspace(library) / "job.json").read_text())["source_lang"] == "en"
 

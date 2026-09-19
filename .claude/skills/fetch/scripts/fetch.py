@@ -9,9 +9,9 @@ the art direction. It does not translate; it retrieves, cleans and structures.
 
     library/<topic>/<slug>/
       index.md              front matter + extracted content, to review
-      sources/extracted.md  the raw extraction, an immutable reference
-      sources/meta.json     provenance: URL, date, digest, metadata
       sources/page.html.gz  the page exactly as it was received
+      study/extracted.md    the raw extraction, an immutable reference
+      study/meta.json       provenance: URL, date, digest, metadata
       assets/               the downloaded and recompressed images
 """
 from __future__ import annotations
@@ -34,7 +34,8 @@ import trafilatura.utils
 from PIL import Image
 
 # ROOT from the core, not from this file's parents: it lives inside a skill.
-from core.doc import ENTRY, LIBRARY, ROOT, doc_dir
+from core.doc import (ENTRY, LIBRARY, ROOT, SOURCES, STUDY, doc_dir,
+                      find_docs)
 from core import net
 from core.imaging import store
 
@@ -290,8 +291,12 @@ def yaml_str(v) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Capture a web page.")
-    ap.add_argument("url")
-    ap.add_argument("path", help="destination under library/, e.g. watch/article")
+    ap.add_argument("url", nargs="?")
+    ap.add_argument("path", nargs="?",
+                    help="destination under library/, e.g. watch/article")
+    ap.add_argument("--rederive", metavar="DOC",
+                    help="re-extract a captured document from its "
+                         "sources/page.html.gz, writing only study/extracted.md")
     ap.add_argument("--lang", metavar="CODE",
                     help="target language; by default the page's own")
     ap.add_argument("--render", action="store_true",
@@ -299,6 +304,35 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--preset", default="report")
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args(argv)
+
+    # Re-derivation: the page as received is in `sources/`, and only the
+    # extraction is rewritten. `study/meta.json` is not — it carries the date
+    # of the capture, the HTTP status and the certificate's verification, and
+    # nothing recomputes those — and neither is `index.md`.
+    if args.rederive:
+        try:
+            dest, = find_docs([args.rederive])
+        except Exception as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+        received = dest / SOURCES / "page.html.gz"
+        if not received.is_file():
+            return 0            # not a capture: nothing here to re-derive
+        meta_path = dest / STUDY / "meta.json"
+        url = ""
+        if meta_path.is_file():
+            stored = json.loads(meta_path.read_text(encoding="utf-8"))
+            url = stored.get("url") or stored.get("effective_url") or ""
+        html = gzip.decompress(received.read_bytes()).decode("utf-8", "replace")
+        md, _, _ = extract(html, url)
+        out = dest / STUDY / "extracted.md"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(md, encoding="utf-8")
+        print(f"✓ {out.relative_to(ROOT)}")
+        return 0
+
+    if not (args.url and args.path):
+        ap.error("url and path are required without --rederive")
 
     if urllib.parse.urlparse(args.url).scheme not in ("http", "https"):
         print("error: the URL must be http or https", file=sys.stderr)
@@ -327,18 +361,22 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  ! redirected: {args.url} → {response.effective_url}")
     if not response.tls_verified:
         print("  ! the host's certificate could not be verified: captured over an "
-              "unverified connection, which sources/meta.json records")
+              "unverified connection, which study/meta.json records")
 
     hint = ""
     if not args.render and looks_client_rendered(html, md):
         hint = ("the page looks client-rendered: very little text for a lot of "
                 "markup. Run again with --render.")
 
-    assets, source_dir = doc_dir(dest) / "assets", dest / "sources"
-    for p in (assets, source_dir):
+    # `sources/` keeps the page as it was received — a tool acquiring on the
+    # user's behalf; what is computed from it goes to `study/`
+    # (docs/architecture.md §11).
+    assets = doc_dir(dest) / "assets"
+    source_dir, study_dir = dest / SOURCES, dest / STUDY
+    for p in (assets, source_dir, study_dir):
         p.mkdir(parents=True, exist_ok=True)
 
-    (source_dir / "extracted.md").write_text(md, encoding="utf-8")
+    (study_dir / "extracted.md").write_text(md, encoding="utf-8")
     body, n_images, failures = localize_images(md, args.url, assets)
 
     # The bytes as received, not decoded and re-encoded: they are the proof of
@@ -350,7 +388,7 @@ def main(argv: list[str] | None = None) -> int:
     # language from here, so it is stated once and never asked again.
     page_lang = str(meta.get("language") or "").split("-")[0].lower() \
         or detect_language(html, md)
-    (source_dir / "meta.json").write_text(json.dumps({
+    (study_dir / "meta.json").write_text(json.dumps({
         "url": args.url,
         "effective_url": response.effective_url,
         "http_status": response.status,
@@ -375,7 +413,7 @@ def main(argv: list[str] | None = None) -> int:
              "move back into the repository's hierarchy, navigation blocks to "
              "delete.",
              "The received page is kept in sources/page.html.gz; "
-             "sources/extracted.md keeps the extraction intact.",
+             "study/extracted.md keeps the extraction intact.",
              "The URL and the capture date are not carried onto the cover: "
              "offer them to the user if the document should display them."]
     if page_lang and args.lang and page_lang != args.lang:
@@ -391,7 +429,7 @@ def main(argv: list[str] | None = None) -> int:
         notes.append(hint)
     if failures:
         notes.append(f"{len(failures)} image(s) not retrieved — see "
-                     "sources/meta.json.")
+                     "study/meta.json.")
 
     front = "\n".join([
         "---",

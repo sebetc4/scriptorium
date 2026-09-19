@@ -266,7 +266,7 @@ And what each refuses, which is the part a reader actually needs:
 | `sourcing` | write a document — an `index.md` — anywhere; present a search-engine excerpt as a primary source. *Its pieces may live in the `sources/` of the document the investigation feeds, as the Electribe 2 investigation's did (corrected by Phase 6).* |
 | `pdf` | produce reflowable output; review an EPUB page by page; translate |
 | `epub` | write or build the paginated document; be reviewed screen by screen |
-| `translate` | import or capture; edit `sources/extracted.md`, which is immutable |
+| `translate` | import or capture; edit `study/extracted.md`, which is immutable |
 
 ### The trigger check
 
@@ -725,7 +725,7 @@ the interesting cases.
 | `NOTES.md` | `study/` | An investigation's journal. Written, neither received nor derived, and no command makes it again. |
 | `figures.py` | `generators/` | Code. Deleting it loses the ability to redraw what it drew. |
 | a hand-drawn SVG | `document/assets/` | Expensive, durable, agent-made — and the document references it, so the cut sends it with the document. |
-| a translation workspace | `study/` | A command re-runs a translation, but not the same one: an engine's answers are the work itself, and for the `agent` engine they are an agent's writing. Both halves of the rule fail. |
+| a translation workspace | `study/` | A command re-runs a translation, but not the same one: an engine's answers are the work itself, and for the `agent` engine they are an agent's writing. Both halves of the rule fail. It is **spent** once `apply` has written the document, and nothing removes it automatically. |
 | review sheets, page renders | `.work/` | A command makes them again, and nothing is lost by making them later. |
 
 A translation workspace is the case that shows why the second half of the rule

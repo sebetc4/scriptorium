@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/8)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 8/8)
+**Started:** 2026-09-19
+**Completed:** 2026-09-19
 **Blocked By:** —
 
 ---
@@ -55,14 +55,14 @@ them, on the user's behalf, and they are as received as an imported PDF.
 
 ## Tasks
 
-- [ ] Move `ingest.py`'s derivation — `extracted.md`, `meta.json` — to `study/`, and `pages/` to `.work/`, since page renders are regenerable and large
-- [ ] Move `fetch.py`'s derivation to `study/`, leaving `page.html.gz` in `sources/` as received material
-- [ ] Move the sourcing journal `NOTES.md` to `study/`, where written knowledge belongs beside what it was written from
-- [ ] Move `translate.py`'s workspace to `study/translate/`, and decide when one is retired — it is spent once `apply` has run, and nothing says so today
-- [ ] Move `figures.py` to `generators/`, and say in the `pdf` skill that a generator lives there and writes into `document/assets/`
-- [ ] Make both derivations re-runnable from `sources/` alone, and add the command that does it
-- [ ] Update every instruction that names `sources/extracted.md` — the four `SKILL.md`, `ingest.py`'s and `fetch.py`'s own notes — since a path in a skill is an instruction, not a comment
-- [ ] Migrate the documents behind a dry run, then rebuild them all and compare
+- [x] Move `ingest.py`'s derivation — `extracted.md`, `meta.json` — to `study/`, and `pages/` to `.work/`, since page renders are regenerable and large
+- [x] Move `fetch.py`'s derivation to `study/`, leaving `page.html.gz` in `sources/` as received material
+- [x] Move the sourcing journal `NOTES.md` to `study/`, where written knowledge belongs beside what it was written from
+- [x] Move `translate.py`'s workspace to `study/translate/`, and decide when one is retired — it is spent once `apply` has run, and nothing says so today
+- [x] Move `figures.py` to `generators/`, and say in the `pdf` skill that a generator lives there and writes into `document/assets/`
+- [x] Make both derivations re-runnable from `sources/` alone, and add the command that does it
+- [x] Update every instruction that names `sources/extracted.md` — the four `SKILL.md`, `ingest.py`'s and `fetch.py`'s own notes — since a path in a skill is an instruction, not a comment
+- [x] Migrate the documents behind a dry run, then rebuild them all and compare
 
 ---
 
@@ -96,11 +96,11 @@ destroyed.
 
 ## Acceptance Criteria
 
-- [ ] After `make import` and `make fetch`, `sources/` holds only received material
-- [ ] Deleting `study/` and re-running the derivation reproduces `extracted.md` byte for byte, or the phase records which script cannot and why
-- [ ] `figures.py` lives in `generators/` and still produces the four SVGs of its document
-- [ ] No `SKILL.md` names a path that no longer exists
-- [ ] `make test` passes, fetch and import suites included
+- [x] After `make import` and `make fetch`, `sources/` holds only received material
+- [x] Deleting `study/` and re-running the derivation reproduces `extracted.md` byte for byte, or the phase records which script cannot and why
+- [x] `figures.py` lives in `generators/` and still produces the four SVGs of its document
+- [x] No `SKILL.md` names a path that no longer exists
+- [x] `make test` passes, fetch and import suites included
 
 ---
 

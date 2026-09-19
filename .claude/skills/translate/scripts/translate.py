@@ -8,9 +8,9 @@
 
 **prepare** reads `index.md`, protects what must not be translated (zones.py),
 cuts the body into chunks that carry their context (chunking.py), and writes
-the job into a workspace under `out/translate/<topic>/<slug>/`. The target
+the job into a workspace under `study/translate/`. The target
 language is the front matter's `lang:`, stated when the document was imported
-or captured. The source language comes from `sources/meta.json` — recorded by
+or captured. The source language comes from `study/meta.json` — recorded by
 the import and the capture — or `--from`, or is detected. It is never asked.
 
 **run** hands the chunks to an engine in order, each with the context before it
@@ -20,6 +20,11 @@ files — `run` writes the request, the agent writes the answer, `run` again
 moves on — so it goes through exactly the same checks as a model would.
 
 **apply** checks every chunk (qc.py). An error blocks: nothing is written.
+A workspace is **spent** once `apply` has written the document: its answers are
+the translation, and the translation is now in `index.md`. Nothing deletes it —
+`make clean` never touches `study/` — and `apply` says so instead, because a
+tool that removes a translation is the thing this workspace was moved out of
+`.work/` to prevent.
 Otherwise the translation replaces the body, the displayed front-matter strings
 are translated in their own lines, and `translated_from:` is added, so the
 document is never prepared a second time by mistake. `apply` refuses an
@@ -28,8 +33,8 @@ document is never prepared a second time by mistake. `apply` refuses an
 **cross-check** compares two engines' translations and names the chunks where
 they disagree.
 
-The workspace is a build artefact: `make clean` removes it, and a translation
-not yet applied is lost with it.
+The workspace is durable: `make clean` never touches it, so a translation
+under way survives one. It is spent once `apply` has run.
 """
 from __future__ import annotations
 
@@ -50,7 +55,11 @@ import qc
 import zones
 
 LIBRARY = doc.LIBRARY
-WORKSPACES = doc.OUT / "translate"
+# A translation workspace is durable, not working state: an engine's answers
+# are the work itself, and re-running gives *a* translation rather than *the*
+# one under way. It lives with the rest of what the agent produced and keeps
+# (docs/architecture.md §11), never under `.work/`, which `make clean` empties.
+WORKSPACE = "translate"
 FRONT_RE = re.compile(r"\A---[ \t]*\n.*?\n---[ \t]*\n", re.S)
 FRONT_LINE_RE = re.compile(r"^(⟦\d+⟧)[ \t]?(.*)$")
 
@@ -70,7 +79,7 @@ def document(path: str) -> Path:
 
 
 def workspace(d: Path) -> Path:
-    return WORKSPACES / d.relative_to(LIBRARY)
+    return d / doc.STUDY / WORKSPACE
 
 
 def split_front(text: str) -> tuple[str, str]:
@@ -90,12 +99,12 @@ def source_language(d: Path, body: str, given: str | None) -> tuple[str, str]:
     """The source language, and where it came from."""
     if given:
         return lang_code(given), "--from"
-    meta_path = d / "sources" / "meta.json"
+    meta_path = d / doc.STUDY / "meta.json"
     if meta_path.is_file():
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
-        for value, origin in ((meta.get("source_language"), "sources/meta.json"),
+        for value, origin in ((meta.get("source_language"), "study/meta.json"),
                               ((meta.get("metadata") or {}).get("language"),
-                               "sources/meta.json, the page's metadata")):
+                               "study/meta.json, the page's metadata")):
             if lang_code(value):
                 return lang_code(value), origin
     try:
@@ -347,9 +356,12 @@ def apply(args) -> int:
         front = re.sub(r"\n---[ \t]*\n\Z", f"\ntranslated_from: {job['source_lang']}\n---\n", front)
     (doc.doc_dir(d) / doc.ENTRY).write_text(front + "".join(body),
                                             encoding="utf-8")
-    print(f"  ✓ {d / 'index.md'}  {job['source_lang']} → {job['target_lang']}, "
+    print(f"  ✓ {doc.doc_dir(d) / doc.ENTRY}  "
+          f"{job['source_lang']} → {job['target_lang']}, "
           f"{len(job['chunks'])} chunk(s), {len(findings) - len(errors)} warning(s)\n"
           f"    the untranslated version stays in {workspace(d) / 'original.md'}\n"
+          f"    the workspace is now spent — the translation is in the document, "
+          f"and {workspace(d).relative_to(LIBRARY)} can be removed by hand\n"
           f"    next: make build DOC={job['doc']}, and review it")
     return 0
 

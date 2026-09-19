@@ -44,10 +44,9 @@ modifies what is in it), `study/` (what the agent learned — extracted text,
 provenance, an investigation's journal), `generators/` (code that draws an
 asset) and `.work/` (regenerable, removed by `make clean`).
 
-*The `document-anatomy` roadmap is moving the library into this shape.
-`document/` exists as of phase 1; until phase 3 closes, `sources/` still carries
-what a tool derived from it, and `study/`, `generators/` and `.work/` do not
-exist yet.*
+*The `document-anatomy` roadmap put the library into this shape in phases 1 to
+3. Phase 4 adds the guard that keeps it true, and phase 5 the manual,
+`docs/document.md`.*
 
 ## Commands
 

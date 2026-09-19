@@ -71,9 +71,9 @@ It writes:
 |---|---|
 | `document/index.md` | front matter + extracted content, to prune |
 | `document/assets/` | the downloaded images, recompressed |
-| `sources/extracted.md` | the raw extraction, an immutable reference |
+| `study/extracted.md` | the raw extraction, an immutable reference |
 | `sources/page.html.gz` | **the page as it was received**, byte for byte |
-| `sources/meta.json` | provenance: URL, effective URL, HTTP status, content type, TLS verification, date, SHA-256 digest, images that failed |
+| `study/meta.json` | provenance: URL, effective URL, HTTP status, content type, TLS verification, date, SHA-256 digest, images that failed |
 
 **`sources/page.html.gz` is the only proof of what was captured**, because a
 web page changes or disappears and cannot be asked for again. It holds the
@@ -104,13 +104,13 @@ And two cases it gets through, saying so rather than giving up:
   request.
 - **An expired or unverifiable certificate** is retried over an unverified
   connection. The probe line ends in `tls=unverified`, a warning is printed, and
-  `sources/meta.json` records `"tls_verified": false`. Mention it to the user
+  `study/meta.json` records `"tls_verified": false`. Mention it to the user
   when the document's provenance matters.
 
 A redirect is printed as `! redirected: <url> → <effective url>`, and recorded.
 
 Images get the same treatment. An image link that answers an HTML page is listed
-in `sources/meta.json` under `image_failures` as `answered text/html, not an
+in `study/meta.json` under `image_failures` as `answered text/html, not an
 image`, rather than as an obscure decoding error.
 
 Everything is written under the repository's `library/`, resolved to an
@@ -146,7 +146,7 @@ browser assembled rather than the bytes the server sent.
 3. **Restore the hierarchy.** The site's headings are not the repository's:
    bring them back to the presets' `##` / `###`. Remove a site suffix from the
    title (`… - Wikipedia`).
-4. **Check the images.** Those that failed are listed in `sources/meta.json`,
+4. **Check the images.** Those that failed are listed in `study/meta.json`,
    each with its reason. Each figure arrives titled "Figure — to be captioned":
    caption it or remove it.
 5. **Propose the cover** (the `pdf` skill, *The cover*), including the URL and

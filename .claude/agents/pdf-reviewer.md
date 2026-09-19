@@ -58,7 +58,7 @@ Read every `sheet-NN.png`: four pages each, labelled `p.N`. Judge the layout:
   real risks;
 - for `VARIANT=dark`: text, rules, table stripes, code blocks or diagrams with
   too little contrast on the dark paper; a white box around an image or diagram;
-- for `IMPORT`: the pages against `library/<topic>/<slug>/sources/pages/*.png`
+- for `IMPORT`: the pages against `library/<topic>/<slug>/.work/pages/*.png`
   — nothing omitted, nothing duplicated, the order kept.
 
 Note the pages a sheet leaves in doubt.

@@ -185,3 +185,13 @@ def test_clean_takes_one_document(library):
     doc.clean(["topic/a"])
     assert not (a / ".work").exists()
     assert (b / ".work").is_dir()
+
+
+def test_the_five_roles_are_named_once(library):
+    # The layout is stated in core/doc.py and nowhere else: a call site that
+    # spells a directory name is a call site that will drift from the anatomy.
+    root = make_doc(library, "topic/slug")
+    assert [doc.DOCUMENT, doc.SOURCES, doc.STUDY, doc.GENERATORS, doc.WORK] == [
+        "document", "sources", "study", "generators", ".work"]
+    assert doc.doc_dir(root).name == doc.DOCUMENT
+    assert doc.work_dir(root, "review").parent.name == doc.WORK

@@ -18,15 +18,15 @@
 Phase 0  The Anatomy Of A Document                        🟢 ████████████████████ 100%  (6/6)
 Phase 1  The Document, In Its Own Directory               🟢 ████████████████████ 100%  (7/7)
 Phase 2  Everything Disposable, In One Place              🟢 ████████████████████ 100%  (5/5)
-Phase 3  What Was Received, What Was Learned, What Makes  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
+Phase 3  What Was Received, What Was Learned, What Makes  🟢 ████████████████████ 100%  (8/8)
 Phase 4  Keeping It True                                  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
 Phase 5  The Documentation That Follows                   🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
-TOTAL                                                        ██████████░░░░░░░░░░  49%  (18/37)
+TOTAL                                                        ██████████████░░░░░░  70%  (26/37)
 ```
 
-**Current Phase:** Phase 2 — Everything Disposable, In One Place
+**Current Phase:** Phase 3 — What Was Received, What Was Learned, What Makes
 **Blocked By:** —
-**Next Milestone:** Phase 3 — What Was Received, What Was Learned, What Makes
+**Next Milestone:** Phase 4 — Keeping It True
 
 ---
 
@@ -138,7 +138,7 @@ it runs. The library is never left in two shapes at once.
 | 0 | [The Anatomy Of A Document](phase-0-the-anatomy.md) | 6 | 🟢 Done |
 | 1 | [The Document, In Its Own Directory](phase-1-the-document-directory.md) | 7 | 🟢 Done |
 | 2 | [Everything Disposable](phase-2-the-work-directory.md) | 5 | 🟢 Done |
-| 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 8 | 🔴 Not Started |
+| 3 | [Received, Learned, Making](phase-3-sources-study-generators.md) | 8 | 🟢 Done |
 | 4 | [Keeping It True](phase-4-the-guard.md) | 5 | 🔴 Not Started |
 | 5 | [The Documentation That Follows](phase-5-the-documentation.md) | 6 | 🔴 Not Started |
 
@@ -165,13 +165,47 @@ it runs. The library is never left in two shapes at once.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/document-anatomy/`
-**Version:** 1.4.0
+**Version:** 1.5.0
 **Created:** 2026-09-19
 **Last Updated:** 2026-09-19
 
 ---
 
 ## Changelog
+
+### 1.5.0 (2026-09-19)
+
+Phase 3 closed, 8/8. **`sources/` now means what the anatomy says.** What a tool
+derived left it: `extracted.md` and `meta.json` to `study/`, the page renders to
+`.work/pages/`, the sourcing journal to `study/`, `figures.py` to `generators/`,
+and the translation workspace from `out/` to `study/translate/`. What was
+received stayed — the imported PDFs, `page.html.gz`, an investigation's
+captures, and the notes a user wrote by hand.
+
+**The stop condition was tested before anything moved, and it held.** Importing
+the same PDF twice gives seventeen identical files; three extractions of the
+same captured page are identical to each other and to what is on disk. That is
+what earns `extracted.md` its place in `study/`.
+
+It also exposed the other half. `ingest.py` never copied the source PDF into
+`sources/` — `meta.json` recorded a path under `pdfs/`, a directory the
+repository renamed a roadmap ago — so re-derivation was never guaranteed. It
+copies it now: a tool acquiring on the user's behalf, which §11 allows.
+`make rederive DOC=` re-extracts from `sources/` alone and rewrites nothing
+else, and each script says nothing when the document is not its own, so no
+dispatch logic sits in the `Makefile`.
+
+Two documents' extractions differ when re-derived today, by one string:
+`"Figure — à légender"` became `"Figure — to be captioned"` when the repository
+was translated. The extraction is deterministic; the script's wording moved.
+That is precisely the case §11 names, seen in the wild, and the originals were
+restored — this phase moves, it does not regenerate.
+
+A workspace is **spent** once `apply` has written the document. Nothing removes
+it automatically, and `apply` says so instead: deleting a translation is what
+moving it out of `.work/` prevented.
+
+237 library files byte-identical, 15 PDFs and 8 EPUBs unchanged, 499 tests.
 
 ### 1.4.0 (2026-09-19)
 

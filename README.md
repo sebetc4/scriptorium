@@ -138,7 +138,7 @@ make import SRC=report.pdf DOC=watch/wto-report TO=en
 extraction yields the text, the images recompressed according to their nature,
 and each page as a PNG. It produces an ordinary document: its structure is
 restored first, then the `translate` skill translates `index.md` in place, and
-`make build` applies the art direction. `sources/extracted.md` keeps the
+`make build` applies the art direction. `study/extracted.md` keeps the
 extraction intact as a reference.
 
 ## Capturing a web page

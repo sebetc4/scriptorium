@@ -155,7 +155,7 @@ Two traps, both seen:
 
 - **Provenance almost never interests the reader.** "Translated from English",
   "after the source document": that is process information. It lives in the
-  `source:` front matter and in `sources/meta.json`, where it stays traceable.
+  `source:` front matter and in `study/meta.json`, where it stays traceable.
   Put it on the cover only if the user asks — which happens, for a contractual
   or regulatory piece.
 - **The `meta:` columns are a cover footer, not a datasheet.** Three or four at
@@ -289,6 +289,9 @@ the **whole** library — and say so explicitly to the user.
 
 1. Invoke `diagram-design`; it reads the art direction through the marker.
 2. Save the rendering **as SVG** in `library/<topic>/<slug>/document/assets/`.
+   A script that *draws* one lives in `generators/`, beside `document/` and
+   never inside it: the build reads what it produced, not the code that
+   produced it (`docs/architecture.md` §11).
 3. **Replace the SVG's hex values with roles**: `fill="var(--paper-2)"`,
    `stroke="var(--accent)"`, `font-family="var(--font-sans)"`.
 4. Reference it as a captioned figure (see *Writing the content*), class
@@ -360,15 +363,16 @@ It writes:
 |---|---|
 | `document/index.md` | front matter + extracted text, **to translate in place** |
 | `document/assets/` | the extracted raster images, at their original resolution |
-| `sources/extracted.md` | the raw extraction — an immutable reference, never edit it |
-| `sources/meta.json` | provenance: path, SHA-256 digest, pages, metadata |
-| `sources/pages/*.png` | each source page as an image (not versioned) |
+| `study/extracted.md` | the raw extraction — an immutable reference, never edit it |
+| `study/meta.json` | provenance: path, SHA-256 digest, pages, metadata |
+| `.work/pages/*.png` | each source page as an image, remade by `make rederive` |
+| `sources/<name>.pdf` | the source itself, kept so the extraction can be redone |
 
 ### The procedure
 
 0. **Ask for the target language**, before the import. Then, once the document
    exists, **ask for the theme** and write it into the front matter.
-1. **Look at the source pages** in `sources/pages/` before writing anything. The
+1. **Look at the source pages** in `.work/pages/` before writing anything. The
    extraction renders the text faithfully, not the layout: what is lost — tables
    without rules, columns, boxes, visual hierarchies — is only restored by
    seeing the page.

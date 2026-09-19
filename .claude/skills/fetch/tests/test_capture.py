@@ -47,7 +47,7 @@ def test_a_page_is_captured_with_its_provenance(web, library):
     assert "triple the current" in (dest / "document" / "index.md").read_text(encoding="utf-8")
     received = gzip.decompress((dest / "sources" / "page.html.gz").read_bytes())
     assert received == ARTICLE.encode("utf-8")
-    meta = json.loads((dest / "sources" / "meta.json").read_text(encoding="utf-8"))
+    meta = json.loads((dest / "study" / "meta.json").read_text(encoding="utf-8"))
     assert meta["url"] == url
     assert meta["effective_url"] == url
     assert meta["http_status"] == 200
@@ -78,7 +78,7 @@ def test_a_silent_redirect_is_reported_and_recorded(web, library, capsys):
     url = web.redirect("/led", "/index")
     assert fetch.main([url, "watch/led"]) == 0
     assert "redirected" in capsys.readouterr().out
-    meta = json.loads((library / "watch" / "led" / "sources" / "meta.json")
+    meta = json.loads((library / "watch" / "led" / "study" / "meta.json")
                       .read_text(encoding="utf-8"))
     assert meta["effective_url"] == web.url("/index")
 
@@ -121,7 +121,7 @@ def test_an_unverifiable_certificate_is_captured_and_said(tls_web, library, caps
     url = tls_web.add("/led", ARTICLE)
     assert fetch.main([url, "watch/led"]) == 0
     assert "certificate" in capsys.readouterr().out
-    meta = json.loads((library / "watch" / "led" / "sources" / "meta.json")
+    meta = json.loads((library / "watch" / "led" / "study" / "meta.json")
                       .read_text(encoding="utf-8"))
     assert meta["tls_verified"] is False
 
@@ -136,7 +136,7 @@ def test_an_image_answering_html_is_reported_as_such(web, library):
     page = ARTICLE.replace("<h2>", f"<p><img src='{wall}' alt='Figure'></p><h2>")
     url = web.add("/led", page)
     assert fetch.main([url, "watch/led"]) == 0
-    meta = json.loads((library / "watch" / "led" / "sources" / "meta.json")
+    meta = json.loads((library / "watch" / "led" / "study" / "meta.json")
                       .read_text(encoding="utf-8"))
     assert any("text/html" in f for f in meta["image_failures"]), meta["image_failures"]
 
@@ -161,5 +161,5 @@ def test_the_page_language_is_recorded_for_the_translation(web, library):
     """The language is stated once: `translate` reads it here instead of asking."""
     url = web.add("/led", ARTICLE.replace('<html lang="en">', "<html>"))
     assert fetch.main([url, "watch/led", "--lang", "fr"]) == 0
-    meta = json.loads((library / "watch" / "led" / "sources" / "meta.json").read_text(encoding="utf-8"))
+    meta = json.loads((library / "watch" / "led" / "study" / "meta.json").read_text(encoding="utf-8"))
     assert meta["source_language"] == "en"

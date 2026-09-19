@@ -26,6 +26,7 @@ help:
 	@echo "  make preview [DOC=topic/slug]               contact sheet (what does not reflow)"
 	@echo "  make preview-style                          style proof (the whole style guide)"
 	@echo "  make watch [DOC=topic/slug]                 rebuild on every change"
+	@echo "  make rederive DOC=topic/slug                re-extract study/extracted.md from sources/"
 	@echo "  make list                                   list the documents"
 	@echo "  make test                                   run the tests"
 	@echo "  make clean [DOC=topic/slug]                 remove out/ and the documents' .work/"
@@ -95,6 +96,15 @@ test:
 
 list:
 	@find library -path '*/document/index.md' -printf '%h\n' 2>/dev/null | sed 's|^library/||;s|/document$$||' | sort || true
+
+# Re-derive what a tool computed from `sources/`, without touching what was
+# received, what was written since, or the provenance nothing recomputes. Each
+# script decides whether the document is its own and says nothing when it is
+# not, so no dispatch logic lives here.
+rederive:
+	@test -n "$(DOC)" || { echo "usage: make rederive DOC=topic/slug"; exit 1; }
+	@$(PY) .claude/skills/pdf/scripts/ingest.py --rederive "$(DOC)"
+	@$(PY) .claude/skills/fetch/scripts/fetch.py --rederive "$(DOC)"
 
 clean:
 	@$(PY) -c "import sys; from core.doc import clean, ROOT; [print('removed', p.relative_to(ROOT)) for p in clean(sys.argv[1:] or None)]" $(DOC)

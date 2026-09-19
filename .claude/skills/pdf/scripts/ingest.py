@@ -8,10 +8,12 @@ particular format: `make build` is what then applies the repository's art
 direction to it.
 
     library/<topic>/<slug>/
-      index.md              front matter + extracted text, to translate in place
-      sources/extracted.md  the raw extraction, an immutable reference
-      sources/meta.json     provenance: path, digest, pages, metadata
-      assets/               the extracted images
+      document/index.md     front matter + extracted text, to translate in place
+      document/assets/      the extracted images
+      sources/<name>.pdf    the source, kept so the extraction can be redone
+      study/extracted.md    the raw extraction, an immutable reference
+      study/meta.json       provenance: path, digest, pages, metadata
+      .work/pages/          each source page as an image
 
 The tool does not translate: it structures. Translation happens afterwards, on
 the Markdown, where the meaning is reachable and the formatting already
@@ -24,7 +26,9 @@ import datetime as dt
 import hashlib
 import json
 import re
+import shutil
 import sys
+import tempfile
 from collections import Counter
 from pathlib import Path
 
@@ -32,7 +36,8 @@ import pymupdf
 from PIL import Image
 
 # ROOT from the core, not from this file's parents: it lives inside a skill.
-from core.doc import ENTRY, LIBRARY, ROOT, doc_dir
+from core.doc import (ENTRY, LIBRARY, ROOT, SOURCES, STUDY, doc_dir,
+                      find_docs, work_dir)
 from core.imaging import store
 
 BULLET_RE = re.compile(r"^\s*[•‣▪◦·–—*]\s+")
@@ -401,11 +406,15 @@ def yaml_str(v: str) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Import an external PDF.")
-    ap.add_argument("source", type=Path, help="the PDF to import")
-    ap.add_argument("path", help="destination under library/, e.g. watch/wto-report")
+    ap.add_argument("source", type=Path, nargs="?", help="the PDF to import")
+    ap.add_argument("path", nargs="?",
+                    help="destination under library/, e.g. watch/wto-report")
+    ap.add_argument("--rederive", metavar="DOC",
+                    help="re-extract an imported document from its sources/, "
+                         "writing only study/extracted.md and .work/pages/")
     # No default value: the destination language is the user's decision, not the
     # tool's assumption.
-    ap.add_argument("--lang", required=True, metavar="CODE",
+    ap.add_argument("--lang", metavar="CODE",
                     help="target language, short code: fr, en, de, es…")
     ap.add_argument("--preset", default="report")
     ap.add_argument("--pages", help="range to import, e.g. 1-20")
@@ -413,6 +422,31 @@ def main() -> int:
     ap.add_argument("--no-page-images", action="store_true",
                     help="do not render the source pages to PNG")
     args = ap.parse_args()
+
+    # Re-derivation: the document exists, its PDF is in `sources/`, and only
+    # what a command can make again is rewritten. `study/meta.json` is not —
+    # it carries the import date and the source's path, which nothing
+    # recomputes — and neither is `index.md`, which is the work since.
+    if args.rederive:
+        try:
+            dest, = find_docs([args.rederive])
+        except Exception as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+        pdfs = sorted((dest / SOURCES).glob("*.pdf"))
+        if not pdfs:
+            meta = dest / STUDY / "meta.json"
+            # `pages_total` is written by an import and by nothing else:
+            # a capture's meta.json carries `sha256_html`, not a PDF.
+            if meta.is_file() and "pages_total" in meta.read_text(encoding="utf-8"):
+                print(f"note: {args.rederive} was imported, but no PDF is in "
+                      f"{SOURCES}/ — its extraction cannot be re-derived, and "
+                      f"{STUDY}/extracted.md is the only copy left.",
+                      file=sys.stderr)
+            return 0            # not an import: nothing here to re-derive
+        args.source, args.lang = pdfs[0], "xx"
+    elif not (args.source and args.path and args.lang):
+        ap.error("source, path and --lang are required without --rederive")
 
     if not re.fullmatch(r"[a-z]{2,3}(-[A-Za-z]{2,4})?", args.lang):
         print(f"error: “{args.lang}” is not a language code "
@@ -422,9 +456,10 @@ def main() -> int:
         print(f"error: not found — {args.source}", file=sys.stderr)
         return 1
 
-    parts = [slugify(p) for p in Path(args.path).parts if p not in (".", "..")]
-    dest = LIBRARY.joinpath(*parts)
-    if (doc_dir(dest) / ENTRY).exists() and not args.force:
+    if not args.rederive:
+        parts = [slugify(p) for p in Path(args.path).parts if p not in (".", "..")]
+        dest = LIBRARY.joinpath(*parts)
+    if not args.rederive and (doc_dir(dest) / ENTRY).exists() and not args.force:
         print(f"error: the document already exists — {dest.relative_to(ROOT)} "
               f"(--force to overwrite)", file=sys.stderr)
         return 1
@@ -440,18 +475,32 @@ def main() -> int:
         last = int(m.group(2) or m.group(1)) - 1
     first, last = max(0, first), min(len(doc) - 1, last)
 
+    # `sources/` holds what was received; what is computed from it goes to
+    # `study/`, and the page renders to `.work/`, which a command makes again
+    # (docs/architecture.md §11).
     assets = doc_dir(dest) / "assets"
-    source_dir = dest / "sources"
-    for p in (assets, source_dir):
+    source_dir, study_dir = dest / SOURCES, dest / STUDY
+    if args.rederive:
+        assets = tmp_assets = Path(tempfile.mkdtemp(prefix="rederive-"))
+    for p in (assets, source_dir, study_dir):
         p.mkdir(parents=True, exist_ok=True)
+
+    # The source is copied into `sources/` — a tool acquiring on the user's
+    # behalf, which §11 allows and deriving does not. It is what makes the
+    # extraction re-derivable at all: before this, `meta.json` recorded a path
+    # outside the library that nothing kept alive.
+    if not args.rederive:
+        kept = source_dir / args.source.name
+        if kept.resolve() != args.source.resolve():
+            shutil.copy2(args.source, kept)
 
     body = body_size(doc)
     levels = heading_levels(doc, body)
     running = running_text(doc)
 
-    pages_dir = source_dir / "pages"
+    pages_dir = work_dir(dest, "pages")
     if not args.no_page_images:
-        pages_dir.mkdir(exist_ok=True)
+        pages_dir.mkdir(parents=True, exist_ok=True)
 
     chunks: list[str] = []
     seen: dict[str, str] = {}      # digest of the rendering -> filename
@@ -492,8 +541,14 @@ def main() -> int:
     title = (meta.get("title") or "").strip() or args.source.stem.replace("-", " ")
     digest = hashlib.sha256(args.source.read_bytes()).hexdigest()
 
-    (source_dir / "extracted.md").write_text(extracted, encoding="utf-8")
-    (source_dir / "meta.json").write_text(json.dumps({
+    (study_dir / "extracted.md").write_text(extracted, encoding="utf-8")
+    if args.rederive:
+        # Everything below is written once, at the import: the provenance
+        # nothing recomputes, and the document itself.
+        shutil.rmtree(tmp_assets, ignore_errors=True)
+        print(f"✓ {(study_dir / 'extracted.md').relative_to(ROOT)}")
+        return 0
+    (study_dir / "meta.json").write_text(json.dumps({
         "source": str(args.source),
         "sha256": digest,
         "imported": dt.date.today().isoformat(),
@@ -507,14 +562,14 @@ def main() -> int:
         "assets_kb": round(sum(f.stat().st_size for f in assets.glob("*")) / 1024),
         "unmapped_chars": sum(PUA_SEEN.values()),
         "source_language": source_lang,
-        "page_images": None if args.no_page_images else "sources/pages/",
+        "page_images": None if args.no_page_images else ".work/pages/",
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     notes = [f"IMPORTED, NOT TRANSLATED — {len(text)} blocks, {len(seen)} image(s).",
              f"Translate this body in place into: {args.lang}. The intact",
-             "reference stays in sources/extracted.md; do not modify it."]
+             "reference stays in study/extracted.md; do not modify it."]
     if not args.no_page_images:
-        notes.append("Source pages as images: sources/pages/ — look at them to "
+        notes.append("Source pages as images: .work/pages/ — look at them to "
                      "restore what the text alone loses (borderless tables, "
                      "columns, admonitions).")
     if vector_pages:
@@ -560,7 +615,7 @@ def main() -> int:
         print(f"    {sum(PUA_SEEN.values())} undecodable character(s) removed "
               f"(font with private encoding) — check against the page images")
     if not args.no_page_images:
-        print(f"    pages rendered in {rel}/sources/pages/ — look at them before translating")
+        print(f"    pages rendered in {rel}/.work/pages/ — look at them before translating")
     print(f"    translate index.md into {args.lang}, then: make build DOC={'/'.join(parts)}")
     return 0
 

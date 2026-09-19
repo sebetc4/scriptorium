@@ -37,6 +37,12 @@ DOCUMENT = "document"
 # it is about, hidden because it is disposable, and the only directory
 # `make clean` removes from a document.
 WORK = ".work"
+# The three roles beside `document/` and `.work/`. `sources/` is the user's and
+# no tool modifies what is in it; `study/` is what the agent learned from those
+# sources and must keep; `generators/` is the code that draws an asset.
+SOURCES = "sources"
+STUDY = "study"
+GENERATORS = "generators"
 # `epub` is not a preset but the reflowable output's stylesheet: it lives in
 # theme/ to stay inside the cascade, without being offered as a register.
 PRESETS = {p.stem for p in THEME.glob("*.css")} - {"base", "page", "code", "epub"}
