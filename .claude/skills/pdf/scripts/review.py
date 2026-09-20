@@ -61,6 +61,10 @@ MIN_LOOSE_WORDS = 5
 SHORT_FRAGMENT = 2       # letters carried to the next line by a hyphenation break
 CONTINUATION_LINES = 3   # lines searched for the rest of a hyphenated word
 MIN_TEXT_SIZE = 5.0      # pt
+# Two text boxes overlapping by this much of the smaller one are on top of each
+# other rather than merely adjacent. Consecutive spans of one line touch and
+# sometimes overlap by a hair; a label sitting on another label does not.
+OVERLAP_RATIO = 0.30
 SAMPLES = 4              # occurrences quoted in one finding
 HYPHEN = "‐"        # the hyphen WeasyPrint adds at a hyphenation break
 PAGE_NUMBER_RE = re.compile(r"^\d+\s*/\s*\d+$")
@@ -396,6 +400,40 @@ def _tiny_text(p: _Page) -> list[Finding]:
                                            f"{_quote([s['text'].strip() for s in tiny])}")]
 
 
+def _overlapping_text(p: _Page) -> list[Finding]:
+    """Text printed on top of other text.
+
+    A hand-drawn figure places its labels at fixed coordinates, and two of them
+    can land on each other: the schematic of `round-led-d4017` had three such
+    collisions, each found by an eye, three steps and eleven images later. The
+    text layer knows where every box is, so this costs no image at all.
+
+    Spans sharing a baseline are consecutive text on one line — they touch, and
+    that is not a collision.
+    """
+    spans = [s for s in p.body if s["text"].strip()]
+    found: list[Finding] = []
+    for i, a in enumerate(spans):
+        ax0, ay0, ax1, ay1 = a["bbox"]
+        for b in spans[i + 1:]:
+            bx0, by0, bx1, by1 = b["bbox"]
+            if by0 >= ay1:
+                break                       # spans come sorted: nothing below can reach
+            if abs(ay1 - by1) < 0.5 and abs(ay0 - by0) < 0.5:
+                continue                    # one line, consecutive
+            w = min(ax1, bx1) - max(ax0, bx0)
+            h = min(ay1, by1) - max(ay0, by0)
+            if w <= 0 or h <= 0:
+                continue
+            smaller = min((ax1 - ax0) * (ay1 - ay0), (bx1 - bx0) * (by1 - by0))
+            if smaller and w * h >= OVERLAP_RATIO * smaller:
+                found.append(Finding(
+                    p.number, "overlapping-text",
+                    f"“{a['text'].strip()[:30]}” and “{b['text'].strip()[:30]}” "
+                    f"are printed on top of each other"))
+    return found
+
+
 def _icons(p: _Page) -> list[Finding]:
     return [Finding(p.number, "icon", f"“{m.group(0)}” left as text")
             for s in p.body if not _mono(s) for m in ICON_RE.finditer(s["text"])]
@@ -427,6 +465,7 @@ def checks(pdf: Path, fonts: set[str] | None = None) -> list[Finding]:
             findings += _fonts(p, fonts)
         findings += _apostrophes(p)
         findings += _tiny_text(p)
+        findings += _overlapping_text(p)
         findings += _icons(p)
     findings += _near_blank(pages)
 

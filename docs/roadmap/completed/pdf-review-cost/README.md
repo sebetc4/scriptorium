@@ -16,13 +16,13 @@
 
 ```
 Phase 0  The Targeted Pass                    🟢 ████████████████████ 100%  (4/4)
-Phase 1  What A Check Can See Without An Eye  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                            █████████░░░░░░░░░░░  44%  (4/9)
+Phase 1  What A Check Can See Without An Eye  🟢 ████████████████████ 100%  (5/5)
+TOTAL                                            ████████████████████ 100%  (9/9)
 ```
 
-**Current Phase:** Phase 0 — The Targeted Pass
+**Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 1 — What A Check Can See
+**Next Milestone:** —
 
 ---
 
@@ -61,7 +61,7 @@ arithmetic that no one is doing.
 | # | Phase | Tasks | Status |
 |---|---|---|---|
 | 0 | [The Targeted Pass](phase-0-targeted-pass.md) | 4 | 🟢 Done |
-| 1 | [What A Check Can See](phase-1-svg-preflight.md) | 5 | 🔴 Not Started |
+| 1 | [What A Check Can See](phase-1-svg-preflight.md) | 5 | 🟢 Done |
 
 ---
 
@@ -81,15 +81,39 @@ both of which already exist and are already under budget.
 
 ## Metadata
 
-**Roadmap Status:** 🟡 In Progress
-**Location:** `docs/roadmap/on-progress/pdf-review-cost/`
-**Version:** 1.1.0
+**Roadmap Status:** 🟢 Done
+**Location:** `docs/roadmap/completed/pdf-review-cost/`
+**Version:** 2.0.0
 **Created:** 2026-09-18
 **Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 2.0.0 (2026-09-20)
+
+Roadmap closed, 9/9, and moved to `docs/roadmap/completed/pdf-review-cost/`.
+`summary.md` records where it started, where it landed, what was learned that
+outlives it, and what it leaves open.
+
+Phase 1 closed, 5/5. **Two of the three checks it asked for already existed, in
+a better form** — an SVG is inlined into the page, so its labels are in the
+PDF's text layer and `tiny-text` measures their printed size while `font` names
+a glyph the art direction has not got. Both are now pinned by a test on an SVG
+label rather than reimplemented from the viewBox.
+
+`overlapping-text` is new and is the one that was missing: two text boxes
+printed on top of each other, named with both their texts, from the text layer
+and at the cost of no image. Silent over the whole library, pinned from both
+sides by three fixtures.
+
+The blind spot they share is now spoken: an SVG the build declines to inline is
+a picture, its roles unresolved and its text out of reach of every check, and
+`build.py` says so with the reason instead of returning in silence.
+
+`tests/test_documentation.py` now reaches `.claude/agents/`, which is how a path
+moved by `document-anatomy` survived in `pdf-reviewer.md`.
 
 ### 1.1.0 (2026-09-20)
 

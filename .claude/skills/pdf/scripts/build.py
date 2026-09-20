@@ -31,8 +31,8 @@ from weasyprint import CSS, HTML
 # OUT is not used here: it is re-exported for build.OUT, which the skill's
 # tests/test_pdf_layout.py pins. ROOT comes from the core too: this file lives
 # inside a skill, so its own parent directories say nothing about the repository.
-from core.doc import (LIBRARY, OUT, ROOT, THEME, XML_HEAD_RE, DocError, convert,
-                      doc_dir,
+from core.doc import (DOCUMENT, LIBRARY, OUT, ROOT, THEME, XML_HEAD_RE, DocError,
+                      convert, doc_dir,
                       e, find_docs, load_doc, out_dir, subst_vars, token_map)
 # A table of contents with a single entry is not a table of contents: it is
 # only laid down from two entries on, and never when empty.
@@ -104,8 +104,14 @@ def inline_svgs(doc_html: str, d: Path, tokens: dict[str, str]) -> str:
     page's CSS variables. It is inlined instead, and its `var(--role)` are
     resolved against the document's cascade — so a diagram follows the art
     direction, local override included, without being regenerated.
+
+    An SVG left un-inlined is rendered as a picture: its `var(--role)` stay
+    unresolved *and* its text never reaches the PDF's text layer, so every check
+    that reads that layer — `tiny-text`, `font`, `overlapping-text` — goes blind
+    on it. That is worth saying out loud, which is what `declined` collects.
     """
     seq = 0
+    declined: list[tuple[str, str]] = []
 
     def sub(m: re.Match) -> str:
         nonlocal seq
@@ -114,7 +120,14 @@ def inline_svgs(doc_html: str, d: Path, tokens: dict[str, str]) -> str:
             return m.group(0)
         inside = doc_dir(d).resolve()
         f = (inside / src).resolve()
-        if not f.is_file() or inside not in f.parents or f.stat().st_size > SVG_MAX:
+        if not f.is_file():
+            declined.append((src, "not found"))
+            return m.group(0)
+        if inside not in f.parents:
+            declined.append((src, f"outside {DOCUMENT}/"))
+            return m.group(0)
+        if f.stat().st_size > SVG_MAX:
+            declined.append((src, f"over {SVG_MAX // 1024} kB"))
             return m.group(0)
 
         svg = XML_HEAD_RE.sub("", f.read_text(encoding="utf-8")).strip()
@@ -136,7 +149,12 @@ def inline_svgs(doc_html: str, d: Path, tokens: dict[str, str]) -> str:
             svg = svg.replace("<svg", f'<svg class="{cls.group(1)}"', 1)
         return svg
 
-    return IMG_RE.sub(sub, doc_html)
+    html = IMG_RE.sub(sub, doc_html)
+    for src, why in declined:
+        print(f"  ! {src} not inlined ({why}): its roles stay unresolved and "
+              f"its text escapes every check that reads the text layer",
+              file=sys.stderr)
+    return html
 
 
 def render_html(d: Path, fm: dict, body_md: str) -> str:

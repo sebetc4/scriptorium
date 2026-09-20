@@ -295,6 +295,13 @@ the **whole** library — and say so explicitly to the user.
 
 ## Inserting a diagram
 
+A figure's own labels are checked like any other text, because an SVG is
+inlined into the page: `tiny-text` catches a label printed too small,
+`overlapping-text` two labels on top of each other, `font` a glyph the art
+direction's fonts do not have. None of them costs an image. A figure the build
+declined to inline has none of this — it is a picture — and the build prints a
+line saying so.
+
 1. Invoke `diagram-design`; it reads the art direction through the marker.
 2. Save the rendering **as SVG** in `library/<topic>/<slug>/document/assets/`.
    A script that *draws* one lives in `generators/`, beside `document/` and

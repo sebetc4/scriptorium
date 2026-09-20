@@ -448,3 +448,72 @@ def test_a_pass_given_no_pages_reads_every_sheet(repo, capsys):
     out = targeted(repo, doc, capsys)
     assert "sheet:" in out and "checks:" in out
     assert "page-" not in out
+
+
+# --------------------------------------------------------------------------
+# Text printed on top of text — what a hand-placed figure label does
+# --------------------------------------------------------------------------
+COLLISION = """
+<svg viewBox="0 0 200 100" width="160mm" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="50" font-size="9">CD4017</text>
+  <text x="22" y="52" font-size="9">VCC</text>
+</svg>
+"""
+APART = """
+<svg viewBox="0 0 200 100" width="160mm" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="30" font-size="9">CD4017</text>
+  <text x="120" y="80" font-size="9">VCC</text>
+</svg>
+"""
+
+
+def test_two_labels_on_top_of_each_other_are_reported(tmp_path):
+    pdf = make_pdf(tmp_path, cover_and_body(COLLISION))
+    found = [f for f in review.checks(pdf) if f.kind == "overlapping-text"]
+    assert len(found) == 1, [str(f) for f in review.checks(pdf)]
+    assert "CD4017" in str(found[0]) and "VCC" in str(found[0])
+
+
+def test_two_labels_apart_are_not_reported(tmp_path):
+    pdf = make_pdf(tmp_path, cover_and_body(APART))
+    assert not [f for f in review.checks(pdf) if f.kind == "overlapping-text"]
+
+
+def test_running_prose_never_reads_as_a_collision(tmp_path):
+    # Consecutive spans of one line touch, and a justified paragraph has many.
+    # A check that cried wolf here would cost more than the defect it names.
+    pdf = make_pdf(tmp_path, cover_and_body(PROSE * 3))
+    assert not [f for f in review.checks(pdf) if f.kind == "overlapping-text"]
+
+
+# --------------------------------------------------------------------------
+# A figure's own labels are checked like any other text
+# --------------------------------------------------------------------------
+# An SVG is inlined into the page, so its text lands in the PDF's text layer.
+# The printed size is therefore *measured* rather than computed from the
+# viewBox and the placed width, and a glyph the art direction has not got is
+# named by the same check that names one in a paragraph. These two pin that,
+# because the roadmap that asked for them was written from a session that ran
+# before `review.py` had any of these checks.
+TINY_LABEL = """
+<svg viewBox="0 0 400 100" width="160mm" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="50" font-size="4">R21 10 kΩ</text>
+</svg>
+"""
+GLYPH_LABEL = """
+<svg viewBox="0 0 400 100" width="160mm" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="50" font-size="20" font-family="Inter">≈ 3 mA</text>
+</svg>
+"""
+
+
+def test_a_label_printed_too_small_is_named_by_tiny_text(tmp_path):
+    pdf = make_pdf(tmp_path, cover_and_body(TINY_LABEL))
+    found = [f for f in review.checks(pdf) if f.kind == "tiny-text"]
+    assert found and "R21" in str(found[0]), [str(f) for f in review.checks(pdf)]
+
+
+def test_a_label_in_a_glyph_the_fonts_have_not_got_is_named_by_font(tmp_path):
+    pdf = make_pdf(tmp_path, cover_and_body(GLYPH_LABEL))
+    found = [f for f in review.checks(pdf, fonts={"Inter"}) if f.kind == "font"]
+    assert any("≈" in str(f) for f in found), [str(f) for f in found]

@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/5)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 5/5)
+**Started:** 2026-09-20
+**Completed:** 2026-09-20
 **Blocked By:** —
 
 ---
@@ -48,11 +48,11 @@ Judging a figure's composition. A check points at a number; the look judges.
 
 ## Tasks
 
-- [ ] Compute a figure's printed font size from its viewBox and its placed width, and name every text node under the threshold `review.py` already uses
-- [ ] Report text boxes that overlap, with the two labels named
-- [ ] Report glyphs used by the document and absent from the art direction's fonts
-- [ ] Decide where the checks run — inside `make review`, or before the build where they would be cheaper still — and say why in the report
-- [ ] Add them to the suite with an SVG fixture that fails each check
+- [x] Compute a figure's printed font size from its viewBox and its placed width, and name every text node under the threshold `review.py` already uses
+- [x] Report text boxes that overlap, with the two labels named
+- [x] Report glyphs used by the document and absent from the art direction's fonts
+- [x] Decide where the checks run — inside `make review`, or before the build where they would be cheaper still — and say why in the report
+- [x] Add them to the suite with an SVG fixture that fails each check
 
 ---
 
@@ -76,10 +76,10 @@ same session demonstrated three times over.
 
 ## Acceptance Criteria
 
-- [ ] A figure with text under the threshold is named, with the computed size in mm
-- [ ] Two overlapping labels are named; two adjacent ones are not
-- [ ] A missing glyph is named with the character and the font that was asked for
-- [ ] No check fires on the repository's existing figures
+- [x] A figure with text under the threshold is named, with the computed size in mm
+- [x] Two overlapping labels are named; two adjacent ones are not
+- [x] A missing glyph is named with the character and the font that was asked for
+- [x] No check fires on the repository's existing figures
 
 ---
 

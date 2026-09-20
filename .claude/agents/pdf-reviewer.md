@@ -106,10 +106,15 @@ The same in both passes. Only the pages you look at differ.
 
 Read from the PDF's text layer, so they cover every page whichever pass you are
 running. **Report the textual ones as they are, without looking**: `toc`,
-`font`, `apostrophe`, `url-hyphen`, `short-hyphen`, `tiny-text`, `icon`,
-`header`, `page-number`. The layout ones — `blank`, `near-blank`, `overflow`,
-`orphan-heading`, `loose-line` — are confirmed on an image before being
-reported.
+`font`, `apostrophe`, `url-hyphen`, `short-hyphen`, `tiny-text`,
+`overlapping-text`, `icon`, `header`, `page-number`. The layout ones — `blank`,
+`near-blank`, `overflow`, `orphan-heading`, `loose-line` — are confirmed on an
+image before being reported.
+
+`tiny-text`, `font` and `overlapping-text` cover a figure's own labels too: an
+SVG is inlined into the page, so its text is in the text layer like any other.
+The one figure they cannot see is one the build declined to inline, and the
+build says so when it happens.
 
 ### On a page you look at
 

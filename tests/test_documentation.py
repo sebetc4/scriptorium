@@ -31,6 +31,27 @@ def test_claude_md_carries_the_roadmap_contract(repo):
     assert re.search(r"^Checks\s*: make test", contract, re.M)
 
 
+def documents_that_give_instructions(repo):
+    """Every file this repository reads as an instruction.
+
+    `.claude/agents/` belongs here and was missing: a path moved by the
+    `document-anatomy` roadmap survived in `pdf-reviewer.md` because every glob
+    that roadmap checked stopped at `.claude/skills/`.
+    """
+    return ([repo / name for name in ("README.md", "CLAUDE.md")]
+            + sorted(repo.glob(".claude/skills/*/SKILL.md"))
+            + sorted(repo.glob(".claude/agents/*.md"))
+            + sorted(repo.glob("docs/*.md")))
+
+
+def test_no_instruction_names_a_path_a_document_no_longer_has(repo):
+    """A document's own files live under `document/` since `document-anatomy`."""
+    stale = re.compile(r"library/[^`\s]*<slug>/(index\.md|assets/|cover\.md)")
+    for path in documents_that_give_instructions(repo):
+        hit = stale.search(path.read_text(encoding="utf-8"))
+        assert not hit, f"{path.name}: {hit.group(0)}"
+
+
 def test_no_document_mentions_the_old_layout(repo):
     for name in ("README.md", "CLAUDE.md", ".claude/skills/pdf/SKILL.md"):
         src = (repo / name).read_text(encoding="utf-8")
