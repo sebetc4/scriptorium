@@ -70,6 +70,19 @@ MAX_LINES = 50               # the session that runs this pays for every line
 # path, so it could not tell the two apart — and the four phases that built this
 # script measured 106 API calls of 147 and 43 Bash calls of 125, always short,
 # always in the flattering direction.
+#
+# What the rule still cannot tell apart, knowingly: a direct run of one of these
+# scripts to *test* it. `-m pytest` is excluded by form, a manual smoke run is
+# not. A slice is bounded by the previous review's `to`, so a review lands at the
+# start of the *next* task's slice — which is what this rule protects. The
+# alternative considered was to switch the exclusion off in a slice that holds no
+# write under `reviews/`, and it would have recovered the seven such runs in the
+# 2026-09-18 reference window. It is not in: it would still under-count a slice
+# that builds the instrument *and* reviews with it — the very case that produced
+# this bug — and the only sessions it mis-measures at all are the ones working on
+# `session-review` itself. Reopen it once the corpus holds reviews of sessions
+# that genuinely re-read something; until then a review of such a session says so
+# in prose.
 TOOLING_SCRIPTS = ("metrics.py", "corpus.py", "aggregate.py")
 # A python interpreter, its flags, then a path ending in one of those scripts.
 # `-m pytest <path>` does not match: the token after the flags is `pytest`.
