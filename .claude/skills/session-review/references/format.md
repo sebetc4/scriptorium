@@ -27,7 +27,7 @@ computed. A review that blurs the two is worth less than either half.
 | `session` | string | yes | `CLAUDE_CODE_SESSION_ID`, in full. |
 | `slice` | mapping | yes | `from:` and `to:`, ISO timestamps. The bounds of the task inside the session. |
 | `task` | string | yes | What was asked, in one sentence, in the user's words rather than the agent's summary of them. |
-| `skill` | string | yes | The skill the task belongs to: `pdf`, `epub`, `fetch`, `sourcing`, `translate`, or `none`. One value — the skill the task was about, not every skill that loaded. Baselines are grouped by it. |
+| `skill` | string | yes | The skill the task belongs to: `pdf`, `epub`, `fetch`, `sourcing`, `translate`, `roadmap`, `session-review`, or `none` — `corpus.py` refuses anything else. One value — the skill the task was about, not every skill that loaded. Baselines are grouped by it. |
 | `document` | string | no | `topic/slug`, when the task produced or changed one document. Absent otherwise. |
 | `outcome` | enum | yes | `delivered`, `partial`, or `abandoned`. What the user ended up with, not how the session felt about it. |
 | `corrections` | integer | yes | How many times the user corrected, redirected or rejected something. Counted by the session, because a transcript cannot tell a correction from a new request. |

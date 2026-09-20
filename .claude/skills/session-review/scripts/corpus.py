@@ -42,6 +42,13 @@ KINDS = {
 }
 SEVERITIES = {"low", "medium", "high"}
 OUTCOMES = {"delivered", "partial", "abandoned"}
+# The skill a task belongs to. Medians are grouped by it, so an unlisted value
+# silently makes a group of its own: four reviews of 2026-09-18 sat under
+# `roadmap` while the format listed only the production skills. `roadmap` and
+# `session-review` are in because work on them is a task like any other —
+# running the instrument is what gets excluded, not building it.
+SKILLS = {"pdf", "epub", "fetch", "sourcing", "translate",
+          "roadmap", "session-review", "none"}
 
 REQUIRED = ("review", "date", "session", "slice", "task", "skill",
             "outcome", "corrections", "findings")
@@ -115,6 +122,9 @@ def validate(review: Review) -> None:
     if meta["outcome"] not in OUTCOMES:
         _fail(path, f"unknown outcome “{meta['outcome']}” "
                     f"(expected: {', '.join(sorted(OUTCOMES))})")
+    if meta["skill"] not in SKILLS:
+        _fail(path, f"unknown skill “{meta['skill']}” "
+                    f"(expected: {', '.join(sorted(SKILLS))})")
     if not isinstance(meta["slice"], dict) or not {"from", "to"} <= set(meta["slice"]):
         _fail(path, "“slice” needs a “from” and a “to”")
     if not isinstance(meta["findings"], list):

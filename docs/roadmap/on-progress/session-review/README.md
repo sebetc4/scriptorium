@@ -217,6 +217,12 @@ reproduced exactly by the arithmetic that produced them.
 The hand-written review is retired to `reviews/.origin/` as the origin
 document, and `agent-reviews/` is gone from `.gitignore`.
 
+*2026-09-20: `.origin/` was dropped, with the rest of the corpus, when the user
+emptied `reviews/` to restart on a validated format. Nothing was lost that this
+roadmap needs: the origin document's findings had all been carried into
+`pdf-review-cost`, which is closed. Phase 5 still waits on a task under
+`translate`, `fetch` or `epub`, and now starts from an empty corpus.*
+
 **Phase 5 added, and the roadmap stays open for it.** Phase 4's task to review
 one task under each of `translate`, `fetch` and `epub` could not be done: no
 session in this project's transcripts has ever used those three skills. Rather

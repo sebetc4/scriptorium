@@ -99,6 +99,16 @@ def test_an_unknown_outcome_is_refused(tmp_path):
         corpus.load(d)
 
 
+def test_an_unknown_skill_is_refused(tmp_path):
+    """Medians are grouped by skill, so a value outside the list makes a group
+    the format does not recognise. `skill` was required but never checked, and
+    four reviews of 2026-09-18 came to sit under a skill that was not listed.
+    """
+    d = write(tmp_path, "bad.md", GOOD.replace("skill: epub", "skill: plumbing"))
+    with pytest.raises(ReviewError, match="plumbing"):
+        corpus.load(d)
+
+
 def test_a_review_without_front_matter_is_refused(tmp_path):
     d = write(tmp_path, "bad.md", "Just prose.\n")
     with pytest.raises(ReviewError, match="front matter"):
