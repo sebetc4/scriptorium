@@ -567,14 +567,10 @@ def main(argv: list[str] | None = None) -> int:
                   f"— run make build DOC={rel}", file=sys.stderr)
             failed += 1
             continue
-        if args.zoom:
-            try:
-                for image in zoom(pdf, args.zoom, dest):
-                    print(image.relative_to(ROOT))
-            except IndexError as exc:
-                print(f"error: {exc}", file=sys.stderr)
-                failed += 1
-            continue
+        # The checks run whole, with or without a page list. They read the text
+        # layer and cost no image, and a fix on one page reflows the ones after
+        # it: a pass that looked only where it was told would stop covering the
+        # document exactly when the document had just moved.
         found = checks(pdf, fonts=art_direction_fonts(token_map(doc, fm)) or None)
         report = "\n".join(str(f) for f in found)
         dest.mkdir(parents=True, exist_ok=True)
@@ -584,6 +580,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"checks: {len(found)} finding{'s' * (len(found) != 1)}")
         for f in found:
             print(f"  {f}")
+        if args.zoom:
+            # A targeted pass: the pages that were given, at full resolution,
+            # and no sheets — the sheets are how a reviewer *finds* a doubtful
+            # page, and this one already knows which pages to look at.
+            try:
+                for image in zoom(pdf, args.zoom, dest):
+                    print(image.relative_to(ROOT))
+            except IndexError as exc:
+                print(f"error: {exc}", file=sys.stderr)
+                failed += 1
+            continue
         for i, sheet in enumerate(sheets(pdf, dest)):
             first = i * SHEET_COLUMNS * SHEET_ROWS + 1
             last = min(first + SHEET_COLUMNS * SHEET_ROWS - 1, count)

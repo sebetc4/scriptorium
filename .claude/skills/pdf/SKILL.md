@@ -225,8 +225,15 @@ than reading the images here: it runs `make review`, reads every sheet, zooms on
 the cover and at most five doubtful pages, and returns only the defects — the
 checks as printed, and what it saw. It reviews and does not diagnose: finding
 causes and fixing stay here. Run it once per variant — both at once with
-`theme: both` — and say when the document is an import; then build and review
-again.
+`theme: both` — and say when the document is an import.
+
+**The second pass is a verification pass, and it takes the pages you changed.**
+Give the agent `PAGES` — the pages your fixes touched, plus any the checks
+named. It skips the sheets and looks at those pages alone, while the checks
+still read the whole document, which is what catches a page the fix reflowed.
+A full second pass re-reads every page of every variant to confirm a handful:
+on a fifteen-page document that is four sheets and six zooms per variant, where
+six zooms would do.
 
 ## The art direction
 

@@ -15,14 +15,14 @@
 ## Overall Progress
 
 ```
-Phase 0  The Targeted Pass                    🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/4)
+Phase 0  The Targeted Pass                    🟢 ████████████████████ 100%  (4/4)
 Phase 1  What A Check Can See Without An Eye  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                            ░░░░░░░░░░░░░░░░░░░░   0%  (0/9)
+TOTAL                                            █████████░░░░░░░░░░░  44%  (4/9)
 ```
 
-**Current Phase:** —
+**Current Phase:** Phase 0 — The Targeted Pass
 **Blocked By:** —
-**Next Milestone:** Phase 0 — The Targeted Pass
+**Next Milestone:** Phase 1 — What A Check Can See
 
 ---
 
@@ -60,7 +60,7 @@ arithmetic that no one is doing.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [The Targeted Pass](phase-0-targeted-pass.md) | 4 | 🔴 Not Started |
+| 0 | [The Targeted Pass](phase-0-targeted-pass.md) | 4 | 🟢 Done |
 | 1 | [What A Check Can See](phase-1-svg-preflight.md) | 5 | 🔴 Not Started |
 
 ---
@@ -81,15 +81,29 @@ both of which already exist and are already under budget.
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
-**Location:** `docs/roadmap/pending/pdf-review-cost/`
-**Version:** 1.0.0
+**Roadmap Status:** 🟡 In Progress
+**Location:** `docs/roadmap/on-progress/pdf-review-cost/`
+**Version:** 1.1.0
 **Created:** 2026-09-18
-**Last Updated:** 2026-09-18
+**Last Updated:** 2026-09-20
 
 ---
 
 ## Changelog
+
+### 1.1.0 (2026-09-20)
+
+Phase 0 closed, 4/4. A verification pass costs **21,619 tokens against 32,666**
+for a full one on a fifteen-page document — −33 % of the tokens, −46 % of the
+tool calls, −57 % of the wall time — and writes six page images instead of four
+sheets and six zooms. `review.py` runs the text-layer checks in both shapes, so
+a fix that reflowed a page the pass was not given is still caught.
+
+Four delegated attempts changed nothing before that. The agent's file asserted
+its shape in four places, and — the part no rewording would have reached — kept
+every judging criterion inside the full pass's own steps, so the other pass had
+nowhere to learn what a defect is. Separating the criteria from the shape fixed
+it in one edit. The `pdf-verifier` restructuring raised mid-phase is withdrawn.
 
 ### 1.0.0 (2026-09-18)
 

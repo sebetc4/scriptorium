@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/4)
-**Started:**
-**Completed:**
+**Current Status:** 🟢 Done (100% — 4/4)
+**Started:** 2026-09-20
+**Completed:** 2026-09-20
 **Blocked By:** —
 
 ---
@@ -43,10 +43,10 @@ passes them.
 
 ## Tasks
 
-- [ ] Add an optional page list to the agent's input, and say in its description that a verification pass takes one
-- [ ] Say what a targeted pass still does whole: the text-layer checks, which cost no image and would otherwise stop covering the document
-- [ ] Say what it must not do — report a page it was not given, or treat the absence of the rest as a finding
-- [ ] Record, in the phase report, what one targeted pass costs against one full pass on the same document
+- [x] Add an optional page list to the agent's input, and say in its description that a verification pass takes one
+- [x] Say what a targeted pass still does whole: the text-layer checks, which cost no image and would otherwise stop covering the document
+- [x] Say what it must not do — report a page it was not given, or treat the absence of the rest as a finding
+- [x] Record, in the phase report, what one targeted pass costs against one full pass on the same document
 
 ---
 
@@ -69,10 +69,10 @@ A page list makes a pass cheaper; nothing here may make one more expensive.
 
 ## Acceptance Criteria
 
-- [ ] A pass given six pages reads six pages, and says so
-- [ ] A pass given no pages behaves exactly as it does today
-- [ ] The text-layer checks still run over the whole document
-- [ ] The cost of both shapes is recorded on one real document
+- [x] A pass given six pages reads six pages, and says so
+- [x] A pass given no pages behaves exactly as it does today
+- [x] The text-layer checks still run over the whole document
+- [x] The cost of both shapes is recorded on one real document
 
 ---
 
