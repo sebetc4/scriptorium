@@ -403,3 +403,25 @@ def test_a_turn_that_runs_the_instrument_is_not_the_task(tmp_path):
     assert m.turns == 1                  # only the build
     assert m.tools["Bash"] == 1
     assert "Write" not in m.tools and "Skill" not in m.tools
+
+
+def test_a_command_quoted_inside_a_heredoc_is_not_a_run(tmp_path):
+    """A heredoc body is part of the Bash command string, so writing a test
+    that quotes a run of the instrument read as running it. What the shell
+    executes is everything outside the bodies — including whatever follows
+    one, which is why the body is removed rather than the command truncated.
+    """
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Bash", tid="t0", command=(
+        "cat > .claude/skills/session-review/tests/test_x.py <<'EOF'\n"
+        "def test_it():\n"
+        "    assert is_tooling(command='.venv/bin/python …/metrics.py')\n"
+        "EOF"))])
+    t.assistant(1, [tool("Bash", tid="t1", command=(
+        "cat > note.md <<'EOF'\nprose\nEOF\n"
+        ".venv/bin/python .claude/skills/session-review/scripts/metrics.py"))])
+    t.assistant(2, [tool("Bash", tid="t2", command=(
+        ".venv/bin/python .claude/skills/session-review/scripts/metrics.py"))])
+    m = metrics.scan(t.write(), Slice(None, None))
+    assert m.turns == 1                  # only the heredoc that writes a test
+    assert m.tools["Bash"] == 1

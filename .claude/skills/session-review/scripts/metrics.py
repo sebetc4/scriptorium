@@ -76,6 +76,29 @@ TOOLING_SCRIPTS = ("metrics.py", "corpus.py", "aggregate.py")
 RUNS_TOOLING = re.compile(
     r"(?:^|[|&;]|\s)(?:\S*\bpython[\d.]*|\S*/\w+\.py)\s+(?:-\S+\s+)*"
     r"\S*(?:" + "|".join(t.replace(".", r"\.") for t in TOOLING_SCRIPTS) + r")\b")
+# `<<EOF`, `<< "EOF"`, `<<-EOF` — the word that opens a heredoc, but not the
+# `<<<` of a here-string, whose body is a single word on the same line.
+HEREDOC = re.compile(r"""(?<!<)<<-?\s*(['"]?)(\w+)\1(?!<)""")
+
+
+def runnable(command: str) -> str:
+    """The command as the shell runs it, with every heredoc body removed.
+
+    A heredoc body is part of the Bash command string, so writing a test file
+    with `cat > … <<'EOF'` whose body quotes a run of this script reads as
+    running it. Only the bodies are dropped, never the tail: a real command
+    after a heredoc still counts, and dropping it would under-count in the
+    flattering direction the comment above warns about.
+    """
+    kept, pending = [], []
+    for line in command.split("\n"):
+        if pending:
+            if line.strip() == pending[0]:
+                pending.pop(0)
+            continue
+        kept.append(line)
+        pending.extend(m.group(2) for m in HEREDOC.finditer(line))
+    return "\n".join(kept)
 
 
 def die(message: str) -> None:
@@ -193,7 +216,7 @@ def is_tooling(block: dict) -> bool:
     """Whether this tool call ran the review tooling rather than the task."""
     name, params = block.get("name"), block.get("input") or {}
     if name == "Bash":
-        return bool(RUNS_TOOLING.search(str(params.get("command", ""))))
+        return bool(RUNS_TOOLING.search(runnable(str(params.get("command", "")))))
     if name == "Skill":
         return str(params.get("skill", "")).endswith("session-review")
     if name in ("Write", "Edit", "NotebookEdit"):
