@@ -102,15 +102,27 @@ both a skill loaded without need and a job done without its skill.
 
 ## Metadata
 
-**Roadmap Status:** 🟡 In Progress
-**Location:** `docs/roadmap/on-progress/suite-and-review/`
-**Version:** 1.3.0
+**Roadmap Status:** 🟢 Done
+**Location:** `docs/roadmap/completed/suite-and-review/`
+**Version:** 2.0.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 2.0.0 (2026-09-25)
+
+Roadmap closed, all three phases done. `summary.md` records where it
+started, what each phase delivered, and what outlives it: that a test
+reading user content cannot fail for the right reason, that an instrument is
+proved on real data, and that a discriminating phrase counts only where it
+is said positively. It also records what is left open, chiefly the third
+case of `discussion`, which the reviews will keep measuring. The folder
+moved from `docs/roadmap/on-progress/` to `docs/roadmap/completed/`. No
+restructuring was pending. The discussion-and-illustration roadmap, which
+waited on Phase 1, can resume.
 
 ### 1.3.0 (2026-09-25)
 
