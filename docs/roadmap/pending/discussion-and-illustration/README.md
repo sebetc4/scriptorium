@@ -15,16 +15,16 @@
 ## Overall Progress
 
 ```
-Phase 0  The Discussion Skill             🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
+Phase 0  The Discussion Skill             🟡 █████████████░░░░░░░  64%  (9/14)
 Phase 1  Discussion Pilot — Transistor    🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/9)
 Phase 2  The Drawing Brick                🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 3  The Illustration Skill           🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/10)
 Phase 4  Illustration Pilot — Transistor  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
-TOTAL                                        ░░░░░░░░░░░░░░░░░░░░   0%  (0/42)
+TOTAL                                        ████░░░░░░░░░░░░░░░░  19%  (9/48)
 ```
 
-**Current Phase:** —
-**Blocked By:** —
+**Current Phase:** Phase 0 — The Discussion Skill
+**Blocked By:** the [suite-and-review](../suite-and-review/README.md) roadmap — `make test` must be green before Phase 0 can close
 **Next Milestone:** Phase 0 — The Discussion Skill
 
 ---
@@ -125,7 +125,7 @@ records that decision, and what would reopen it.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [The Discussion Skill](phase-0-discussion-skill.md) | 8 | 🔴 Not Started |
+| 0 | [The Discussion Skill](phase-0-discussion-skill.md) | 14 | 🟡 In Progress |
 | 1 | [Discussion Pilot — Transistor](phase-1-discussion-pilot.md) | 9 | 🔴 Not Started |
 | 2 | [The Drawing Brick](phase-2-drawing-brick.md) | 7 | 🔴 Not Started |
 | 3 | [The Illustration Skill](phase-3-illustration-skill.md) | 10 | 🔴 Not Started |
@@ -160,13 +160,25 @@ records that decision, and what would reopen it.
 
 **Roadmap Status:** 🔴 Not Started
 **Location:** `docs/roadmap/pending/discussion-and-illustration/`
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Created:** 2026-09-24
-**Last Updated:** 2026-09-24
+**Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.2.0 (2026-09-25)
+
+Phase 0 gained a real case and an archive. The skill was validated on the
+user's notebook discussion: it fired unasked at the opening and at a
+fresh-session resume, and the resume cost about 10k tokens where the
+conversation held 104k. Seven phase-0 tasks were ticked earlier and two here,
+the real case and the description. Five tasks were added under *The
+archive*, a multi-file journal whose design is recorded in the phase-0
+report (9 → 14 tasks, total 43 → 48). Phase 0 is now blocked by the new
+`suite-and-review` roadmap, because `make test` depends on the user's library
+and cannot pass until that dependency is removed.
 
 ### 1.1.0 (2026-09-24)
 

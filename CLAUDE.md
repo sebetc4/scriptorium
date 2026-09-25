@@ -15,6 +15,7 @@ Every job has a skill that carries its rules. Open it before acting.
 | The EPUB output, its contact sheet and style proof | `epub` |
 | Capture one known web page as a document | `fetch` |
 | Investigate a question across unknown sources — produces knowledge, not a document | `sourcing` |
+| Talk a subject through into a document, resume that discussion, or start from passages pasted out of other agents' conversations — produces a journal and an outline | `discussion` |
 | Translate a document already in the library | `translate` |
 | Review a finished task — what it cost and what should change | `session-review` |
 
@@ -44,7 +45,7 @@ reads one of them:
 |---|---|---|
 | `document/` | `index.md`, `cover.md`, `theme.css`, `assets/` | the agent — **the only one the build reads** |
 | `sources/` | what the user gave it | the user; a tool may add to it, never change it |
-| `study/` | extracted text, provenance, an investigation's journal, a translation's workspace | the agent |
+| `study/` | extracted text, provenance, an investigation's journal, a discussion's journal, a translation's workspace | the agent |
 | `generators/` | code that draws an asset | the agent |
 | `.work/` | review sheets, EPUB proofs, page renders | commands — removed by `make clean` |
 

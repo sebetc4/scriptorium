@@ -89,6 +89,7 @@ study/
   extracted.md  the raw extraction of an import or a capture, never edited
   meta.json     provenance: where it came from, when, its digest
   NOTES.md      an investigation's journal
+  discussion.md a discussion's journal: what you said, what was decided, what is established
   translate/    a translation in progress, or one already applied
 ```
 
@@ -105,6 +106,11 @@ placeholder caption. That is why the file is kept rather than recomputed.
 **`meta.json` is never re-derived.** An import date, a fetch timestamp, an HTTP
 status, whether a certificate verified: facts about a moment, which nothing
 recomputes.
+
+**`discussion.md` is the only memory of a conversation.** The `discussion`
+skill writes it while you talk a document through, and a later session resumes
+from it rather than from the conversation, which is gone. It may exist before
+`document/` does: a discussion usually starts before `make new`.
 
 **`translate/` is durable, and that is deliberate.** An engine's answers are the
 translation; re-running gives *a* translation, not the one that was under way.

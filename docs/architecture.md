@@ -209,14 +209,14 @@ and `brand/`:
   outside the repository). A directory serving a plugin cannot live inside a
   skill.
 
-The cost is stated rather than hidden: the five skills are **less
+The cost is stated rather than hidden: the skills are **less
 self-contained than "each skill carries its own assets" suggests**. They carry
 their scripts, their tests and the assets specific to their transformation.
 They do not carry the document.
 
 ---
 
-## 5. The five skills, and where each one stops
+## 5. The six skills, and where each one stops
 
 ### What each is for
 
@@ -226,9 +226,10 @@ They do not carry the document.
 | `epub` | The reflowable output of a document of this library, and its review. |
 | `fetch` | One web page, known by its URL, captured as a document of this library. |
 | `sourcing` | A question established across several sources not known in advance. Produces knowledge, not a document. |
+| `discussion` | A subject talked through with the user before its document exists, and resumed from its journal. Produces a journal and an outline, not a document. |
 | `translate` | A document already in this library, translated in place. |
 
-### The two boundaries that needed a rule
+### The boundaries that needed a rule
 
 **`pdf` / `sourcing` — sorted by destination, not by format.** The same PDF file
 is the subject of both skills, so the format cannot discriminate.
@@ -258,12 +259,26 @@ known.**
 > Several sources, unknown at the outset, cross-checked against each other,
 > where the output is a journal and its pieces → `sourcing`.**
 
+**`discussion` / `sourcing` — sorted by where the knowledge comes from.** Both
+keep a journal in `study/`, both produce knowledge rather than a document, and
+both separate what is established from what is only claimed.
+
+> **The user's word and an agent's account, worked out in conversation →
+> `discussion`. Sources outside the conversation, found and cross-checked →
+> `sourcing`.**
+
+A discussion never establishes a claim itself: when the document will state a
+number, a date or a point two accounts disagree on, the claim is handed to
+`sourcing`, and its result comes back to the discussion's journal as
+established. *Added by the discussion-and-illustration roadmap, phase 0.*
+
 And what each refuses, which is the part a reader actually needs:
 
 | Skill | Refuses to |
 |---|---|
 | `fetch` | follow a link — one URL, one document; translate; reproduce the site's layout; assemble several pages |
 | `sourcing` | write a document — an `index.md` — anywhere; present a search-engine excerpt as a primary source. *Its pieces may live in the `sources/` of the document the investigation feeds, as the Electribe 2 investigation's did (corrected by Phase 6).* |
+| `discussion` | write `index.md`; establish a fact itself; infer what the user said from a pasted answer; keep a transcript; edit `sources/` |
 | `pdf` | produce reflowable output; review an EPUB page by page; translate |
 | `epub` | write or build the paginated document; be reviewed screen by screen |
 | `translate` | import or capture; edit `study/extracted.md`, which is immutable |
@@ -279,12 +294,18 @@ description must carry one discriminating phrase that no other carries:
 | `epub` | EPUB; e-reader; e-ink; reflow; contact sheet; style proof | authoring; page-by-page review |
 | `fetch` | a URL to turn **into a document** | several sources; an investigation |
 | `sourcing` | investigate; establish; cross-check; archived page; read a schematic | capturing one page; producing a document |
+| `discussion` | talk a subject through **before its document exists**; resume that discussion; passages pasted out of other agents' conversations | an exchange about the repository itself; establishing a fact; writing `index.md` |
 | `translate` | translate an `index.md`; a document in the wrong language | importing; capturing |
 
 The overlap to watch, because it is real rather than theoretical: `fetch` and
 `sourcing` both start from a URL. The discriminator is *how many* and *known in
 advance*, and both descriptions must say so explicitly rather than leave it to
 the reader.
+
+`discussion` has an overlap of a different kind: every session is a
+conversation. Its description names what makes one of them its job — a
+document of the library at the end — and names the exchange about the
+repository itself as not its job.
 
 ---
 
@@ -667,7 +688,7 @@ not.**
 library/<topic…>/<slug>/
   document/     index.md, cover.md, assets/
   sources/      what was received
-  study/        extracted text, provenance, the investigation journal
+  study/        extracted text, provenance, the investigation and discussion journals
   generators/   the code that draws an asset
   .work/        review sheets, EPUB proofs, page renders
 ```
@@ -734,6 +755,7 @@ the interesting cases.
 | `extracted.md` | `study/` | Regenerable from `sources/`, but its worth is that it does not change: a translation reads it to check that nothing was invented. Durable by choice. |
 | `meta.json` | `study/` | A URL, a date, a digest. Nothing recomputes when a page was fetched. Durable by necessity. |
 | `NOTES.md` | `study/` | An investigation's journal. Written, neither received nor derived, and no command makes it again. |
+| `discussion.md` | `study/` | A discussion's journal. Written, neither received nor derived — and the conversation it records is gone once the session ends, so it is the only copy of what the user said. |
 | `figures.py` | `generators/` | Code. Deleting it loses the ability to redraw what it drew. |
 | a hand-drawn SVG | `document/assets/` | Expensive, durable, agent-made — and the document references it, so the cut sends it with the document. |
 | a translation workspace | `study/` | A command re-runs a translation, but not the same one: an engine's answers are the work itself, and for the `agent` engine they are an agent's writing. Both halves of the rule fail. It is **spent** once `apply` has written the document, and nothing removes it automatically. |

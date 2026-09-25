@@ -41,9 +41,10 @@ from what the pilot shows.
 No discussion has been held in this repository yet. The skill's main case is
 therefore written before any instance of it exists, and only this pilot can
 test it. `transistor` exercises both ways in:
-- two pasted excerpts: a seventeen-chapter syllabus, and a course that points
-  at a Gemini canvas. Both give the agents' answers without the user's
-  questions, and many of their claims are dated or numerical;
+- two pasted excerpts, two agents' answers to the same question: a
+  seventeen-chapter syllabus, and a course that points at a Gemini canvas.
+  Both give the answers without the user's question, and many of their claims
+  are dated or numerical;
 - a live discussion to be held on top of them, since the document is still to
   be written.
 

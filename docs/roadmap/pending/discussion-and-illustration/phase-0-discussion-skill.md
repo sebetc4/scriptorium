@@ -4,10 +4,10 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/8)
-**Started:** {{START_DATE}}
+**Current Status:** 🟡 In Progress (64% — 9/14)
+**Started:** 2026-09-24
 **Completed:** {{COMPLETION_DATE}}
-**Blocked By:** —
+**Blocked By:** the `suite-and-review` roadmap — `make test` must be green for this phase to close
 
 ---
 
@@ -54,18 +54,28 @@ transcripts.
 ## Tasks
 
 ### The skill
-- [ ] Write `.claude/skills/discussion/SKILL.md`: when it fires (a discussion meant to become a document of the library, resuming one, an excerpt pasted from a conversation with another agent), what it refuses (writing `index.md`, establishing a fact from external sources, saving a raw transcript), and its handoffs to `sourcing` and `pdf`
-- [ ] Write the journal template in the skill's `assets/`: the goal, what the user said, the decisions, the claims with their status, the open questions, the outline, a dated session log
-- [ ] Write the resume procedure: a new session reads the journal alone, never the old transcript, and opens by stating where the discussion stands
-- [ ] Write the procedure for a pasted excerpt: the paste stays intact in `sources/`, its claims enter the journal as an agent's account, the chatter and the agent's offers are dropped, several pastes merge into one journal, and — because a paste carries the answers without the questions — what the user said is asked for, never inferred from the answers
+- [x] Write `.claude/skills/discussion/SKILL.md`: when it fires (a discussion meant to become a document of the library, resuming one, an excerpt pasted from a conversation with another agent), what it refuses (writing `index.md`, establishing a fact from external sources, saving a raw transcript), and its handoffs to `sourcing` and `pdf`
+- [x] Write the journal template in the skill's `assets/`: the goal, what the user said, the decisions, the claims with their status, the open questions, the outline, a dated session log
+- [x] Write the resume procedure: a new session reads the journal alone, never the old transcript, and opens by stating where the discussion stands
+- [x] Write the procedure for a pasted excerpt: the paste stays intact in `sources/`, its claims enter the journal as an agent's account, the chatter and the agent's offers are dropped, several pastes merge into one journal, and — because a paste carries the answers without the questions — what the user said is asked for, never inferred from the answers
 
 ### Boundaries and documentation
-- [ ] Write the description with a discriminating phrase no other skill carries, and check that it does not fire on an ordinary exchange about the repository
-- [ ] Add the skill to `CLAUDE.md`, `README.md` and `docs/architecture.md` §5: what it is for, what it refuses, its trigger row, and its boundary with `sourcing`
-- [ ] Add the journal to `docs/document.md` and to the durable table of `docs/architecture.md` §11
+- [x] Write the description with a discriminating phrase no other skill carries, and check that it does not fire on an ordinary exchange about the repository
+- [x] Add the skill to `CLAUDE.md`, `README.md` and `docs/architecture.md` §5: what it is for, what it refuses, its trigger row, and its boundary with `sourcing`
+- [x] Add the journal to `docs/document.md` and to the durable table of `docs/architecture.md` §11
 
 ### Tests
-- [ ] Add the skill's suite: the template carries every section the skill names, and the skill states its three statuses and its two handoffs
+- [x] Add the skill's suite: the template carries every section the skill names, and the skill states its three statuses and its two handoffs
+
+### The first real case
+- [x] Hold the user's discussion here with the draft, over at least one fresh-session resume, and fold what it shows into the skill
+
+### The archive
+- [ ] Rewrite the skill and the template for a multi-file journal: `study/discussion/index.md` (the entry, the only file a resume reads, with a map of topics), `topics/<subject>.md` (the current state of a subject), `sessions/<date>.md` (the append-only archive of what each session covered, decided and replaced)
+- [ ] Write the rules that keep the files from drifting: one fact lives in one place, a superseded point moves to its session's archive with a link both ways, and a topic is loaded only when the discussion returns to it
+- [ ] Test that every link of an `index.md` and of a topic file resolves, on a fixture journal
+- [ ] Migrate the notebook's journal (`electronics/notebook/study/discussion.md`) to the new layout, after asking the user
+- [ ] Validate on a next session of the notebook and a fresh-session resume: the resume reads `index.md` alone, and a point from an earlier session is found through the links
 
 ---
 
@@ -102,5 +112,7 @@ None.
 ## Acceptance Criteria
 
 - [ ] `make test` passes, including `test_claude_md_and_readme_point_at_every_skill`
-- [ ] The skill names where the journal lives, and none of its instructions writes into `sources/`
+- [x] The skill names where the journal lives, and none of its instructions writes into `sources/`
 - [ ] The two descriptions alone are enough to tell whether a request is `discussion` or `sourcing`
+- [x] In the user's real discussion, the skill fires unasked both when the discussion opens and when it resumes in a fresh session
+- [x] At that resume, the size of the journal read and of the transcript it replaces are both recorded in the report, and the journal is a small fraction of the transcript
