@@ -7,7 +7,7 @@
 **Current Status:** 🔴 Not Started (0% — 0/9)
 **Started:** {{START_DATE}}
 **Completed:** {{COMPLETION_DATE}}
-**Blocked By:** —
+**Blocked By:** the [library-catalogue](../library-catalogue/README.md) roadmap — the transistor's material is spread across three entries, and the pilot finds it through the map
 
 ---
 

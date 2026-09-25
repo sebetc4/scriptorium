@@ -222,6 +222,17 @@ file's 300 lines, about 6k tokens. The six topics hold 42 to 58 lines each.
 which the check does not cover, was verified by hand once. `library/` is
 gitignored, so the migration leaves no commit.
 
+The same day, the user raised what the migration had shown: the journal's
+**Material** section is a manifest kept by hand, citing other directories by
+path. A design conversation followed and produced a new roadmap,
+[library-catalogue](../library-catalogue/README.md): a manifest in every
+directory of the library, ids that survive renames, and search commands.
+The user gave it priority. This phase is not blocked. Its last task, a real
+notebook session with the three-layer journal and a fresh-session resume, is
+the user's to hold. It must happen before library-catalogue's Phase 4
+changes the `discussion` skill, because it is the baseline that phase
+measures against.
+
 ---
 
 ## Decisions
@@ -344,6 +355,10 @@ gitignored, so the migration leaves no commit.
   three layers, not `study/discussion.md`. Updated in the digest task, the
   resume task (the resume reads `index.md` alone) and *Files to Modify*.
   No task was added or removed.
+- `phase-1-discussion-pilot.md`: *Blocked By* the library-catalogue roadmap.
+  The transistor's material is spread across `components/transistor`,
+  `learning/m328` and `learning/transistor-tester`, and the pilot is meant
+  to find it through the map. The README's Dependencies say so.
 
 ---
 
