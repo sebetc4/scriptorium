@@ -122,7 +122,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.style:
-        d = doc.LIBRARY / "exemples" / "guide-de-style"
+        d = doc.STYLE_GUIDE
         pages = style_screens(d)
         for p in pages:
             print(f"  ✓ {doc.shown(p)}")

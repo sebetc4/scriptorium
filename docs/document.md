@@ -20,6 +20,10 @@ The directories above it are topics, at whatever depth: `library/finance/2026/`
 holds `report-q3/`, and nothing anywhere declares that. A directory becomes a
 document the moment it holds a `document/index.md`.
 
+One document lives outside the library: the style guide, `brand/style-guide/`,
+which the repository owns and your library does not have to carry. It has the
+same shape, and its outputs go under `out/<kind>/brand/style-guide/`.
+
 ---
 
 ## The five, at a glance
@@ -249,18 +253,9 @@ generated, and the `diagram-design` plugin, which is replaced on update.
 
 ---
 
-## One document does not fit
+## What the anatomy does not place yet
 
-`electronics/repair/electribe-2/sources` keeps an investigation's
-`datasheets/`, `images/`, `raw/` and `threads/` at its root rather than in
-`sources/`: it is a `sourcing` session's own material that became a document, so
-its root *is* the investigation. `make check-library` reports those four
-directories as `anatomy` defects every time rather than carrying an exception
-for one document of your library: the check states the rule, and whether that
-document is reshaped is yours to decide.
-
-Two things the anatomy still does not place, for the same reason — nobody has
-needed to decide yet:
+Two things, because nobody has needed to decide:
 
 - **`glossary.yaml`**, a translation's term list. Read by `translate`, never by
   the build, written by you. It sits at the document's root.

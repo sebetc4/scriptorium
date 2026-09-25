@@ -573,7 +573,7 @@ def table_threshold(fm: dict) -> int:
 def build_epub(d: Path) -> Path:
     """Build a document's EPUB. Returns the path written."""
     fm, body_md = doc.load_doc(d)
-    rel = str(d.relative_to(doc.LIBRARY))
+    rel = str(doc.relative(d))
     tokens = doc.token_map(d, {**fm, "theme": "epub"})
 
     body, _ = doc.convert(body_md, tokens, d.name, icon_color="currentColor")

@@ -186,5 +186,7 @@ naming the document.
 
 ## Example
 
-`library/exemples/guide-de-style/` documents the art direction and serves as the
-rendering test.
+`brand/style-guide/` documents the art direction and serves as the rendering
+test. It is the repository's own document, kept beside the art direction it
+shows rather than in your library: `make build DOC=brand/style-guide` builds it,
+and `make preview-style` renders it through an e-reader's window.

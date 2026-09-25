@@ -83,6 +83,8 @@ def library(tmp_path, monkeypatch):
     lib.mkdir()
     monkeypatch.setattr(doc, "LIBRARY", lib)
     monkeypatch.setattr(doc, "OUT", tmp_path / "out")
+    # clean() reaches the style guide too: a test must never reach the real one.
+    monkeypatch.setattr(doc, "STYLE_GUIDE", tmp_path / "brand" / "style-guide")
     return lib
 
 
@@ -97,6 +99,18 @@ def test_a_document_is_placed_by_the_library_it_is_read_under(library):
     root = make_doc(library, "topic/slug")
     assert doc.relative(root) == Path("topic/slug")
     assert doc.out_dir(root, "epub") == library.parent / "out" / "epub" / "topic" / "slug"
+
+
+def test_a_document_the_repository_owns_is_placed_from_the_root(repo):
+    guide = repo / "brand" / "style-guide"
+    assert doc.relative(guide) == Path("brand/style-guide")
+    assert doc.out_dir(guide) == repo / "out" / "pdf" / "brand" / "style-guide"
+
+
+def test_the_style_guide_is_the_repositorys_document_not_the_users(repo):
+    assert doc.STYLE_GUIDE == repo / "brand" / "style-guide"
+    assert doc.is_doc(doc.STYLE_GUIDE)
+    assert not doc.STYLE_GUIDE.is_relative_to(doc.LIBRARY)
 
 
 def test_a_path_is_shown_from_the_root_inside_it_and_whole_outside(repo, tmp_path):
@@ -201,6 +215,21 @@ def test_clean_takes_one_document(library):
     doc.clean(["topic/a"])
     assert not (a / ".work").exists()
     assert (b / ".work").is_dir()
+
+
+def test_clean_reaches_the_style_guide_outside_the_library(library):
+    guide = doc.STYLE_GUIDE
+    for d in (guide, make_doc(library, "topic/slug")):
+        (doc.doc_dir(d)).mkdir(parents=True, exist_ok=True)
+        (doc.doc_dir(d) / doc.ENTRY).write_text("---\ntitle: T\n---\n", encoding="utf-8")
+        (d / ".work" / "preview").mkdir(parents=True)
+    doc.clean([str(guide)])
+    assert not (guide / ".work").exists()
+    assert (library / "topic" / "slug" / ".work").is_dir()   # not named, not touched
+    (guide / ".work" / "preview").mkdir(parents=True)
+    doc.clean()
+    assert not (guide / ".work").exists()
+    assert (doc.doc_dir(guide) / doc.ENTRY).is_file()
 
 
 def test_the_five_roles_are_named_once(library):

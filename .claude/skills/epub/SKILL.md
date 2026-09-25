@@ -172,8 +172,9 @@ make preview-style                # the style proof
   at that size, does every transposed table read as blocks, is any code line
   cut off? A document with nothing that does not reflow produces no sheet, and
   says so.
-- **The style proof** renders the whole style guide (`library/exemples/guide-de-style/`)
-  through the same six-inch window: `style-NN.png`. Review it **only when
+- **The style proof** renders the whole style guide — `brand/style-guide/`, the
+  one document the repository owns, outside the library — through the same
+  six-inch window: `brand/style-guide/.work/preview/style-NN.png`. Review it **only when
   `theme/epub.css` or `colors.epub` changes**, not for each document. It is what
   a change to the reflowable look is judged on.
 

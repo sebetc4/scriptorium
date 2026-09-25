@@ -28,6 +28,11 @@ ROOT = Path(__file__).resolve().parent.parent
 LIBRARY = ROOT / "library"
 OUT = ROOT / "out"
 THEME = ROOT / "theme"
+# The one document the repository owns rather than the user: the style guide,
+# beside the art direction it shows. It sits outside the library, so discovery
+# never lists it; `make build DOC=brand/style-guide` and `make preview-style`
+# reach it by its path.
+STYLE_GUIDE = ROOT / "brand" / "style-guide"
 ENTRY = "index.md"
 # A document is a root directory holding five roles, and the build reads one of
 # them (docs/architecture.md §11). Everything under `document/` is what a reader
@@ -175,13 +180,15 @@ def load_doc(d: Path) -> tuple[dict, str]:
 
 
 def relative(d: Path) -> Path:
-    """A document's path under the library, `<topic…>/<slug>`.
+    """A document's path under the library, `<topic…>/<slug>` — or, for a
+    document the repository owns, such as the style guide, its path from the
+    repository root, which is where its outputs go under `out/`.
 
     Read from `LIBRARY` at call time, never from a copy taken at import: the
     suite points `LIBRARY` at a copy of its fixture documents, and a module that
     had imported the constant would keep answering for the user's library.
     """
-    return d.relative_to(LIBRARY)
+    return d.relative_to(LIBRARY) if d.is_relative_to(LIBRARY) else d.relative_to(ROOT)
 
 
 def shown(p: Path) -> Path:
@@ -229,10 +236,13 @@ def clean(targets: list[str] | None = None) -> list[Path]:
     """
     removed = []
     if targets:
-        wanted = {d / WORK for d in find_docs(targets)}
-        paths = [w for w in work_dirs() if w in wanted]
+        # The layout decides, not the target: a document's `.work/` is what may
+        # go, wherever the document lives — the style guide included.
+        paths = [d / WORK for d in find_docs(targets) if (d / WORK).is_dir()]
     else:
         paths = work_dirs()
+        if (STYLE_GUIDE / WORK).is_dir():
+            paths.append(STYLE_GUIDE / WORK)
         if OUT.exists():
             paths.append(OUT)
     for path in paths:

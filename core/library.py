@@ -23,6 +23,10 @@ from core import doc
 
 # The five roles of a document root, docs/architecture.md §11.
 ROLES = {doc.DOCUMENT, doc.SOURCES, doc.STUDY, doc.GENERATORS, doc.WORK}
+# What the anatomy does not place yet, and a skill already writes at the root:
+# `translate` reads a document's glossary there (docs/document.md, *What the
+# anatomy does not place yet*). Reporting it would fail every translated document.
+TOLERATED = {"glossary.yaml"}
 # What a tool computes from `sources/` goes to `study/`. Found in `sources/`, it
 # is derived material in the one directory that belongs to the user.
 DERIVED = {"extracted.md", "meta.json", "pages"}
@@ -64,7 +68,7 @@ def anatomy(d: Path, where: str) -> list[Defect]:
     """The five roles and nothing else, docs/architecture.md §11."""
     found = [Defect(where, "anatomy", f"{p.name} — not one of the five roles "
                     f"({', '.join(sorted(ROLES))})")
-             for p in sorted(d.iterdir()) if p.name not in ROLES]
+             for p in sorted(d.iterdir()) if p.name not in ROLES | TOLERATED]
     sources = d / doc.SOURCES
     found += [Defect(where, "derived", f"{doc.SOURCES}/{name} — computed by a "
                      f"tool, it belongs in {doc.STUDY}/")

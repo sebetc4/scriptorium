@@ -16,6 +16,11 @@ __pycache__/
 # The outputs are build artefacts, rebuilt by `make build` and `make epub`.
 out/
 
+# A document's disposable working directory, remade by a command. Inside the
+# user's library it is ignored with the library; this catches the one document
+# the repository owns, brand/style-guide/.
+.work/
+
 # Source library files: the user's, at the root only. The suite's fixture library
 # under tests/fixtures/ is versioned.
 /library/

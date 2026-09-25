@@ -37,9 +37,10 @@ out to be capturing one page after all, hand it to `fetch`.
 
 - **Writing a document.** No `index.md` is ever written by an investigation. Its
   material may live in the `sources/` of the document it feeds, and the journal
-  in its `study/` (`docs/document.md`) — as the
-  Electribe investigation did, in `library/electronique/repair/electribe-2/sources/`
-  — but the document itself is written separately, with `pdf`.
+  in its `study/` (`docs/document.md`) — as the Electribe investigation does,
+  its pieces in `library/electronics/repair/electribe-2/sources/` and its
+  journal in that document's `study/NOTES.md` — but the document itself is
+  written separately, with `pdf`.
 - **Presenting a second-hand rendering as a primary source.** A search engine's
   excerpt of a dead page is a lead, never a piece to cite.
 - **Presenting a hypothesis as established.** That is what the journal is for.

@@ -72,6 +72,13 @@ def test_a_loose_file_at_a_document_root_is_reported(lib):
     assert (d.kind, "notes.md" in d.what) == ("anatomy", True)
 
 
+def test_a_translation_glossary_at_the_root_is_not_reported(lib):
+    # `translate` keeps it there: the check must not fail every translated document.
+    root = make_doc(lib, "topic/slug")
+    (root / "glossary.yaml").write_text("terms: {}\n", encoding="utf-8")
+    assert library.check() == []
+
+
 def test_a_derived_file_in_the_users_sources_is_reported(lib):
     root = make_doc(lib, "topic/slug")
     (root / doc.SOURCES).mkdir()
