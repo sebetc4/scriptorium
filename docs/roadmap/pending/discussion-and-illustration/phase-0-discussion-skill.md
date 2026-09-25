@@ -4,7 +4,7 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (86% — 12/14)
+**Current Status:** 🟡 In Progress (93% — 13/14)
 **Started:** 2026-09-24
 **Completed:** {{COMPLETION_DATE}}
 **Blocked By:** —
@@ -74,7 +74,7 @@ transcripts.
 - [x] Rewrite the skill and the template for a multi-file journal: `study/discussion/index.md` (the entry, the only file a resume reads, with a map of topics), `topics/<subject>.md` (the current state of a subject), `sessions/<date>.md` (the append-only archive of what each session covered, decided and replaced)
 - [x] Write the rules that keep the files from drifting: one fact lives in one place, a superseded point moves to its session's archive with a link both ways, and a topic is loaded only when the discussion returns to it
 - [x] Test that every link of an `index.md` and of a topic file resolves, on a fixture journal
-- [ ] Migrate the notebook's journal (`electronics/notebook/study/discussion.md`) to the new layout, after asking the user
+- [x] Migrate the notebook's journal (`electronics/notebook/study/discussion.md`) to the new layout, after asking the user
 - [ ] Validate on a next session of the notebook and a fresh-session resume: the resume reads `index.md` alone, and a point from an earlier session is found through the links
 
 ---

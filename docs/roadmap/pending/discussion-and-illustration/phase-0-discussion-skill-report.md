@@ -186,6 +186,42 @@ the skill, and the index must carry no substance (16 tests). Updated
 one defect, the one expected: `electronics/notebook` still has its journal in
 one file. That is the migration task, which waits for the user's agreement.
 
+The user agreed, and the notebook's journal was migrated with the
+`discussion` skill loaded. It became an index, six topics and four sessions.
+The topics follow the outline: `poste`, `pannes`, `routine-panne`,
+`trous-bouches`, `tresse-et-pastilles` and `anneau-round-led-d4017`. The
+first proposal named the tips topic `achat-panne`. It became `pannes`,
+because the topic also holds the established shapes and the C210-K trial.
+The single file dated each point but did not say which of the three sessions
+of 2026-09-24 brought it. The three session files are therefore
+reconstructed from its session lines, and each one says so. The migration has
+its own session file, `2026-09-25.md`.
+
+Three things came out of the migration:
+- **The single file had kept a superseded answer beside the one that
+  replaced it.** A note said the tip-routine answer "replaces the previous
+  answer, too quick", yet the previous one was still there and partly
+  contradicted it ("the habit is not wrong"). It now sits in the session's
+  **Replaced**, and the topic keeps only the current routine: the case the
+  archive was designed for. The two corrected photo readings had lost their
+  text, and only their quoted first words survive.
+- **The user's notes had changed.** `learning/discussion.md` no longer
+  exists: the user merged it into `notebook/discussion.md`, which has two new
+  lines, flush-cut leads and "tin between two sessions". Both are recorded
+  as said by the user, and the first opens a question, whether the joints
+  hold too much solder or only look balled because the leads are cut flush.
+  The open question about where that note belongs is closed, from the files
+  themselves.
+- **A word-level comparison of the old file with the new files** found two
+  omissions, "analyser les soudures" and the answered item under *To
+  establish*. Both were restored before the old file was deleted.
+
+A resume now reads `index.md`: 131 lines and 6.4 kB, against the single
+file's 300 lines, about 6k tokens. The six topics hold 42 to 58 lines each.
+`make check-library`: 9 documents, no defect. Each link in the sessions,
+which the check does not cover, was verified by hand once. `library/` is
+gitignored, so the migration leaves no commit.
+
 ---
 
 ## Decisions
