@@ -11,6 +11,11 @@ version = "0"
 description = "A library of documents, built from Markdown to PDF and EPUB"
 requires-python = ">=3.11"
 
+# The catalogue's one entry point: `.venv/bin/catalogue find | ls | links | path
+# | sync | describe`, for the agent. `make find`, `make ls`… call the same code.
+[project.scripts]
+catalogue = "core.catalogue:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

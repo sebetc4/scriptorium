@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/8)
-**Started:** {{START_DATE}}
-**Completed:** {{COMPLETION_DATE}}
+**Current Status:** 🟢 Done (100% — 8/8)
+**Started:** 2026-09-25
+**Completed:** 2026-09-25
 **Blocked By:** —
 
 ---
@@ -58,18 +58,18 @@ index or a database: `find` reads the manifests each time.
 ## Tasks
 
 ### The commands
-- [ ] Write `find`: the words of the query matched against names and descriptions, case and accents folded, across the library or under an id with `--in`, one line per result (kind, id, name, where)
-- [ ] Add `--text` to `find`: search the content of the items the manifest knows to be text (Markdown, extractions, journals, notes), each hit reported by its item's name and its line
-- [ ] Write `ls`: a topic lists its topics and entries with their counts, an entry its items; `-l` adds the descriptions, `-ll` the kind, size and date; markers show what is to describe, new, or to review
-- [ ] Write `links`: what an entry or an item cites and what cites it, computed from the `id:` citations of the agent's files, grouped by entry, each with the file that cites it
-- [ ] Write `path`: an id resolved to its path
-- [ ] Bound every output to 20 lines by default, closing with how many more there are and how to narrow the query
+- [x] Write `find`: the words of the query matched against names and descriptions, case and accents folded, across the library or under an id with `--in`, one line per result (kind, id, name, where)
+- [x] Add `--text` to `find`: search the content of the items the manifest knows to be text (Markdown, extractions, journals, notes), each hit reported by its item's name and its line
+- [x] Write `ls`: a topic lists its topics and entries with their counts, an entry its items; `-l` adds the descriptions, `-ll` the kind, size and date; markers show what is to describe, new, or to review
+- [x] Write `links`: what an entry or an item cites and what cites it, computed from the `id:` citations of the agent's files, grouped by entry, each with the file that cites it
+- [x] Write `path`: an id resolved to its path
+- [x] Bound every output to 20 lines by default, closing with how many more there are and how to narrow the query
 
 ### Access
-- [ ] Give the commands one entry point for the agent and `make` targets for the user, documented in `docs/document.md` and `CLAUDE.md`
+- [x] Give the commands one entry point for the agent and `make` targets for the user, documented in `docs/document.md` and `CLAUDE.md`
 
 ### Proof
-- [ ] Measure each command on the fixture library and on a generated library of 500 entries: for the same query, the output has the same length
+- [x] Measure each command on the fixture library and on a generated library of 500 entries: for the same query, the output has the same length
 
 ---
 
@@ -95,7 +95,7 @@ Phase 0: the manifests and the `id:` citation scanner.
 
 ## Acceptance Criteria
 
-- [ ] `make test` passes
-- [ ] For the same query, each command's output is no longer on the 500-entry library than on the fixture library
-- [ ] `find etain` finds a description that writes « étain »
-- [ ] `links` on an entry lists what it cites and what cites it, from `id:` citations alone
+- [x] `make test` passes
+- [x] For the same query, each command's output is no longer on the 500-entry library than on the fixture library
+- [x] `find etain` finds a description that writes « étain »
+- [x] `links` on an entry lists what it cites and what cites it, from `id:` citations alone

@@ -115,6 +115,7 @@ Principles do not settle arguments; names do. These were the arguable ones.
 | Checking that a converted body is well-formed XHTML | **core** — `core/doc.py` | *suite-and-review, phase 0.* The EPUB build refuses a chapter it could not package, and `make check-library` reports the same document before anyone builds it. Two callers, one of them outside every skill. |
 | The style guide | **root** — `brand/style-guide/` | *suite-and-review, at the user's request.* The art direction's own document, beside `brand/tokens.yaml`, rather than an `exemples/` topic in a library the user organises. `core.doc.STYLE_GUIDE` names it; `doc.relative()` places it from the repository root, so its outputs go under `out/<kind>/brand/style-guide/`. |
 | Checking the user's library | **core** — `core/library.py` | *suite-and-review, phase 0.* Reached by `make check-library`, outside every skill, and it checks what both backbones read. |
+| Reading the map: `find`, `ls`, `links`, `path` | **core** — `core/navigate.py` | *library-catalogue, phase 1.* A brick: the `catalogue` skill, the `discussion` skill and `make` all read the map, and each skill carries only the rule that concerns it. |
 | The catalogue: manifests, ids, `sync`, `describe` | **core** — `core/catalogue.py` | *library-catalogue, phase 0.* `make` and several skills read the map, and `make check-library` checks it. Keeping it — naming, describing, cleaning up — is an intent, and goes to a skill. |
 
 ### The shared core
@@ -128,6 +129,7 @@ core/
   pdfpage.py    render every page or one · each page's text layer, empty when there is none
   net.py        probe · MIME verification · browser UA · relaxed TLS
   catalogue.py  the manifests · ids · sync · describe · the `id:` citations
+  navigate.py   find · ls · links · path — the map, read in 20 lines at most
   library.py    make check-library
 ```
 

@@ -8,9 +8,15 @@ RENDER  ?=
 VARIANT ?=
 ZOOM    ?=
 PRESET  ?= report
+Q       ?=
+IN      ?=
+TEXT    ?=
+AT      ?=
+ID      ?=
+L       ?=
 TITLE   ?=
 
-.PHONY: help setup brand icons new import fetch build epub watch test check-library list clean check preview preview-style review
+.PHONY: help setup brand icons new import fetch build epub watch test check-library list find ls links path clean check preview preview-style review
 
 help:
 	@echo "Targets:"
@@ -28,6 +34,10 @@ help:
 	@echo "  make watch [DOC=topic/slug]                 rebuild on every change"
 	@echo "  make rederive DOC=topic/slug                re-extract study/extracted.md from sources/"
 	@echo "  make list                                   list the documents"
+	@echo "  make find Q=\"words\" [IN=topic] [TEXT=1]     what the library holds about it"
+	@echo "  make ls [AT=topic/slug] [L=1|2]             a topic's entries, an entry's items"
+	@echo "  make links AT=topic/slug                    what an entry cites, and what cites it"
+	@echo "  make path ID=manuel-k7m3p2x9                where an id is"
 	@echo "  make test                                   run the tests (never reads library/)"
 	@echo "  make check-library                          check the library's documents, writing nothing"
 	@echo "  make clean [DOC=topic/slug]                 remove out/ and the documents' .work/"
@@ -100,6 +110,23 @@ test:
 # which reads only the suite's own fixtures.
 check-library:
 	@$(PY) -m core.library
+
+# The library's map, read from its manifests (core/navigate.py). Read-only;
+# every answer is 20 lines at most. The agent calls .venv/bin/catalogue.
+find:
+	@test -n "$(Q)" || { echo 'usage: make find Q="words" [IN=topic/slug] [TEXT=1]'; exit 1; }
+	@$(PY) -m core.catalogue find $(Q) $(if $(IN),--in "$(IN)") $(if $(TEXT),--text)
+
+ls:
+	@$(PY) -m core.catalogue ls $(if $(AT),"$(AT)") $(if $(filter 1,$(L)),-l) $(if $(filter 2,$(L)),-ll)
+
+links:
+	@test -n "$(AT)" || { echo "usage: make links AT=topic/slug (or an id)"; exit 1; }
+	@$(PY) -m core.catalogue links "$(AT)"
+
+path:
+	@test -n "$(ID)" || { echo "usage: make path ID=manuel-k7m3p2x9"; exit 1; }
+	@$(PY) -m core.catalogue path "$(ID)"
 
 list:
 	@find library -path '*/document/index.md' -printf '%h\n' 2>/dev/null | sed 's|^library/||;s|/document$$||' | sort || true

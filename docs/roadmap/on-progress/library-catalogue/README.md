@@ -16,16 +16,16 @@
 
 ```
 Phase 0  The Manifest               🟢 ████████████████████ 100%  (12/12)
-Phase 1  Navigating the Library     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
+Phase 1  Navigating the Library     🟢 ████████████████████ 100%  (8/8)
 Phase 2  The Catalogue Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
 Phase 3  The Library Mapped         🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 4  The Skills Use the Map     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-TOTAL                                  ██████░░░░░░░░░░░░░░  29%  (12/41)
+TOTAL                                  ██████████░░░░░░░░░░  49%  (20/41)
 ```
 
 **Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 1 — Navigating the Library
+**Next Milestone:** Phase 2 — The Catalogue Skill
 
 ---
 
@@ -223,7 +223,7 @@ like the rest of the repository.
 | # | Phase | Tasks | Status |
 |---|---|---|---|
 | 0 | [The Manifest](phase-0-manifest.md) | 12 | 🟢 Done |
-| 1 | [Navigating the Library](phase-1-navigation.md) | 8 | 🔴 Not Started |
+| 1 | [Navigating the Library](phase-1-navigation.md) | 8 | 🟢 Done |
 | 2 | [The Catalogue Skill](phase-2-catalogue-skill.md) | 8 | 🔴 Not Started |
 | 3 | [The Library Mapped](phase-3-library-mapped.md) | 6 | 🔴 Not Started |
 | 4 | [The Skills Use the Map](phase-4-skills-use-the-map.md) | 7 | 🔴 Not Started |
@@ -261,13 +261,24 @@ like the rest of the repository.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/library-catalogue/`
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.2.0 (2026-09-25)
+
+Phase 1 closed, 8 of 8 tasks. Delivered `core/navigate.py` with `find`
+(and `--text`), `ls`, `links` and `path`, every answer bounded to 20 lines; one
+entry point for the agent, the console script `catalogue`; and the `make`
+targets `find`, `ls`, `links`, `path`. Measured on the fixture library plus
+500 entries: every answer has the same length on both. The measurement found
+two costs, the pure-Python YAML loader and an `ls` that computed lines it did
+not show, both fixed: 70 to 180 ms per command on 500 entries. A constraint
+was added to Phase 2.
 
 ### 1.1.0 (2026-09-25)
 

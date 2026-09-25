@@ -26,7 +26,7 @@ changes no skill. It runs once a task is done, never during one.
 
 | Path | Role |
 |---|---|
-| `core/` | Installable package shared by the skills: `doc` (discovery, front matter, Markdown → HTML), `mdext`, `imaging`, `pdfpage`, `net`, `catalogue` (the manifests, ids, `sync`, `describe`), `library` (`make check-library`) |
+| `core/` | Installable package shared by the skills: `doc` (discovery, front matter, Markdown → HTML), `mdext`, `imaging`, `pdfpage`, `net`, `catalogue` (the manifests, ids, `sync`, `describe`), `navigate` (reading the map: `find`, `ls`, `links`, `path`), `library` (`make check-library`) |
 | `.claude/skills/<name>/` | One skill: `SKILL.md`, `scripts/`, `tests/`, optional `references/` and `assets/` |
 | `.claude/agents/` | `pdf-reviewer`: reviews a built PDF through `make review` — checks, sheets, zooms — and returns only the defects |
 | `.claude/hooks/` | Declared in `.claude/settings.json`: guard generated and immutable files, refuse the system Python, run `make brand` after `tokens.yaml`, run a skill's tests after its scripts change |
@@ -71,7 +71,14 @@ make brand / make icons / make list
 make clean [DOC=topic/slug]                   # out/ and every .work/, or one document's
 make test                                     # the suites, on tests/fixtures/ — never library/
 make check-library                            # the user's library: anatomy, layout, what the build refuses; writes nothing
+make find Q="…" [IN=topic] [TEXT=1]           # the library's map: what it holds about a query
+make ls [AT=topic/slug] [L=1|2]               # a topic's entries, an entry's items
+make links AT=topic/slug / make path ID=…     # what cites what; where an id is
 ```
+
+The agent reads and keeps the map through one entry point,
+`.venv/bin/catalogue find | ls | links | path | sync | describe`. Every answer
+is 20 lines at most, however large the library.
 
 ## Rules no skill owns
 

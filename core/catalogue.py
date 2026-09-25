@@ -102,6 +102,10 @@ STANDARD = {
         "Les termes et la traduction retenue pour chacun, que la traduction respecte."),
 }
 
+# libyaml's loader when PyYAML was built with it: every command of the map
+# reads every manifest, and the pure-Python loader is most of their cost.
+LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
 NODE_KEYS = ("id", "name", "description")
 ITEM_KEYS = ("path", "id", "name", "description", "kind", "files", "sha256")
 
@@ -156,10 +160,10 @@ def is_entry(d: Path) -> bool:
 def holds_files(d: Path) -> bool:
     """Whether a visible file lies anywhere under `d`: an empty directory, or one
     holding only hidden files, has nothing to describe and is no node."""
-    return any(True for _ in _visible_files(d))
+    return any(True for _ in visible_files(d))
 
 
-def _visible_files(d: Path):
+def visible_files(d: Path):
     for p in d.rglob("*"):
         if p.is_file() and all(visible(Path(part)) for part in p.relative_to(d).parts):
             yield p
@@ -197,7 +201,7 @@ def files_under(root: Path, rel: str = "") -> list[str]:
     start = root / rel if rel else root
     if start.is_file():
         return [rel] if visible(start) else []
-    return sorted(p.relative_to(root).as_posix() for p in _visible_files(start))
+    return sorted(p.relative_to(root).as_posix() for p in visible_files(start))
 
 
 def default_paths(entry: Path) -> list[str]:
@@ -285,7 +289,7 @@ def _text(value, what: str) -> str | None:
 def parse(text: str) -> Manifest:
     """A manifest from its YAML; ManifestError when its shape is wrong."""
     try:
-        data = yaml.safe_load(text)
+        data = yaml.load(text, Loader=LOADER)
     except yaml.YAMLError as exc:
         raise ManifestError(f"not YAML: {str(exc).splitlines()[0]}") from None
     data = {} if data is None else data
@@ -622,8 +626,8 @@ def describe(library: Path, target: str, name: str | None = None,
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="python -m core.catalogue",
-                                 description="Keep the library's manifests.")
+    ap = argparse.ArgumentParser(prog="catalogue",
+                                 description="The library's map: keep it, and read it.")
     sub = ap.add_subparsers(dest="command", required=True)
     s = sub.add_parser("sync", help="bring the manifests in step with the disk")
     s.add_argument("targets", nargs="*", metavar="topic/slug",
@@ -633,15 +637,42 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--name")
     d.add_argument("--description")
     d.add_argument("--prefix", help="the id's prefix, at the first naming")
+    limit = argparse.ArgumentParser(add_help=False)
+    limit.add_argument("--limit", type=int, default=20,
+                       help="the most lines an answer prints (default 20; 0 for all)")
+    f = sub.add_parser("find", parents=[limit], help="what the library holds about a query")
+    f.add_argument("query", nargs="+")
+    f.add_argument("--in", dest="within", metavar="TOPIC_OR_ENTRY",
+                   help="search below this topic or entry only (a path or an id)")
+    f.add_argument("--text", action="store_true",
+                   help="search the content of the text items, not their descriptions")
+    ls = sub.add_parser("ls", parents=[limit], help="a topic's nodes, or an entry's items")
+    ls.add_argument("target", nargs="?", help="a path or an id; the library's root by default")
+    ls.add_argument("-l", dest="level", action="count", default=0,
+                    help="-l adds the descriptions, -ll the kind, size and date")
+    k = sub.add_parser("links", parents=[limit], help="what an entry or item cites, and what cites it")
+    k.add_argument("target", help="a path or an id")
+    p = sub.add_parser("path", help="where an id is")
+    p.add_argument("id")
     args = ap.parse_args(argv)
     library = doc.LIBRARY
     try:
         if not library.is_dir():
             raise ManifestError(f"no library at {doc.shown(library)}")
+        from core import navigate          # it reads this module: imported late
         if args.command == "sync":
             lines = sync(library, args.targets)
-        else:
+        elif args.command == "describe":
             lines = [describe(library, args.target, args.name, args.description, args.prefix)]
+        elif args.command == "find":
+            lines = navigate.find(library, " ".join(args.query), args.within, args.text,
+                                  args.limit)
+        elif args.command == "ls":
+            lines = navigate.ls(library, args.target, args.level, args.limit)
+        elif args.command == "links":
+            lines = navigate.links(library, args.target, args.limit)
+        else:
+            lines = [navigate.path(library, args.id)]
     except ManifestError as exc:
         print(f"catalogue: {exc}", file=sys.stderr)
         return 1

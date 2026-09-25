@@ -241,6 +241,25 @@ is now: the description was written against that content.
 A manifest is written through these two commands only: the guard refuses an
 edit by hand.
 
+### Reading the map: `find`, `ls`, `links`, `path`
+
+Four read-only commands answer a question from the manifests, in a few lines
+whatever the size of the library. The agent calls them as
+`.venv/bin/catalogue <command>`; you call them through `make`.
+
+| Command | `make` | Answers |
+|---|---|---|
+| `find <words> [--in <topic or entry>] [--text]` | `make find Q="…" [IN=…] [TEXT=1]` | every node and item whose name or description holds every word, case and accents folded — `etain` finds « étain ». One line each: kind, id, name, where. With `--text`, the lines of the text items (Markdown, extractions, journals, notes) that hold them, each under its item's name. |
+| `ls [<path or id>] [-l \| -ll]` | `make ls [AT=…] [L=1\|2]` | a topic's topics and entries, with their counts; an entry's items; an item, with a directory's files. `-l` adds the descriptions, `-ll` the kind, size and date. Markers say what is `to describe`, `new` (on the disk, no item covers it), `to review` (a described source changed) or `gone`. |
+| `links <path or id>` | `make links AT=…` | what an entry or an item cites and what cites it, from the `id:` citations alone, grouped by entry, each with the file and line that cites. |
+| `path <id>` | `make path ID=…` | where an id is, from the repository's root. |
+
+**An answer is 20 lines at most.** Past that, its last line says how many more
+there are and how to narrow the question; `--limit N` raises the bound, `0`
+removes it. Nothing is read in advance: each command reads the manifests when
+it runs, so the size of an answer depends on the question, never on the
+library.
+
 ---
 
 ## The life of a document
