@@ -1,6 +1,6 @@
 ---
 name: session-review
-description: Measure a task of this repository once it is finished, and write the review to reviews/ — what it cost, where the cost went, and what should change so that the next task of the same kind costs less. Use only after a task is done and only when a review is asked for. It is not part of doing the work: it builds nothing, fixes nothing, reviews no code and no PDF, changes no production skill, and never runs while a task is still in progress.
+description: Measure a task of this repository once it is finished, and write the review to reviews/ — what it cost, where the cost went, and what should change so that the next task of the same kind costs less. Use only after a task is done and only when a review is asked for. It is not part of doing the work: it builds nothing, fixes nothing, reviews no code and no PDF (a built PDF is the `pdf` skill's), changes no production skill, and never runs while a task is still in progress.
 ---
 
 # Reviewing a finished task

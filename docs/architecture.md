@@ -45,7 +45,7 @@ library/                user content; a document's five directories are §11
 tests/                  the core's suite and the repository-level suite (§7)
 out/                    build artefacts, ignored by git
 docs/                   this document, the roadmaps, the design notes
-.claude/skills/         pdf · epub · fetch · sourcing · translate (§5)
+.claude/skills/         pdf · epub · fetch · sourcing · discussion · translate · session-review (§5)
 .claude/agents/         pdf-reviewer
 .claude/hooks/          guards and automations, declared in .claude/settings.json
 ```
@@ -61,7 +61,7 @@ Reason, directory by directory:
 | `tests/` | The core's suite, plus the tests whose subject is the repository itself — its layout, its documentation, its `make` targets. Each skill's own suite lives inside the skill. |
 | `out/` | Build artefacts, reconstructible by `make build` and `make epub`. Gitignored. |
 | `docs/` | Prose about the repository: this document, the roadmaps under `docs/roadmap/`, and the design notes a roadmap hands over (`docs/local-translation.md`, Phase 7). |
-| `.claude/skills/` | Five skills, one per context. Each carries its own scripts, tests and assets. |
+| `.claude/skills/` | Seven skills, one per context. Each carries its own scripts, tests and assets. |
 | `.claude/agents/` | Subagents a skill delegates to. `pdf-reviewer` holds the look at a built PDF — `make review`'s checks, sheets and zooms — so no page image enters the main conversation. |
 | `.claude/hooks/` | What a skill states as a rule but memory would enforce badly: generated and immutable files, the venv's Python, `make brand` after `tokens.yaml`, a skill's suite after its scripts change. Declared in `.claude/settings.json`. |
 
@@ -219,7 +219,7 @@ They do not carry the document.
 
 ---
 
-## 5. The six skills, and where each one stops
+## 5. The seven skills, and where each one stops
 
 ### What each is for
 
@@ -231,6 +231,7 @@ They do not carry the document.
 | `sourcing` | A question established across several sources not known in advance. Produces knowledge, not a document. |
 | `discussion` | A subject talked through with the user before its document exists, and resumed from its journal. Produces a journal and an outline, not a document. |
 | `translate` | A document already in this library, translated in place. |
+| `session-review` | A finished task, measured, and written to `reviews/`. Outside the production chain: it makes no document and changes no skill. |
 
 ### The boundaries that needed a rule
 
@@ -293,12 +294,13 @@ description must carry one discriminating phrase that no other carries:
 
 | Skill | What triggers it | What must *not* trigger it |
 |---|---|---|
-| `pdf` | write / build / review a document; a preset; the art direction; import a PDF **into the library** | an EPUB; a PDF read as evidence |
+| `pdf` | write / build / review / fix a document; a preset; the art direction; import a PDF **into the library** | an EPUB; a PDF read as evidence; a subject still being talked through |
 | `epub` | EPUB; e-reader; e-ink; reflow; contact sheet; style proof | authoring; page-by-page review |
-| `fetch` | a URL to turn **into a document** | several sources; an investigation |
+| `fetch` | a URL to turn **into a document** | several sources; an investigation; a PDF, even behind a URL |
 | `sourcing` | investigate; establish; cross-check; archived page; read a schematic | capturing one page; producing a document |
 | `discussion` | talk a subject through **before its document exists**; resume that discussion; passages pasted out of other agents' conversations | an exchange about the repository itself; establishing a fact; writing `index.md` |
 | `translate` | translate an `index.md`; a document in the wrong language | importing; capturing |
+| `session-review` | a task **once it is finished**, when a review is asked for | a task in progress; reviewing a built PDF or code |
 
 The overlap to watch, because it is real rather than theoretical: `fetch` and
 `sourcing` both start from a URL. The discriminator is *how many* and *known in
@@ -315,6 +317,20 @@ suite-and-review, phase 1*, `session-review` makes every review account for
 each skill its task loaded — read from the `Skill` calls of the transcript —
 and ask whether a job ran without the skill that covers it. Either failure
 is a `trigger` finding against the description at fault.
+
+`tests/test_triggers.py` holds the table: each description's discriminating
+phrase, absent from every other description, and the neighbours it must
+name. A skill added without a row fails it. Its first rows came from the
+overlaps met in real sessions (*suite-and-review, phase 2*):
+- `discussion`'s opening request, "talk about my solder joints to make a
+  document of them", also reads as `pdf`'s "create a document";
+- a repair that `make check-library` reported was done without `pdf`, whose
+  description had no verb for fixing;
+- a PDF behind a URL loads `fetch`, which then refuses it.
+
+A phrase counts only where it is said positively. "Sources not known in
+advance" is `sourcing`'s job and `fetch`'s negative clause, so it
+discriminates nothing.
 
 ---
 

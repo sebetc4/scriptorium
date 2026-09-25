@@ -17,13 +17,13 @@
 ```
 Phase 0  A Suite Independent of the Library    🟢 ████████████████████ 100%  (9/9)
 Phase 1  Skill Triggers in the Session Review  🟢 ████████████████████ 100%  (6/6)
-Phase 2  A Trigger Audit of Every Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                             ███████████████░░░░░  75%  (15/20)
+Phase 2  A Trigger Audit of Every Skill        🟢 ████████████████████ 100%  (5/5)
+TOTAL                                             ████████████████████ 100%  (20/20)
 ```
 
 **Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 2 — A Trigger Audit of Every Skill
+**Next Milestone:** —
 
 ---
 
@@ -86,7 +86,7 @@ both a skill loaded without need and a job done without its skill.
 |---|---|---|---|
 | 0 | [A Suite Independent of the Library](phase-0-library-free-suite.md) | 9 | 🟢 Done |
 | 1 | [Skill Triggers in the Session Review](phase-1-trigger-review.md) | 6 | 🟢 Done |
-| 2 | [A Trigger Audit of Every Skill](phase-2-trigger-audit.md) | 5 | 🔴 Not Started |
+| 2 | [A Trigger Audit of Every Skill](phase-2-trigger-audit.md) | 5 | 🟢 Done |
 
 ---
 
@@ -104,13 +104,24 @@ both a skill loaded without need and a job done without its skill.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/suite-and-review/`
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.3.0 (2026-09-25)
+
+Phase 2 closed: every skill's description passes the §5 trigger check, and
+`tests/test_triggers.py` holds it there. Each description carries a phrase
+no other carries and names the neighbours it must not be confused with; a
+skill added without its row fails the test. The audit read the 15
+transcripts for their loads. It found one real misfire: a repair reported by
+`make check-library` was done without `pdf`, whose description had no verb
+for fixing. `pdf`, `fetch` and `session-review` each gained one clause, and
+§5's tables list the seven skills. No phase follows.
 
 ### 1.2.0 (2026-09-25)
 

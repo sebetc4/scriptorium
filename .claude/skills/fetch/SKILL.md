@@ -1,6 +1,6 @@
 ---
 name: fetch
-description: Capture one web page, known by its URL, as a document of this library. Use when given a URL to turn into a document here. One URL, one document — it does not follow links, does not reproduce the site's layout, and does not translate (that is the `translate` skill). Not for an investigation across several sources that are not known in advance — that is the `sourcing` skill.
+description: Capture one web page, known by its URL, as a document of this library. Use when given a URL to turn into a document here. One URL, one document — it does not follow links, does not reproduce the site's layout, and does not translate (that is the `translate` skill). A PDF, even behind a URL, is imported with the `pdf` skill. Not for an investigation across several sources that are not known in advance — that is the `sourcing` skill.
 ---
 
 # Web capture

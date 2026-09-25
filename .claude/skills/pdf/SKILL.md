@@ -1,6 +1,6 @@
 ---
 name: pdf
-description: Write, build and review a paginated PDF document of this library from Markdown, with the repository's shared art direction — presets, front matter, cover, icons, diagrams — and rebuild an external PDF as such a document. Use when asked to write, create, update or rebuild a document here, to create a new document under library/, to change the art direction, to add a diagram or an icon to a document, to import a PDF into the library, or to merge, split or extract pages from a built PDF. Not for the EPUB output (the `epub` skill), for a PDF read as evidence in an investigation (`sourcing`), for translating a document (`translate`), or for capturing a web page (`fetch`).
+description: Write, build and review a paginated PDF document of this library from Markdown, with the repository's shared art direction — presets, front matter, cover, icons, diagrams — and rebuild an external PDF as such a document. Use when asked to write, create, update, fix or rebuild a document here — a repair that a check such as `make check-library` reports included — to create a new document under library/, to change the art direction, to add a diagram or an icon to a document, to import a PDF into the library, or to merge, split or extract pages from a built PDF. Not for the EPUB output (the `epub` skill), for a PDF read as evidence in an investigation (`sourcing`), for translating a document (`translate`), for capturing a web page (`fetch`), or for a subject the user still wants to talk through (`discussion`).
 ---
 
 # PDF documents of the library

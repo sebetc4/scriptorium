@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/5)
-**Started:** {{START_DATE}}
-**Completed:** {{COMPLETION_DATE}}
+**Current Status:** 🟢 Done (100% — 5/5)
+**Started:** 2026-09-25
+**Completed:** 2026-09-25
 **Blocked By:** —
 
 ---
@@ -55,11 +55,11 @@ unless a finding from a Phase 1 review points at a body.
 
 ## Tasks
 
-- [ ] Read every skill's description against §5's trigger table, and list the overlaps and the missing "must not trigger" clauses
-- [ ] Rewrite the descriptions that fail, keeping the repository's style: what the skill does, when to use it, what is not its job
-- [ ] Write one repository-level test that every description carries a phrase no other description carries, and names at least one neighbour it must not be confused with
-- [ ] Update §5's trigger table to the seven skills, `session-review` included
-- [ ] Fold in the `trigger` findings the reviews since Phase 1 have produced, and the loads `metrics.py --transcript <t> --owed` reads from every transcript of the project, reviewed or not
+- [x] Read every skill's description against §5's trigger table, and list the overlaps and the missing "must not trigger" clauses
+- [x] Rewrite the descriptions that fail, keeping the repository's style: what the skill does, when to use it, what is not its job
+- [x] Write one repository-level test that every description carries a phrase no other description carries, and names at least one neighbour it must not be confused with
+- [x] Update §5's trigger table to the seven skills, `session-review` included
+- [x] Fold in the `trigger` findings the reviews since Phase 1 have produced, and the loads `metrics.py --transcript <t> --owed` reads from every transcript of the project, reviewed or not
 
 ---
 
@@ -83,6 +83,6 @@ test generalises it and does not replace it.
 
 ## Acceptance Criteria
 
-- [ ] The repository-level test passes for all seven skills
-- [ ] §5's trigger table lists all seven skills
-- [ ] `make test` passes
+- [x] The repository-level test passes for all seven skills
+- [x] §5's trigger table lists all seven skills
+- [x] `make test` passes
