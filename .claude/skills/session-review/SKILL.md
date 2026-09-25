@@ -54,14 +54,15 @@ It prints three things, in this order:
    of the same skill, with the ratio, and `← over 1.5×` on anything past that.
    The table is read, never stored: medians belong to the corpus, not to a
    review.
-3. **The obligations** these measures trigger.
+3. **The obligations** these measures trigger, and one line for each skill the
+   slice loaded.
 
 Add `--from` and `--to` only when the default slice is wrong — by default it
 runs from the end of this session's last review to now.
 
-## The six obligations
+## The seven obligations
 
-The first four are printed by `--owed`, because a duty a session has to
+The first five are printed by `--owed`, because a duty a session has to
 remember is a duty a session will forget.
 
 1. **Explain the three largest costs.** Not list them — say what they bought.
@@ -74,9 +75,17 @@ remember is a duty a session will forget.
    "It was necessary" is a justification; it has to be written.
 4. **A finding or a reason for each correction the user made.** A correction
    the session could not have avoided is said to be unavoidable, and why.
-5. **No finding without a `target:` and a `fix:`.** Otherwise it is a
+5. **Account for every skill the slice loaded.** Say what each one brought to
+   the task — a rule followed, a script run, a pitfall avoided. A skill loaded
+   without need is a `trigger` finding, targeting that skill's `SKILL.md`,
+   whose description is what made it fire. The other direction is a question,
+   because no script can see a skill that did not load: was a job of this slice
+   done without the skill that covers it? If so, that is a `trigger` finding
+   too. A skill that fires on a neighbour's job is worse than no skill, and the
+   review is the only place anything checks it.
+6. **No finding without a `target:` and a `fix:`.** Otherwise it is a
    complaint: put it in the prose, where nothing counts it.
-6. **No section for what went well.** A review is an account of cost, of what
+7. **No section for what went well.** A review is an account of cost, of what
    it bought, and of what did not go as intended. There is no other section.
 
 ## Writing it
@@ -84,7 +93,7 @@ remember is a duty a session will forget.
 `reviews/YYYY-MM-DD-<session-prefix>-<slug>.md`. The front matter is structured
 and read by machines; the body is prose and read by a person. The fields are in
 `references/format.md`, the finding vocabulary in `references/findings.md` — it
-is closed at eight kinds, and `corpus.py` refuses an unknown one.
+is closed at nine kinds, and `corpus.py` refuses an unknown one.
 
 The session fills `task`, `skill`, `outcome`, `corrections`, `findings` and the
 prose. `metrics.py` fills `measured:`. Neither writes the other's half: what a

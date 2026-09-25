@@ -16,14 +16,14 @@
 
 ```
 Phase 0  A Suite Independent of the Library    🟢 ████████████████████ 100%  (9/9)
-Phase 1  Skill Triggers in the Session Review  🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/6)
+Phase 1  Skill Triggers in the Session Review  🟢 ████████████████████ 100%  (6/6)
 Phase 2  A Trigger Audit of Every Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                             █████████░░░░░░░░░░░  45%  (9/20)
+TOTAL                                             ███████████████░░░░░  75%  (15/20)
 ```
 
-**Current Phase:** Phase 1 — Skill Triggers in the Session Review
+**Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 1 — Skill Triggers in the Session Review
+**Next Milestone:** Phase 2 — A Trigger Audit of Every Skill
 
 ---
 
@@ -85,7 +85,7 @@ both a skill loaded without need and a job done without its skill.
 | # | Phase | Tasks | Status |
 |---|---|---|---|
 | 0 | [A Suite Independent of the Library](phase-0-library-free-suite.md) | 9 | 🟢 Done |
-| 1 | [Skill Triggers in the Session Review](phase-1-trigger-review.md) | 6 | 🟡 In Progress |
+| 1 | [Skill Triggers in the Session Review](phase-1-trigger-review.md) | 6 | 🟢 Done |
 | 2 | [A Trigger Audit of Every Skill](phase-2-trigger-audit.md) | 5 | 🔴 Not Started |
 
 ---
@@ -104,13 +104,28 @@ both a skill loaded without need and a job done without its skill.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/suite-and-review/`
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.2.0 (2026-09-25)
+
+Phase 1 closed: every session review now accounts for the skills its task
+loaded. `metrics.py` reads a load from the transcript's `Skill` calls, not
+from `attributionSkill`, which only labels turns with the last skill loaded.
+The `measured:` block gains `loaded:`, and `--owed` names every skill loaded
+and asks whether a job ran without its skill. A new finding kind, `trigger`,
+records either failure. Run on the real transcripts, the tool showed that its
+50-line cap was cutting the obligations and that `corpus.py` refused `skill:
+discussion`; both were fixed. `discussion` loaded in its three real sessions
+and in no other session. Before the phase's own tasks, and at the user's
+request, the two documents `make check-library` flagged were repaired and the
+style guide moved to `brand/style-guide/`. Phase 2's last task now also reads
+the loads from every transcript.
 
 ### 1.1.0 (2026-09-25)
 

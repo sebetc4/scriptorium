@@ -29,14 +29,15 @@ written.** It is a complaint. The target names the file that would change and
 the fix says what it would say — if neither can be written, the observation
 belongs in the body's prose, where nothing counts it.
 
-`target` is a path in this repository. A finding whose target is a document
+`target` is a path in this repository. For a `trigger` finding it is the
+`SKILL.md` whose description fired, or failed to — never the skill's body. A finding whose target is a document
 under `library/` is a defect in that document, not in the way the work is done,
 and does not belong here.
 
 ## The Vocabulary
 
 Closed. A finding that fits none of these is a signal about the format, and
-belongs in the phase notes of whatever is then done about it — not in a ninth
+belongs in the phase notes of whatever is then done about it — not in a tenth
 kind invented on the spot. `corpus.py` refuses an unknown `kind` by name.
 
 | `kind` | What it names | Worked example |
@@ -49,6 +50,7 @@ kind invented on the spot. `corpus.py` refuses an unknown `kind` by name.
 | `art-direction` | A defect in `brand/` or `theme/` that reached the page: a missing glyph, a role that inverts between variants, a rule that fights another. | `≈` is in none of the art direction's fonts and fell back to Cantarell mid-line. |
 | `process` | A repository convention that is missing, or that exists and was not followed. | A figure generator was written and left in `sources/`, because nothing says where one belongs. |
 | `unverified` | Something was delivered resting on an assumption nobody checked, and the review is where that is said out loud. | The redrawn schematic was checked against the photograph, never against the board; two contradictory board dimensions were carried into the document unresolved. |
+| `trigger` | A skill that loaded without need, or a job done without the skill that covers it. Either way the skill's description is at fault, since it is all a session reads before deciding. | A question about which Make target builds the EPUB loaded `discussion`, whose description matched "talk a subject through"; it brought nothing and cost a full skill read. Target: `.claude/skills/discussion/SKILL.md`. Fix: state in the description that a question about the repository is not a discussion. The other direction: one caption of an `index.md` was corrected without `pdf` loaded, and the document was never rebuilt — the description's "update a document" did not reach a one-line edit. Target: `.claude/skills/pdf/SKILL.md`. Fix: say that any edit to a document's `index.md`, however small, is this skill's. |
 
 ## Severity
 

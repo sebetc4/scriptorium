@@ -27,7 +27,7 @@ computed. A review that blurs the two is worth less than either half.
 | `session` | string | yes | `CLAUDE_CODE_SESSION_ID`, in full. |
 | `slice` | mapping | yes | `from:` and `to:`, ISO timestamps. The bounds of the task inside the session. |
 | `task` | string | yes | What was asked, in one sentence, in the user's words rather than the agent's summary of them. |
-| `skill` | string | yes | The skill the task belongs to: `pdf`, `epub`, `fetch`, `sourcing`, `translate`, `roadmap`, `session-review`, or `none` — `corpus.py` refuses anything else. One value — the skill the task was about, not every skill that loaded. Baselines are grouped by it. |
+| `skill` | string | yes | The skill the task belongs to: `pdf`, `epub`, `fetch`, `sourcing`, `discussion`, `translate`, `roadmap`, `session-review`, or `none` — `corpus.py` refuses anything else. One value — the skill the task was about, not every skill that loaded; those are under `measured.loaded`. Baselines are grouped by it. |
 | `document` | string | no | `topic/slug`, when the task produced or changed one document. Absent otherwise. |
 | `outcome` | enum | yes | `delivered`, `partial`, or `abandoned`. What the user ended up with, not how the session felt about it. |
 | `corrections` | integer | yes | How many times the user corrected, redirected or rejected something. Counted by the session, because a transcript cannot tell a correction from a new request. |
@@ -53,14 +53,18 @@ measured:
       fresh: 49214
       cache_read: 181755
       seconds: 50
+      loaded: {pdf: 1}   # only when the run loaded a skill
   turns: 143
   tools:             # by name, calls not results
     Bash: 96
     Read: 14
   images: 11
   files_written: 7
-  skills:            # assistant turns carrying each attributionSkill
+  skills:            # assistant turns carrying each attributionSkill — the
+                     # last skill loaded, which is not a load in this slice
     pdf: 118
+  loaded:            # Skill tool calls: each is a load the review accounts for
+    pdf: 1
   friction:
     interruptions: 0
     denials: 1
@@ -139,6 +143,7 @@ measured:
   images: 11
   files_written: 2
   skills: {pdf: 23}
+  loaded: {pdf: 1}
   friction: {interruptions: 0, api_errors: 0}
   derived:
     active_minutes:

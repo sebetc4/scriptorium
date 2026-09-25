@@ -211,6 +211,7 @@ class Tally:
     context_peak: int = 0
     tools: Counter = field(default_factory=Counter)
     skills: Counter = field(default_factory=Counter)
+    loaded: Counter = field(default_factory=Counter)
     images: int = 0
     files_written: int = 0
     interruptions: int = 0
@@ -313,6 +314,14 @@ def scan(path: Path, window: Slice) -> Tally:
                         t.reviews += 1
                 elif name == "Read":
                     t.reads[str(params.get("file_path", ""))] += 1
+                elif name == "Skill":
+                    # The load itself. `attributionSkill` above cannot stand in
+                    # for it: it labels every later turn with the last skill
+                    # loaded, so it carries a skill into slices that never
+                    # loaded one. A skill the user types as a slash command was
+                    # never observed on this project's transcripts, and is not
+                    # counted.
+                    t.loaded[str(params.get("skill", "?"))] += 1
                 elif name in ("Write", "Edit", "NotebookEdit"):
                     t.files_written += 1
                 if arg := params.get("description") or params.get("prompt"):
@@ -372,11 +381,19 @@ def subagent_runs(path: Path, window: Slice) -> list[dict]:
                "fresh": inner.fresh, "cache_read": inner.cache_read}
         if len(stamps) > 1:
             run["seconds"] = round((max(stamps) - min(stamps)).total_seconds())
+        if inner.loaded:
+            run["loaded"] = dict(inner.loaded)
         runs.append(run)
     return runs
 
 
 # --- output ------------------------------------------------------------------
+
+def flow(mapping: dict) -> str:
+    """A mapping as one line of YAML flow style, nested mappings included."""
+    return "{" + ", ".join(f"{k}: {flow(v) if isinstance(v, dict) else v}"
+                           for k, v in mapping.items()) + "}"
+
 
 def yaml_block(t: Tally, runs: list[dict]) -> list[str]:
     out = ["measured:", "  tokens:",
@@ -387,19 +404,18 @@ def yaml_block(t: Tally, runs: list[dict]) -> list[str]:
     if runs:
         out.append("  subagents:")
         for r in runs:
-            fields = ", ".join(f"{k}: {v}" for k, v in r.items())
-            out.append(f"    - {{{fields}}}")
+            out.append(f"    - {flow(r)}")
     out.append(f"  turns: {t.turns}")
     if t.tools:
-        pairs = ", ".join(f"{k}: {v}" for k, v in t.tools.most_common())
-        out.append(f"  tools: {{{pairs}}}")
+        out.append(f"  tools: {flow(dict(t.tools.most_common()))}")
     if t.images:
         out.append(f"  images: {t.images}")
     if t.files_written:
         out.append(f"  files_written: {t.files_written}")
     if t.skills:
-        pairs = ", ".join(f"{k}: {v}" for k, v in t.skills.most_common())
-        out.append(f"  skills: {{{pairs}}}")
+        out.append(f"  skills: {flow(dict(t.skills.most_common()))}")
+    if t.loaded:
+        out.append(f"  loaded: {flow(dict(t.loaded))}")
     friction = [f"interruptions: {t.interruptions}",
                 f"api_errors: {t.api_errors}"]
     if t.denials:
@@ -527,6 +543,21 @@ def owed(t: Tally, runs: list[dict], reviews: list, skill: str | None) -> list[s
 
     rows.append("- a finding or a reason for each correction the user made "
                 "(only the session can count these)")
+
+    # A skill that fires on a neighbour's job is worse than no skill. Each load
+    # is a claim that the skill was needed, and the review is where the claim
+    # is checked — the only place anything checks it.
+    # One line whatever the count, so that a slice loading five skills cannot
+    # push the obligations past the line cap.
+    loads = [f"`{name}` ({n}×)" for name, n in t.loaded.items()]
+    loads += [f"`{name}` ({n}× in a {r['type']} run)"
+              for r in runs for name, n in (r.get("loaded") or {}).items()]
+    if loads:
+        rows.append("- say what each skill loaded brought to the task — "
+                    + ", ".join(loads)
+                    + ": one loaded without need is a `trigger` finding")
+    rows.append("- name any job of the slice done without the skill that covers "
+                "it, as a `trigger` finding (only the session can tell)")
     return rows
 
 
@@ -665,13 +696,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"metrics: corpus not read ({e})", file=sys.stderr)
         reviews = []
     lines += [""] + baselines(tally, runs, reviews, args.skill)
-    if args.owed:
-        lines += ["", "# owed by the review, from the measures above"]
-        lines += owed(tally, runs, reviews, args.skill)
+    # The obligations are never what the line cap cuts: they are the reason
+    # `--owed` exists, and a duty cut from the output is a duty forgotten.
+    duties = (["", "# owed by the review, from the measures above"]
+              + owed(tally, runs, reviews, args.skill)) if args.owed else []
     if args.timeline:
-        lines += ["", "# timeline"] + timeline(tally)
-    elif len(lines) > MAX_LINES:
-        lines = lines[:MAX_LINES] + [f"# … {len(lines) - MAX_LINES} more line(s)"]
+        lines += duties + ["", "# timeline"] + timeline(tally)
+    else:
+        room = max(MAX_LINES - len(duties), 0)
+        if len(lines) > room:
+            lines = lines[:room] + [f"# … {len(lines) - room} more line(s)"]
+        lines += duties
     print("\n".join(lines))
     return 0
 

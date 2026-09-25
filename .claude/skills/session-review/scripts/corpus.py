@@ -39,6 +39,7 @@ KINDS = {
     "art-direction",
     "process",
     "unverified",
+    "trigger",
 }
 SEVERITIES = {"low", "medium", "high"}
 OUTCOMES = {"delivered", "partial", "abandoned"}
@@ -47,7 +48,7 @@ OUTCOMES = {"delivered", "partial", "abandoned"}
 # `roadmap` while the format listed only the production skills. `roadmap` and
 # `session-review` are in because work on them is a task like any other —
 # running the instrument is what gets excluded, not building it.
-SKILLS = {"pdf", "epub", "fetch", "sourcing", "translate",
+SKILLS = {"pdf", "epub", "fetch", "sourcing", "discussion", "translate",
           "roadmap", "session-review", "none"}
 
 REQUIRED = ("review", "date", "session", "slice", "task", "skill",

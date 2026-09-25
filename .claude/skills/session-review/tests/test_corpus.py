@@ -69,6 +69,27 @@ def test_an_unknown_kind_is_refused_by_file_and_by_value(tmp_path):
     assert "bad.md" in str(e.value) and "vibes" in str(e.value)
 
 
+def test_a_trigger_finding_is_accepted(tmp_path):
+    d = write(tmp_path, "trigger.md", GOOD.replace(
+        "findings: []",
+        "findings: [{kind: trigger, severity: medium, "
+        "target: .claude/skills/discussion/SKILL.md, "
+        "fix: Say in the description that a question about the repository "
+        "is not a discussion.}]"))
+    review, = corpus.load(d)
+    assert review.findings[0]["kind"] == "trigger"
+
+
+def test_the_vocabulary_is_closed_with_trigger_in_it():
+    assert "trigger" in corpus.KINDS
+    assert len(corpus.KINDS) == 9
+
+
+def test_a_review_of_a_discussion_is_accepted(tmp_path):
+    d = write(tmp_path, "d.md", GOOD.replace("skill: epub", "skill: discussion"))
+    assert corpus.load(d)[0].skill == "discussion"
+
+
 def test_a_finding_without_a_fix_is_refused(tmp_path):
     d = write(tmp_path, "bad.md", GOOD.replace(
         "findings: []", "findings: [{kind: waste, severity: high, target: x}]"))

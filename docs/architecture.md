@@ -310,6 +310,12 @@ conversation. Its description names what makes one of them its job — a
 document of the library at the end — and names the exchange about the
 repository itself as not its job.
 
+The table is the design; the session reviews are the measurement. *Since
+suite-and-review, phase 1*, `session-review` makes every review account for
+each skill its task loaded — read from the `Skill` calls of the transcript —
+and ask whether a job ran without the skill that covers it. Either failure
+is a `trigger` finding against the description at fault.
+
 ---
 
 ## 6. Inside a skill

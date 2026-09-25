@@ -119,6 +119,54 @@ def test_content_blocks_are_not_deduplicated(plain):
     assert t.skills["pdf"] == 2
 
 
+# --- the skills loaded -------------------------------------------------------
+
+def test_a_skill_is_loaded_by_its_tool_call_not_by_its_attribution(tmp_path):
+    """`attributionSkill` labels every turn after a load with the last skill
+    loaded, including turns of a slice that loaded nothing: it says which skill
+    a turn ran under, never that a skill was loaded then.
+    """
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Bash", tid="t0", command="ls")], skill="roadmap")
+    t.assistant(1, [tool("Skill", tid="t1", skill="pdf")], skill="roadmap")
+    t.assistant(2, [tool("Skill", tid="t2", skill="discussion", args="x")],
+                skill="pdf")
+    t.assistant(3, [{"type": "text", "text": "."}], skill="discussion")
+    m = metrics.scan(t.write(), Slice(None, None))
+    assert m.loaded == {"pdf": 1, "discussion": 1}
+    assert "roadmap" not in m.loaded
+    block = "\n".join(metrics.yaml_block(m, []))
+    assert "  loaded: {pdf: 1, discussion: 1}" in block
+
+
+def test_a_slice_that_loads_nothing_carries_no_loaded_measure(plain):
+    block = "\n".join(metrics.yaml_block(metrics.scan(plain, Slice(None, None)), []))
+    assert "loaded" not in block
+
+
+def test_the_review_loading_its_own_skill_is_not_a_load(tmp_path):
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Skill", tid="t0", skill="session-review")])
+    assert not metrics.scan(t.write(), Slice(None, None)).loaded
+
+
+def test_a_skill_loaded_by_a_subagent_is_kept_with_its_run(tmp_path):
+    main = Transcript(tmp_path / "s.jsonl")
+    main.assistant(0, [tool("Agent", tid="t0", description="write it")])
+    main.write()
+    inner = Transcript(tmp_path / "s" / "subagents" / "agent-a1.jsonl")
+    inner.assistant(1, [tool("Skill", tid="t1", skill="pdf")])
+    inner.write()
+    (tmp_path / "s" / "subagents" / "agent-a1.meta.json").write_text(
+        json.dumps({"agentType": "general-purpose"}), encoding="utf-8")
+    run, = metrics.subagent_runs(tmp_path / "s.jsonl", Slice(None, None))
+    assert run["loaded"] == {"pdf": 1}
+    main_tally = metrics.scan(tmp_path / "s.jsonl", Slice(None, None))
+    assert not main_tally.loaded                   # not the main context's load
+    block = "\n".join(metrics.yaml_block(main_tally, [run]))
+    assert "loaded: {pdf: 1}" in block
+
+
 # --- the slice ---------------------------------------------------------------
 
 def test_the_slice_bounds_what_is_counted(tmp_path):

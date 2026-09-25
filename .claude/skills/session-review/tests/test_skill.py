@@ -1,10 +1,11 @@
-"""The six obligations, and the round trip from a transcript to a valid review.
+"""The seven obligations, and the round trip from a transcript to a valid review.
 
-Four of the six are arithmetic — `metrics.owed()` fires them from the measures,
+Five of the seven are arithmetic — `metrics.owed()` fires them from the measures,
 so they are tested by firing them. The other two are rules about writing, which
 no script can check on prose; what is tested there is that the skill states them
 and that `corpus.py` enforces the one that can be enforced.
 """
+import json
 from pathlib import Path
 
 import pytest
@@ -112,7 +113,63 @@ def test_every_correction_is_owed_and_only_the_session_can_count_them(tmp_path,
                for r in rows)
 
 
-# --- 5 and 6. the two rules no measurement can trigger -----------------------
+# --- 5. the skills loaded ----------------------------------------------------
+
+@pytest.fixture
+def two_loads(tmp_path):
+    """A question about the Makefile that loaded `discussion` without need,
+    then a document built under `pdf`."""
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Skill", tid="t0", skill="discussion")])
+    t.user(0.5, [{"type": "tool_result", "tool_use_id": "t0"}])
+    t.assistant(1, [tool("Bash", tid="t1", command="grep -n epub Makefile")],
+                skill="discussion")
+    t.assistant(2, [tool("Skill", tid="t2", skill="pdf")], skill="discussion")
+    t.assistant(3, [tool("Bash", tid="t3", command="make build")], skill="pdf")
+    return metrics.scan(t.write(), Slice(None, None))
+
+
+def test_every_skill_loaded_owes_what_it_brought(two_loads, reviews):
+    rows = metrics.owed(two_loads, [], reviews, "pdf")
+    line, = [r for r in rows if "brought to the task" in r]
+    assert "`discussion` (1×)" in line and "`pdf` (1×)" in line
+    assert "`trigger` finding" in line
+
+
+def test_a_skill_loaded_twice_is_named_once_with_its_count(tmp_path, reviews):
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Skill", tid="t0", skill="pdf")])
+    t.assistant(1, [tool("Skill", tid="t1", skill="pdf")])
+    rows = metrics.owed(metrics.scan(t.write(), Slice(None, None)), [], reviews,
+                        "pdf")
+    assert [r for r in rows if "brought" in r] == [
+        "- say what each skill loaded brought to the task — `pdf` (2×): "
+        "one loaded without need is a `trigger` finding"]
+
+
+def test_a_skill_a_subagent_loaded_is_owed_with_its_run(tmp_path, reviews):
+    runs = [{"type": "general-purpose", "fresh": 1, "cache_read": 1,
+             "loaded": {"pdf": 1}}]
+    rows = metrics.owed(slice_of(tmp_path), runs, reviews, "pdf")
+    assert any("`pdf` (1× in a general-purpose run)" in r for r in rows)
+
+
+def test_a_job_done_without_its_skill_is_asked_whatever_was_loaded(tmp_path,
+                                                                   reviews):
+    # No script can see a skill that should have loaded and did not: the line
+    # is a question, and it is asked of every slice.
+    rows = metrics.owed(slice_of(tmp_path), [], reviews, "pdf")
+    assert not any("brought" in r for r in rows)
+    assert any("without the skill that covers it" in r and "only the session" in r
+               for r in rows)
+
+
+def test_the_skill_states_the_trigger_obligation(skill_text):
+    assert "Account for every skill the slice loaded" in skill_text
+    assert "a `trigger` finding" in skill_text
+
+
+# --- 6 and 7. the two rules no measurement can trigger -----------------------
 
 def test_a_finding_without_a_target_and_a_fix_is_refused(tmp_path, skill_text):
     assert "No finding without a `target:` and a `fix:`" in skill_text
@@ -168,6 +225,29 @@ def test_the_whole_output_with_the_obligations_stays_under_fifty_lines(
     assert len(capsys.readouterr().out.splitlines()) <= metrics.MAX_LINES + 1
 
 
+def test_the_line_cap_never_cuts_an_obligation(tmp_path, capsys):
+    # Real whole-session slices carry a `measured:` block of forty lines and
+    # more; the cap used to fall inside the obligations, last in the output.
+    # One line of the block a subagent run, as in the real ones.
+    t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Skill", tid="ts", skill="pdf")])
+    path = t.write()
+    runs = tmp_path / "s" / "subagents"
+    for i in range(60):
+        inner = Transcript(runs / f"agent-a{i}.jsonl")
+        inner.assistant(1, [{"type": "text", "text": "."}])
+        inner.write()
+        (runs / f"agent-a{i}.meta.json").write_text(
+            json.dumps({"agentType": "pdf-reviewer"}), encoding="utf-8")
+    metrics.main(["--transcript", str(path), "--owed",
+                  "--reviews", str(FIXTURES), "--skill", "pdf"])
+    out = capsys.readouterr().out.splitlines()
+    assert len(out) <= metrics.MAX_LINES + 1
+    assert any("more line(s)" in line for line in out)
+    assert "`pdf` (1×)" in out[-2]
+    assert "without the skill that covers it" in out[-1]
+
+
 # --- the description ---------------------------------------------------------
 
 def test_the_description_says_what_the_skill_never_does(skill_text):
@@ -184,6 +264,8 @@ def test_the_description_says_what_the_skill_never_does(skill_text):
 def test_a_review_written_from_the_tooling_satisfies_the_corpus(tmp_path,
                                                                 capsys):
     t = Transcript(tmp_path / "s.jsonl")
+    t.assistant(0, [tool("Skill", tid="ts", skill="pdf")],
+                use=usage(fresh=0, cached=0))
     t.assistant(0, [tool("Bash", tid="t0", command="make build")],
                 use=usage(fresh=3000, cached=40000), skill="pdf")
     t.user(1, [{"type": "tool_result", "tool_use_id": "t0"}])
@@ -220,3 +302,4 @@ The build is the whole cost of this task.
     assert review.measure("tokens.fresh") == 3900
     assert review.measure("tools.Bash") == 1
     assert review.measure("derived.build_cycles") == 1
+    assert review.measure("loaded.pdf") == 1

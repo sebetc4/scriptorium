@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (0% — 0/6)
+**Current Status:** 🟢 Done (100% — 6/6)
 **Started:** 2026-09-25
-**Completed:** {{COMPLETION_DATE}}
+**Completed:** 2026-09-25
 **Blocked By:** —
 
 ---
@@ -57,14 +57,14 @@ Rewriting skill descriptions: that is Phase 2.
 ## Tasks
 
 ### The obligation
-- [ ] Have `metrics.py --owed` print, for each skill loaded in the slice, an obligation to say what it brought to the task
-- [ ] Add the obligation to the skill's list in `SKILL.md`: a skill loaded without need is a finding; a job done without the skill that covers it is asked as a question, since no script can detect it
-- [ ] Add the finding kind `trigger` to `references/findings.md` and to the vocabulary `corpus.py` accepts, with a worked example
+- [x] Have `metrics.py --owed` print, for each skill loaded in the slice, an obligation to say what it brought to the task
+- [x] Add the obligation to the skill's list in `SKILL.md`: a skill loaded without need is a finding; a job done without the skill that covers it is asked as a question, since no script can detect it
+- [x] Add the finding kind `trigger` to `references/findings.md` and to the vocabulary `corpus.py` accepts, with a worked example
 
 ### Tests and proof
-- [ ] Test the printed obligation on a transcript fixture that loads two skills, one of them without need
-- [ ] Test that `corpus.py` accepts a `trigger` finding and still refuses an unknown kind
-- [ ] Run the new obligation on the transcripts of the `discussion` skill's real sessions (the notebook's opening and its fresh-session resume, 2026-09-24/25) and record what it prints
+- [x] Test the printed obligation on a transcript fixture that loads two skills, one of them without need
+- [x] Test that `corpus.py` accepts a `trigger` finding and still refuses an unknown kind
+- [x] Run the new obligation on the transcripts of the `discussion` skill's real sessions (the notebook's opening and its fresh-session resume, 2026-09-24/25) and record what it prints
 
 ---
 
@@ -90,6 +90,6 @@ The finding vocabulary is closed on purpose. `trigger` enters it through
 
 ## Acceptance Criteria
 
-- [ ] `metrics.py --owed` names every skill loaded in the slice
-- [ ] A review holding a `trigger` finding parses with `corpus.py`
-- [ ] `make test` passes
+- [x] `metrics.py --owed` names every skill loaded in the slice
+- [x] A review holding a `trigger` finding parses with `corpus.py`
+- [x] `make test` passes
