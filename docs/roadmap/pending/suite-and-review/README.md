@@ -15,13 +15,13 @@
 ## Overall Progress
 
 ```
-Phase 0  A Suite Independent of the Library    🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/9)
+Phase 0  A Suite Independent of the Library    🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/9)
 Phase 1  Skill Triggers in the Session Review  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 2  A Trigger Audit of Every Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
 TOTAL                                             ░░░░░░░░░░░░░░░░░░░░   0%  (0/20)
 ```
 
-**Current Phase:** —
+**Current Phase:** Phase 0 — A Suite Independent of the Library
 **Blocked By:** —
 **Next Milestone:** Phase 0 — A Suite Independent of the Library
 
@@ -84,7 +84,7 @@ both a skill loaded without need and a job done without its skill.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [A Suite Independent of the Library](phase-0-library-free-suite.md) | 9 | 🔴 Not Started |
+| 0 | [A Suite Independent of the Library](phase-0-library-free-suite.md) | 9 | 🟡 In Progress |
 | 1 | [Skill Triggers in the Session Review](phase-1-trigger-review.md) | 6 | 🔴 Not Started |
 | 2 | [A Trigger Audit of Every Skill](phase-2-trigger-audit.md) | 5 | 🔴 Not Started |
 

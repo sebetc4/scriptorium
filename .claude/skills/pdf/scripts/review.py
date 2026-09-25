@@ -28,8 +28,8 @@ from pathlib import Path
 import pymupdf
 
 from core import imaging, pdfpage
-from core.doc import (ROOT, DocError, doc_dir, find_docs, load_doc, out_dir,
-                      token_map, work_dir)
+from core.doc import (DocError, doc_dir, find_docs, load_doc, out_dir,
+                      relative, shown, token_map, work_dir)
 
 # Past about 1.15 megapixels an image is scaled down before the model sees it,
 # and its cost stops growing: a sheet or a zoom is sized just under that line.
@@ -591,7 +591,7 @@ def main(argv: list[str] | None = None) -> int:
     except DocError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
-    rel = doc.relative_to(ROOT / "library")
+    rel = relative(doc)
     built = [(v, pdf) for v, pdf in variants(out_dir(doc), doc.name, fm["theme"])
              if not args.variant or v == args.variant]
     if not built:
@@ -602,7 +602,7 @@ def main(argv: list[str] | None = None) -> int:
     for variant, pdf in built:
         dest = work_dir(doc, "review") / variant
         if stale(pdf, doc):
-            print(f"error: {pdf.relative_to(ROOT)} is older than its sources "
+            print(f"error: {shown(pdf)} is older than its sources "
                   f"— run make build DOC={rel}", file=sys.stderr)
             failed += 1
             continue
@@ -615,7 +615,7 @@ def main(argv: list[str] | None = None) -> int:
         dest.mkdir(parents=True, exist_ok=True)
         (dest / "checks.txt").write_text(report + "\n" if report else "", encoding="utf-8")
         count = len(pymupdf.open(pdf))
-        print(f"{pdf.relative_to(ROOT)} — {count} pages — {variant}")
+        print(f"{shown(pdf)} — {count} pages — {variant}")
         print(f"checks: {len(found)} finding{'s' * (len(found) != 1)}")
         for f in found:
             print(f"  {f}")
@@ -625,7 +625,7 @@ def main(argv: list[str] | None = None) -> int:
             # page, and this one already knows which pages to look at.
             try:
                 for image in zoom(pdf, args.zoom, dest):
-                    print(image.relative_to(ROOT))
+                    print(shown(image))
             except IndexError as exc:
                 print(f"error: {exc}", file=sys.stderr)
                 failed += 1
@@ -634,7 +634,7 @@ def main(argv: list[str] | None = None) -> int:
             first = i * SHEET_COLUMNS * SHEET_ROWS + 1
             last = min(first + SHEET_COLUMNS * SHEET_ROWS - 1, count)
             pages = f"p.{first}" if first == last else f"p.{first}–{last}"
-            print(f"sheet: {sheet.relative_to(ROOT)} ({pages})")
+            print(f"sheet: {shown(sheet)} ({pages})")
     return 1 if failed else 0
 
 

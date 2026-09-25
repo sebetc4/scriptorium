@@ -25,21 +25,22 @@ def test_long_content_gives_several_screens(tmp_path):
     assert len(pages) > 1
 
 
-def test_the_contact_sheet_keeps_only_the_non_reflowing(repo, tmp_path):
-    d = repo / "library" / "electronique" / "components" / "led"
+def test_the_contact_sheet_keeps_only_the_non_reflowing(fixture_library):
+    d = fixture_library / "sample" / "component"
     pages = preview.contact_sheet(d)
     assert pages
-    # led/ carries four diagrams: all of them must be on the sheet.
-    assert preview.non_reflowing_count(d) >= 4
+    assert all(p.is_relative_to(d / ".work") for p in pages)
 
 
-def test_esp32_carries_its_transposed_table(repo):
-    d = repo / "library" / "electronique" / "controlers" / "esp32"
-    assert preview.non_reflowing_count(d) >= 5    # 4 diagrammes + 1 tableau
+def test_the_sheet_carries_every_object_that_does_not_reflow(fixture_library):
+    # The component holds four diagrams, a seven-column table the EPUB folds
+    # into one block per row (three rows), and one code block: 4 + 3 + 1.
+    d = fixture_library / "sample" / "component"
+    assert preview.non_reflowing_count(d) == 8
 
 
-def test_the_style_proof_renders_the_whole_guide(repo):
-    d = repo / "library" / "exemples" / "guide-de-style"
+def test_the_style_proof_renders_the_whole_guide(fixture_library):
+    d = fixture_library / "exemples" / "guide-de-style"
     pages = preview.style_screens(d)
     assert 1 <= len(pages) <= 8
 

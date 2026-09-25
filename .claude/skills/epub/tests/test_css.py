@@ -35,8 +35,8 @@ def test_flatten_removes_the_paginated_rules():
     assert "@page" not in out
 
 
-def test_the_epub_stylesheet_flattens_entirely(repo):
-    d = repo / "library" / "exemples" / "guide-de-style"
+def test_the_epub_stylesheet_flattens_entirely(fixture_tree):
+    d = fixture_tree / "library" / "exemples" / "guide-de-style"
     fm, _ = doc.load_doc(d)
     tokens = doc.token_map(d, {**fm, "theme": "epub"})
     css = epub.epub_css(d, tokens)

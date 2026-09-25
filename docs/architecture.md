@@ -112,6 +112,8 @@ Principles do not settle arguments; names do. These were the arguable ones.
 | Rasterising an SVG | **`epub`** | Only the reflowable backbone does it. The paginated one inlines SVG instead, so there is no second caller — one skill, not the core. |
 | `brand/sync.py`, `brand/icons.py` | **root**, not a skill | Reached by `make brand` and `make icons`, and by `diagram-design` through the profile. Used outside every skill, so the second clause of the rule applies. |
 | Creating a document from a template | **`pdf`** | An intent, not a brick. `epub` consumes the result but never creates one. |
+| Checking that a converted body is well-formed XHTML | **core** — `core/doc.py` | *suite-and-review, phase 0.* The EPUB build refuses a chapter it could not package, and `make check-library` reports the same document before anyone builds it. Two callers, one of them outside every skill. |
+| Checking the user's library | **core** — `core/library.py` | *suite-and-review, phase 0.* Reached by `make check-library`, outside every skill, and it checks what both backbones read. |
 
 ### The shared core
 
@@ -387,6 +389,18 @@ One invocation, one reported result. `.claude` begins with a dot and pytest's
 default `norecursedirs` would skip it, but naming it as a testpath makes it an
 explicit root, and nothing below it is hidden.
 
+**No test reads `library/`.** It is user content, reorganised at any time: a
+suite that read it failed on a rename rather than on a defect, and wrote a real
+EPUB into `out/` for every document on each run. The root conftest provides
+`fixture_library`, a copy of the fictional documents under
+`tests/fixtures/library/` in a temporary directory, with `doc.LIBRARY` and
+`doc.OUT` pointed at it — `on_fixtures()` does the same for a fixture wider than
+one test. Code that must follow the redirection reads `doc.LIBRARY` at call
+time, through `doc.relative()`, and prints paths through `doc.shown()`, which
+does not assume a path lies under the repository. The user's library is checked
+by `make check-library` instead, which writes nothing. *suite-and-review,
+phase 0.*
+
 Build artefacts must not appear inside a skill directory. The `.gitignore`
 patterns are path-independent on purpose, so they keep matching under
 `.claude/skills/<name>/`: `__pycache__/`, `.pytest_cache/` and `*.egg-info/` —
@@ -419,6 +433,11 @@ best covered.
 | `tests/test_build_epub.py` | `epub/tests/test_build.py` | full assembly, on the real documents |
 | `tests/test_planches.py` | `epub/tests/test_sheets.py` | the review covers what does not reflow |
 | `tests/test_jetons.py` | `epub/tests/test_tokens.py` | the EPUB colour mapping at equalised luminance |
+
+*suite-and-review, phase 0: `tests/test_layout.py` is gone, its checks moved to
+`make check-library`; `tests/test_anatomy.py` keeps only the guard; every test
+that opened a real document — `test_build.py` "on the real documents" among
+them — now opens the fixture library (§6).*
 
 `test_jetons.py` is the one arguable placement. It reads `brand/tokens.css`,
 which is root material, but what it asserts is the **EPUB** mapping — equalised

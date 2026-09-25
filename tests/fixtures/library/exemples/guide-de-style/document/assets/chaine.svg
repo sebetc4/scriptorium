@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 96" width="640" height="96">
+  <!-- Les couleurs sont des rôles, pas des valeurs : le build inline ce SVG
+       dans la page, il hérite donc de brand/tokens.css et de toute surcharge
+       locale du document. -->
+  <defs>
+    <marker id="fleche" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 8 4 0 8z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <g font-family="var(--font-sans)">
+    <g fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#fleche)">
+      <path d="M138 48 h30"/><path d="M304 48 h30"/><path d="M470 48 h30"/>
+    </g>
+
+    <rect x="8" y="22" width="126" height="52" rx="2" fill="var(--paper-2)" stroke="var(--rule)"/>
+    <text x="71" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">index.md</text>
+    <text x="71" y="61" text-anchor="middle" font-size="9" fill="var(--soft)">contenu + front-matter</text>
+
+    <rect x="174" y="22" width="126" height="52" rx="2" fill="var(--paper-2)" stroke="var(--rule)"/>
+    <text x="237" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">HTML</text>
+    <text x="237" y="61" text-anchor="middle" font-size="9" fill="var(--soft)">couverture + sommaire</text>
+
+    <rect x="340" y="22" width="126" height="52" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="403" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">cascade CSS</text>
+    <text x="403" y="61" text-anchor="middle" font-size="9" fill="var(--accent)">tokens → theme → doc</text>
+
+    <rect x="506" y="22" width="126" height="52" rx="2" fill="var(--paper-2)" stroke="var(--rule)"/>
+    <text x="569" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">out/*.pdf</text>
+    <text x="569" y="61" text-anchor="middle" font-size="9" fill="var(--soft)">WeasyPrint</text>
+  </g>
+</svg>

@@ -7,6 +7,7 @@ carries only what is local to it — the path to its `scripts/`.
 """
 from __future__ import annotations
 
+import contextlib
 import http.server
 import shutil
 import ssl
@@ -17,13 +18,61 @@ from pathlib import Path
 
 import pytest
 
+from core import doc
+
 ROOT = Path(__file__).resolve().parent
+FIXTURES = ROOT / "tests" / "fixtures" / "library"
 
 
 @pytest.fixture
 def repo() -> Path:
     """The repository root."""
     return ROOT
+
+
+# --------------------------------------------------------------------------
+# The fixture library — never the user's
+# --------------------------------------------------------------------------
+# `library/` is user content: it is reorganised at any time, and a test that
+# reads it fails on a rename rather than on a defect. The suite reads documents
+# of its own instead, under tests/fixtures/library/, and only through a copy:
+# a build writes `.work/` inside a document and `out/` beside the library, and
+# neither may land in the repository. The user's library is checked by
+# `make check-library`, which writes nothing.
+@pytest.fixture(scope="session")
+def fixture_tree(tmp_path_factory) -> Path:
+    """A copy of the fixture library, as `<tree>/library`, with `<tree>/out`.
+
+    Copied once per session: the builds that read it are expensive, and each is
+    deterministic, so sharing the copy costs no isolation that matters.
+    """
+    tree = tmp_path_factory.mktemp("fixtures")
+    shutil.copytree(FIXTURES, tree / "library")
+    (tree / "out").mkdir()
+    return tree
+
+
+@pytest.fixture(scope="session")
+def on_fixtures(fixture_tree):
+    """`doc.LIBRARY` and `doc.OUT` pointed at the copy, as a context manager.
+
+    For a fixture wider than one test, which cannot take `monkeypatch`:
+    `with on_fixtures() as library: …`.
+    """
+    @contextlib.contextmanager
+    def patched():
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(doc, "LIBRARY", fixture_tree / "library")
+            mp.setattr(doc, "OUT", fixture_tree / "out")
+            yield fixture_tree / "library"
+    return patched
+
+
+@pytest.fixture
+def fixture_library(on_fixtures) -> Path:
+    """The fixture library, with `doc.LIBRARY` and `doc.OUT` on it for one test."""
+    with on_fixtures() as library:
+        yield library
 
 
 # --------------------------------------------------------------------------

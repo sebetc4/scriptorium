@@ -125,7 +125,7 @@ def main() -> int:
         d = doc.LIBRARY / "exemples" / "guide-de-style"
         pages = style_screens(d)
         for p in pages:
-            print(f"  ✓ {p.relative_to(doc.ROOT)}")
+            print(f"  ✓ {doc.shown(p)}")
         return 0
 
     try:
@@ -136,7 +136,7 @@ def main() -> int:
 
     failures = 0
     for d in docs:
-        rel = d.relative_to(doc.ROOT)
+        rel = doc.shown(d)
         try:
             fm, _ = doc.load_doc(d)
             if fm["preset"] not in epub.EPUB_PRESETS:
@@ -154,7 +154,7 @@ def main() -> int:
             print(f"  · {rel} — nothing that does not reflow")
             continue
         for p in pages:
-            print(f"  ✓ {p.relative_to(doc.ROOT)}")
+            print(f"  ✓ {doc.shown(p)}")
     return 1 if failures else 0
 
 

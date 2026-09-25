@@ -170,9 +170,19 @@ contract for a local model is in `docs/local-translation.md`.
 make test
 ```
 
-Each skill runs its own suite, collected with the core's into one run. Part of
-the suite reads documents kept out of the repository; on a fresh clone those
-tests fail for want of files, not of assertions.
+Each skill runs its own suite, collected with the core's into one run. The
+suite never reads `library/`: its tests run on fictional documents under
+`tests/fixtures/library/`, copied to a temporary directory, so it passes on a
+fresh clone and writes nothing under `out/`.
+
+```bash
+make check-library
+```
+
+checks your own library instead, and writes nothing: a document root holding
+anything but the five roles, derived material in `sources/`, a front matter
+that does not load, a body the EPUB could not package. One line per defect,
+naming the document.
 
 ## Example
 

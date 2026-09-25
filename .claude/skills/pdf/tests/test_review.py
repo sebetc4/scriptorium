@@ -410,42 +410,47 @@ def test_the_art_direction_fonts_are_the_first_family_of_each_role():
 # --------------------------------------------------------------------------
 # A targeted pass: the pages that were given, and the checks over all of them
 # --------------------------------------------------------------------------
-def targeted(repo, doc, capsys, zoom=None):
+GUIDE = "exemples/guide-de-style"
+
+
+@pytest.fixture(scope="module")
+def guide_pdf(on_fixtures):
+    """The fixture guide, built once: a review refuses a PDF it cannot find."""
+    import build
+    with on_fixtures() as library:
+        return build.build(library / GUIDE)
+
+
+def targeted(doc, capsys, zoom=None):
     review.main([doc, "--variant", "light"] + (["--zoom"] + zoom if zoom else []))
     return capsys.readouterr().out
 
 
-def test_a_targeted_pass_renders_only_the_pages_it_was_given(repo, capsys,
-                                                             monkeypatch):
-    doc = "exemples/guide-de-style"
-    if not (repo / "library" / doc).is_dir():
-        pytest.skip("reads a document kept outside the repository")
-    out = targeted(repo, doc, capsys, zoom=["1", "3"])
+def test_a_targeted_pass_renders_only_the_pages_it_was_given(guide_pdf,
+                                                             fixture_library,
+                                                             capsys):
+    out = targeted(GUIDE, capsys, zoom=["1", "3"])
     rendered = [line.rsplit("/", 1)[-1] for line in out.splitlines()
                 if "page-" in line]
     assert rendered == ["page-01.png", "page-03.png"]
     assert "sheet:" not in out
 
 
-def test_a_targeted_pass_still_checks_the_whole_document(repo, capsys):
-    doc = "exemples/guide-de-style"
-    if not (repo / "library" / doc).is_dir():
-        pytest.skip("reads a document kept outside the repository")
+def test_a_targeted_pass_still_checks_the_whole_document(guide_pdf,
+                                                         fixture_library, capsys):
     # A fix on one page reflows the ones after it, so the checks cover the
     # document even when the look does not: here a finding on a page the pass
     # was never given.
-    out = targeted(repo, doc, capsys, zoom=["1"])
+    out = targeted(GUIDE, capsys, zoom=["1"])
     assert "checks:" in out
     reported = {line.split("—")[0].strip() for line in out.splitlines()
                 if line.startswith("  p.")}
     assert reported - {"p.1"}, out
 
 
-def test_a_pass_given_no_pages_reads_every_sheet(repo, capsys):
-    doc = "exemples/guide-de-style"
-    if not (repo / "library" / doc).is_dir():
-        pytest.skip("reads a document kept outside the repository")
-    out = targeted(repo, doc, capsys)
+def test_a_pass_given_no_pages_reads_every_sheet(guide_pdf, fixture_library,
+                                                 capsys):
+    out = targeted(GUIDE, capsys)
     assert "sheet:" in out and "checks:" in out
     assert "page-" not in out
 

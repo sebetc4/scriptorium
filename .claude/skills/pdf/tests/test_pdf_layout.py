@@ -22,9 +22,10 @@ def test_new_reads_the_templates_from_the_skill_assets(repo):
 
 
 def test_build_writes_under_out_pdf(repo):
+    # A path, not a document: the mapping reads no file.
     assert build.OUT == repo / "out"
-    d = repo / "library" / "exemples" / "guide-de-style"
-    assert build.out_dir(d) == repo / "out" / "pdf" / "exemples" / "guide-de-style"
+    d = repo / "library" / "topic" / "slug"
+    assert build.out_dir(d) == repo / "out" / "pdf" / "topic" / "slug"
 
 
 # --------------------------------------------------------------------------

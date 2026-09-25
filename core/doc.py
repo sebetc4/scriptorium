@@ -18,6 +18,7 @@ import html
 import re
 import shutil
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import markdown
@@ -173,9 +174,29 @@ def load_doc(d: Path) -> tuple[dict, str]:
     return fm, body
 
 
+def relative(d: Path) -> Path:
+    """A document's path under the library, `<topic…>/<slug>`.
+
+    Read from `LIBRARY` at call time, never from a copy taken at import: the
+    suite points `LIBRARY` at a copy of its fixture documents, and a module that
+    had imported the constant would keep answering for the user's library.
+    """
+    return d.relative_to(LIBRARY)
+
+
+def shown(p: Path) -> Path:
+    """A path as a message prints it: from the repository root when it lies
+    inside, whole when it does not.
+
+    A document normally lives under `library/`, but the suite builds copies of
+    its fixtures in a temporary directory, and a message must not be what fails.
+    """
+    return p.relative_to(ROOT) if p.is_relative_to(ROOT) else p
+
+
 def out_dir(d: Path, kind: str = "pdf") -> Path:
     """A document's output directory, under out/<kind>/<relative path>."""
-    return OUT / kind / d.relative_to(LIBRARY)
+    return OUT / kind / relative(d)
 
 
 def work_dir(d: Path, kind: str) -> Path:
@@ -435,3 +456,38 @@ def convert(md_text: str, tokens: dict[str, str], rel: str,
     html_body = md.convert(md_text)
     html_body = inline_icons(admonition_icons(html_body), tokens, rel, icon_color)
     return html_body, getattr(md, "toc", "")
+
+
+# --------------------------------------------------------------------------
+# Well-formed XHTML
+# --------------------------------------------------------------------------
+# In the core rather than in the `epub` skill because two callers need it: the
+# EPUB build, which refuses a chapter it could not package, and the library
+# check, which reports the same document before anyone tries to build it.
+
+# The five entities XML knows. Every other one — &nbsp;, &mdash;, … — is legal
+# in HTML and unknown to XML: they are resolved to characters before parsing,
+# rather than made to fail a valid document.
+XML_ENTITIES = {"amp", "lt", "gt", "quot", "apos"}
+ENTITY_RE = re.compile(r"&([a-zA-Z][a-zA-Z0-9]*);")
+
+
+def resolve_entities(fragment: str) -> str:
+    def one(m: re.Match) -> str:
+        return m.group(0) if m.group(1) in XML_ENTITIES \
+            else html.unescape(m.group(0))
+    return ENTITY_RE.sub(one, fragment)
+
+
+def check_xhtml(fragment: str, where: str) -> None:
+    """Raise DocError if the fragment is not well-formed XML.
+
+    We parse to check, then throw the tree away: the fragment goes into the EPUB
+    exactly as it is. Rebuilding it from the tree would mean replaying the
+    namespaces of the inlined SVG, which would produce stray `ns0:` prefixes or
+    `xmlns=""` on the HTML elements.
+    """
+    try:
+        ET.fromstring(f"<root>{resolve_entities(fragment)}</root>")
+    except ET.ParseError as exc:
+        raise DocError(f"{where} — malformed XHTML: {exc}") from exc

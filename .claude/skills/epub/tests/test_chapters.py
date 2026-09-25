@@ -69,8 +69,9 @@ def test_the_sweep_covers_all_six_html_levels():
     assert [t for t, _ in ch] == ["One", "Two"]
 
 
-def test_no_document_stays_monolithic():
-    """The test that was missing: none of the seven documents may stay in one block."""
+def test_no_document_stays_monolithic(fixture_library):
+    """None may stay in one block: the guide splits at its `##`, having no `#`,
+    and the component at its three `#`."""
     for d in doc.find_docs([]):
         fm, body = doc.load_doc(d)
         tokens = doc.token_map(d, {**fm, "theme": "epub"})

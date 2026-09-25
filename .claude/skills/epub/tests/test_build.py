@@ -1,4 +1,4 @@
-"""The full assembly, on the real documents."""
+"""The full assembly, on the fixture documents."""
 import datetime
 import zipfile
 
@@ -10,21 +10,20 @@ import epub
 
 
 @pytest.fixture(scope="module")
-def led():
-    # A module-scoped fixture (rendering the diagram is expensive): it
-    # therefore cannot depend on `repo`, which is function-scoped in
-    # the root conftest.py. `epub.ROOT` is the same constant that fixture returns.
-    d = epub.ROOT / "library" / "electronique" / "components" / "led"
-    return epub.build_epub(d)
+def component(on_fixtures):
+    # Module-scoped: rasterising four diagrams is expensive.
+    with on_fixtures() as library:
+        return epub.build_epub(library / "sample" / "component")
 
 
-def test_the_epub_is_written_in_the_right_place(repo, led):
-    assert led == repo / "out" / "epub" / "electronique" / "components" / "led" / "led.epub"
-    assert led.is_file()
+def test_the_epub_is_written_in_the_right_place(fixture_tree, component):
+    assert component == (fixture_tree / "out" / "epub" / "sample" / "component"
+                         / "component.epub")
+    assert component.is_file()
 
 
-def test_the_archive_holds_the_expected_structure(led):
-    with zipfile.ZipFile(led) as z:
+def test_the_archive_holds_the_expected_structure(component):
+    with zipfile.ZipFile(component) as z:
         names = set(z.namelist())
     assert "mimetype" in names
     assert "META-INF/container.xml" in names
@@ -36,14 +35,14 @@ def test_the_archive_holds_the_expected_structure(led):
     assert any(n.startswith("OEBPS/text/ch") for n in names)
 
 
-def test_no_var_survives_in_the_stylesheet(led):
-    with zipfile.ZipFile(led) as z:
+def test_no_var_survives_in_the_stylesheet(component):
+    with zipfile.ZipFile(component) as z:
         css = z.read("OEBPS/styles/epub.css").decode("utf-8")
     assert "var(" not in css
 
 
-def test_the_diagrams_are_pngs(led):
-    with zipfile.ZipFile(led) as z:
+def test_the_diagrams_are_pngs(component):
+    with zipfile.ZipFile(component) as z:
         images = [n for n in z.namelist() if n.startswith("OEBPS/images/")]
     assert len(images) >= 5                       # 4 diagrams + the cover
     assert all(n.endswith(".png") for n in images)
@@ -56,11 +55,12 @@ def test_the_transposition_threshold_is_overridable():
     assert epub.table_threshold({"epub": None}) == epub.TABLE_THRESHOLD
 
 
-def test_a_raised_threshold_leaves_the_esp32_matrix_intact(repo):
-    d = repo / "library" / "electronique" / "controlers" / "esp32"
+def test_a_raised_threshold_leaves_a_seven_column_table_intact(fixture_library):
+    d = fixture_library / "sample" / "component"
     fm, body = doc.load_doc(d)
     tokens = doc.token_map(d, {**fm, "theme": "epub"})
     html, _ = doc.convert(body, tokens, d.name, icon_color="currentColor")
+    assert epub.transpose_wide_tables(html) != html    # past the default: folded
     assert epub.transpose_wide_tables(html, 12) == html
 
 
@@ -69,16 +69,17 @@ def test_the_page_layout_presets_are_skipped(repo):
     assert epub.EPUB_PRESETS == {"report"}
 
 
-def test_rebuilding_gives_the_same_file(repo, led):
-    before = led.read_bytes()
-    epub.build_epub(repo / "library" / "electronique" / "components" / "led")
-    assert led.read_bytes() == before
+def test_rebuilding_gives_the_same_file(on_fixtures, component):
+    before = component.read_bytes()
+    with on_fixtures() as library:
+        epub.build_epub(library / "sample" / "component")
+    assert component.read_bytes() == before
 
 
-def test_the_whole_library_builds(repo):
+def test_every_report_of_a_library_builds(fixture_library):
     built = [epub.build_epub(d) for d in doc.find_docs([])
              if doc.load_doc(d)[0]["preset"] in epub.EPUB_PRESETS]
-    assert len(built) >= 6
+    assert [p.name for p in built] == ["guide-de-style.epub", "component.epub"]
     assert all(p.is_file() and p.stat().st_size > 1024 for p in built)
 
 

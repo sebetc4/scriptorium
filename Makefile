@@ -10,7 +10,7 @@ ZOOM    ?=
 PRESET  ?= report
 TITLE   ?=
 
-.PHONY: help setup brand icons new import fetch build epub watch test list clean check preview preview-style review
+.PHONY: help setup brand icons new import fetch build epub watch test check-library list clean check preview preview-style review
 
 help:
 	@echo "Targets:"
@@ -28,7 +28,8 @@ help:
 	@echo "  make watch [DOC=topic/slug]                 rebuild on every change"
 	@echo "  make rederive DOC=topic/slug                re-extract study/extracted.md from sources/"
 	@echo "  make list                                   list the documents"
-	@echo "  make test                                   run the tests"
+	@echo "  make test                                   run the tests (never reads library/)"
+	@echo "  make check-library                          check the library's documents, writing nothing"
 	@echo "  make clean [DOC=topic/slug]                 remove out/ and the documents' .work/"
 	@echo ""
 	@echo "Presets: $(patsubst theme/%.css,%,$(filter-out theme/base.css theme/page.css theme/code.css,$(wildcard theme/*.css)))"
@@ -93,6 +94,12 @@ check:
 
 test:
 	@$(PY) -m pytest -q
+
+# The user's library, checked on request: anatomy, layout, and what the build
+# would refuse. Read-only — nothing is built — and never part of `make test`,
+# which reads only the suite's own fixtures.
+check-library:
+	@$(PY) -m core.library
 
 list:
 	@find library -path '*/document/index.md' -printf '%h\n' 2>/dev/null | sed 's|^library/||;s|/document$$||' | sort || true

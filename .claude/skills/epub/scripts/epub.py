@@ -15,11 +15,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import html as html_mod
 import re
 import sys
 import uuid
-import xml.etree.ElementTree as ET
 import zipfile
 from itertools import zip_longest
 from pathlib import Path
@@ -100,34 +98,6 @@ def epub_css(d: Path, tokens: dict[str, str]) -> str:
         # EPUB, stripped of whatever concerns the page alone.
         parts.append(f"\n/* {local.name} */\n" + local.read_text(encoding="utf-8"))
     return flatten_css("\n".join(parts), tokens)
-
-
-# The five entities XML knows. Every other one — &nbsp;, &mdash;, … — is legal
-# in HTML and unknown to XML: they are resolved to characters before parsing,
-# rather than made to fail a valid document.
-XML_ENTITIES = {"amp", "lt", "gt", "quot", "apos"}
-ENTITY_RE = re.compile(r"&([a-zA-Z][a-zA-Z0-9]*);")
-
-
-def resolve_entities(fragment: str) -> str:
-    def one(m: re.Match) -> str:
-        return m.group(0) if m.group(1) in XML_ENTITIES \
-            else html_mod.unescape(m.group(0))
-    return ENTITY_RE.sub(one, fragment)
-
-
-def check_xhtml(fragment: str, where: str) -> None:
-    """Raise DocError if the fragment is not well-formed XML.
-
-    We parse to check, then throw the tree away: the fragment goes into the EPUB
-    exactly as it is. Rebuilding it from the tree would mean replaying the
-    namespaces of the inlined SVG, which would produce stray `ns0:` prefixes or
-    `xmlns=""` on the HTML elements.
-    """
-    try:
-        ET.fromstring(f"<root>{resolve_entities(fragment)}</root>")
-    except ET.ParseError as exc:
-        raise doc.DocError(f"{where} — malformed XHTML: {exc}") from exc
 
 
 TAG_RE = re.compile(r"<[^>]+>")
@@ -609,7 +579,7 @@ def build_epub(d: Path) -> Path:
     body, _ = doc.convert(body_md, tokens, d.name, icon_color="currentColor")
     body = transpose_wide_tables(body, table_threshold(fm))
     body, images = collect_images(body, d, tokens)
-    check_xhtml(body, rel)
+    doc.check_xhtml(body, rel)
 
     # The split level is computed once, then handed to split_chapters and to
     # nav_xhtml: the two must agree, or every chapter gets listed as its own
@@ -651,7 +621,7 @@ def main() -> int:
     failures = 0
     epubcheck_absent = False
     for d in docs:
-        rel = d.relative_to(doc.ROOT)
+        rel = doc.shown(d)
         try:
             fm, _ = doc.load_doc(d)
             if fm["preset"] not in EPUB_PRESETS:
@@ -679,12 +649,12 @@ def main() -> int:
                 anomalies += [f"epubcheck: {m}" for m in result]
 
             if anomalies:
-                print(f"  ✗ {target.relative_to(doc.ROOT)}", file=sys.stderr)
+                print(f"  ✗ {doc.shown(target)}", file=sys.stderr)
                 for a in anomalies:
                     print(f"      {a}", file=sys.stderr)
                 failures += 1
             else:
-                print(f"  ✓ {target.relative_to(doc.ROOT)} ({kb:.0f} kB)")
+                print(f"  ✓ {doc.shown(target)} ({kb:.0f} kB)")
 
     if epubcheck_absent:
         print("  · epubcheck missing — EPUB 3 conformance not verified "

@@ -41,8 +41,8 @@ def test_every_role_clears_the_contrast_floor(repo):
         assert c >= FLOOR, f"{role}: contrast {c:.2f} < {FLOOR}"
 
 
-def test_token_map_reads_the_epub_block(repo):
-    d = repo / "library" / "exemples" / "guide-de-style"
+def test_token_map_reads_the_epub_block(fixture_tree):
+    d = fixture_tree / "library" / "exemples" / "guide-de-style"
     fm, _ = doc.load_doc(d)
     t = doc.token_map(d, {**fm, "theme": "epub"})
     assert t["accent"] == "#36654C"

@@ -16,8 +16,9 @@ __pycache__/
 # The outputs are build artefacts, rebuilt by `make build` and `make epub`.
 out/
 
-# Source library files.
-library/
+# Source library files: the user's, at the root only. The suite's fixture library
+# under tests/fixtures/ is versioned.
+/library/
 
 # Session reviews: the corpus stays on the working machine, because a review
 # names the documents it reviewed. A finding reaches this repository only by

@@ -33,7 +33,8 @@ from weasyprint import CSS, HTML
 # inside a skill, so its own parent directories say nothing about the repository.
 from core.doc import (DOCUMENT, LIBRARY, OUT, ROOT, THEME, XML_HEAD_RE, DocError,
                       convert, doc_dir,
-                      e, find_docs, load_doc, out_dir, subst_vars, token_map)
+                      e, find_docs, load_doc, out_dir, shown, subst_vars,
+                      token_map)
 # A table of contents with a single entry is not a table of contents: it is
 # only laid down from two entries on, and never when empty.
 MIN_TOC_ENTRIES = 2
@@ -262,7 +263,7 @@ def main() -> int:
             return 1
         failed = 0
         for d in docs:
-            rel = d.relative_to(ROOT)
+            rel = shown(d)
             try:
                 pdfs = build(d, keep_html=args.html)
             except DocError as exc:
@@ -274,7 +275,7 @@ def main() -> int:
             else:
                 for pdf in pdfs:
                     kb = pdf.stat().st_size / 1024
-                    print(f"  ✓ {pdf.relative_to(ROOT)} ({kb:.0f} kB)")
+                    print(f"  ✓ {shown(pdf)} ({kb:.0f} kB)")
         return 1 if failed else 0
 
     if not args.watch:

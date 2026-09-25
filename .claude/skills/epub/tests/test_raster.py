@@ -80,15 +80,14 @@ def test_collect_images_does_not_collide_across_directories(tmp_path):
     assert len(assets) == 2, assets.keys()
 
 
-def test_the_repositorys_twelve_diagrams_rasterise(repo):
-    """The test that counts: the real SVG, at production width.
+def test_every_diagram_of_a_library_rasterises(fixture_library):
+    """The documents' own SVG, at production width.
 
-    The width is checked only for the images whose source is an SVG: the
-    repository also embeds already-bitmap screenshots (lc100a-m328) that
-    collect_images copies over as they are, without rasterising them, and that
-    sometimes share the .png extension on output — conflating them with the
-    diagrams would fail the test on an image that never went through
-    WeasyPrint, as observed in review.
+    The width is checked only for the images whose source is an SVG: a document
+    may also embed already-bitmap screenshots that collect_images copies over as
+    they are, without rasterising them, and that sometimes share the .png
+    extension on output — conflating them with the diagrams would fail the test
+    on an image that never went through WeasyPrint, as observed in review.
     """
     import hashlib
     from PIL import Image
@@ -113,7 +112,7 @@ def test_the_repositorys_twelve_diagrams_rasterise(repo):
             im = Image.open(_io.BytesIO(data))
             assert abs(im.width - epub.RASTER_WIDTH) <= 2, f"{name}: {im.width}"
             seen += 1
-    assert seen >= 12, f"{seen} diagrams seen, at least 12 expected"
+    assert seen == 5, f"{seen} diagrams seen: the component's four and the guide's one"
 
 
 def test_an_internal_elements_viewbox_does_not_win():

@@ -1,4 +1,6 @@
 """core/doc.py's extraction must be of constant behaviour."""
+from pathlib import Path
+
 import pytest
 
 from core import doc
@@ -21,22 +23,23 @@ def test_front_matter_that_is_not_a_mapping_raises():
         doc.split_front_matter("---\n- a\n- b\n---\ncorps\n")
 
 
-def test_load_doc_applies_the_defaults(repo):
-    d = repo / "library" / "exemples" / "guide-de-style"
+def test_load_doc_applies_the_defaults(fixture_tree):
+    d = fixture_tree / "library" / "exemples" / "guide-de-style"
     fm, _ = doc.load_doc(d)
     assert fm["preset"] == "report"
     assert fm["slug"] == "guide-de-style"
     assert fm["lang"]
 
 
-def test_find_docs_finds_the_whole_library():
+def test_find_docs_finds_the_whole_library(fixture_library):
     found = doc.find_docs([])
-    assert len(found) >= 7
+    assert [doc.relative(p).as_posix() for p in found] == [
+        "exemples/guide-de-style", "sample/component"]
     assert all((p / doc.DOCUMENT / doc.ENTRY).is_file() for p in found)
 
 
-def test_token_map_resolves_the_roles(repo):
-    d = repo / "library" / "exemples" / "guide-de-style"
+def test_token_map_resolves_the_roles(fixture_tree):
+    d = fixture_tree / "library" / "exemples" / "guide-de-style"
     fm, _ = doc.load_doc(d)
     tokens = doc.token_map(d, fm)
     assert tokens["accent"].startswith("#")
@@ -86,6 +89,19 @@ def library(tmp_path, monkeypatch):
 def test_a_document_is_discovered_at_its_root_not_at_its_entry(library):
     root = make_doc(library, "topic/slug")
     assert doc.find_docs([]) == [root]
+
+
+def test_a_document_is_placed_by_the_library_it_is_read_under(library):
+    # `relative` and `out_dir` read LIBRARY when called: pointed elsewhere, as
+    # the suite does, they answer for that library, not the one at import.
+    root = make_doc(library, "topic/slug")
+    assert doc.relative(root) == Path("topic/slug")
+    assert doc.out_dir(root, "epub") == library.parent / "out" / "epub" / "topic" / "slug"
+
+
+def test_a_path_is_shown_from_the_root_inside_it_and_whole_outside(repo, tmp_path):
+    assert doc.shown(repo / "out" / "pdf" / "x.pdf") == Path("out/pdf/x.pdf")
+    assert doc.shown(tmp_path / "x.pdf") == tmp_path / "x.pdf"
 
 
 def test_the_slug_is_the_root_directory(library):

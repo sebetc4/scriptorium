@@ -53,7 +53,7 @@ def test_one_row_per_block():
 
 
 def test_the_result_stays_well_formed():
-    epub.check_xhtml(epub.transpose_wide_tables(WIDE), "test")
+    doc.check_xhtml(epub.transpose_wide_tables(WIDE), "test")
 
 
 def test_an_empty_cell_keeps_its_label():
@@ -78,7 +78,7 @@ def test_a_row_shorter_than_the_header_loses_nothing():
     out = epub.transpose_wide_tables(wide)
     assert out.count("<dt>") == 6          # the six labels besides the key
     assert "<dt>C6</dt><dd></dd>" in out   # the last one survives, with no value
-    epub.check_xhtml(out, "test")
+    doc.check_xhtml(out, "test")
 
 
 def test_a_cell_with_markup_passes_through_intact():
@@ -90,7 +90,7 @@ def test_a_cell_with_markup_passes_through_intact():
              + "</tr></tbody></table>")
     out = epub.transpose_wide_tables(wide)
     assert "<dd><strong>bold</strong></dd>" in out
-    epub.check_xhtml(out, "test")
+    doc.check_xhtml(out, "test")
 
 
 def test_a_table_without_a_thead_transposes_too():
@@ -105,8 +105,9 @@ def test_a_table_without_a_thead_transposes_too():
     assert "<dt>C1</dt><dd>v1</dd>" in out
 
 
-def test_only_esp32_is_transposed_in_the_library(repo):
-    """Checking spec §6.2's survey: a single irreducible table."""
+def test_only_a_table_past_the_threshold_is_transposed(fixture_library):
+    """Spec §6.2: the guide's three-column table reflows as it is; the
+    component's seven-column one does not, and is the only one folded."""
     touched = []
     for d in doc.find_docs([]):
         fm, body = doc.load_doc(d)
@@ -114,4 +115,4 @@ def test_only_esp32_is_transposed_in_the_library(repo):
         html, _ = doc.convert(body, tokens, d.name, icon_color="currentColor")
         if epub.transpose_wide_tables(html) != html:
             touched.append(d.name)
-    assert touched == ["esp32"], touched
+    assert touched == ["component"], touched

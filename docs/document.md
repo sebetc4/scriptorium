@@ -212,6 +212,23 @@ if none fails, rewrites `document/index.md` in the target language.
 Removes `out/` and every document's `.work/`, and nothing else. With `DOC=`,
 that one document's `.work/`, and `out/` is left alone.
 
+### `make check-library`
+
+Reads every document of `library/` and **writes nothing** — no `.work/`, no
+`out/`, no EPUB. It prints one line per defect, naming the document:
+
+| Kind | What it found |
+|---|---|
+| `anatomy` | something at a document's root that is none of the five |
+| `derived` | `extracted.md`, `meta.json` or `pages/` in your `sources/` |
+| `generator` | a `.py` outside `generators/` |
+| `layout` | an `out/`, or a `source/` in the singular, anywhere in the tree |
+| `load` | a front matter the build cannot read — an unknown preset or theme |
+| `convert`, `xhtml` | a body that does not convert, or that the EPUB could not package |
+
+It ends with the count, and fails when it found anything. It is not part of
+`make test`, which never reads your library.
+
 ---
 
 ## Where things are refused
@@ -234,12 +251,13 @@ generated, and the `diagram-design` plugin, which is replaced on update.
 
 ## One document does not fit
 
-`electronique/repair/electribe-2/sources` keeps an investigation's
+`electronics/repair/electribe-2/sources` keeps an investigation's
 `datasheets/`, `images/`, `raw/` and `threads/` at its root rather than in
 `sources/`: it is a `sourcing` session's own material that became a document, so
-its root *is* the investigation. `tests/test_anatomy.py` names it as an
-exception rather than widening the rule for everyone, and the day it is reshaped
-the test will say whether anything still needs it.
+its root *is* the investigation. `make check-library` reports those four
+directories as `anatomy` defects every time rather than carrying an exception
+for one document of your library: the check states the rule, and whether that
+document is reshaped is yours to decide.
 
 Two things the anatomy still does not place, for the same reason — nobody has
 needed to decide yet:
