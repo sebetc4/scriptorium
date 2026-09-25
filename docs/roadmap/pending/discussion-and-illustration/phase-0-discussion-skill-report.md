@@ -146,6 +146,46 @@ phase pauses, marked *Blocked By* `suite-and-review`. It resumes with the
 archive tasks. The `discussion` skill in the working tree is the single-file
 version validated on 2026-09-25.
 
+`suite-and-review` closed the same day, and the user asked to resume. The
+block was cleared. `make test` passed on 579 tests before any change.
+
+Read the notebook journal (300 lines) to fit the three layers to a real case
+before writing them. Two needs came out of it that the design recorded under
+Decisions did not name:
+- a resume compares `sources/` with the journal, and the single file did that
+  through its session lines. Sessions are no longer read on resume, so the
+  index gains a **Material** section: one line per file received;
+- 13 of the notebook's 18 open questions are answered, and they stayed in
+  the file. The index now keeps only the open ones, and an answered question
+  goes to its session's **Answered**.
+
+The notebook also showed where the user's statements go. Its 60 lines of
+*What the user said* are mostly about one subject (the equipment, joint A,
+the tip routine). So the index keeps only what frames the whole document, and
+the rest goes to its topic.
+
+Rewrote `SKILL.md` for the three layers: a table per layer, a section *What
+keeps the files from drifting*, a resume that reads `index.md` alone, loads a
+topic when the discussion returns to it, and looks in `sessions/` only for an
+earlier point. A single-file journal is migrated once the user agrees.
+`assets/journal.md` gave way to `index.md`, `topic.md` and `session.md`.
+
+The link check went into `make check-library` (`core/library.py`,
+`journals()` and `journal()`, defect kind `journal`), not into the skill. A
+journal exists before `document/` does, so it is found on its own rather than
+through `documents()`. The check also reports a journal still in one file.
+Tested in `tests/test_library.py` (eight tests), on a fictional journal
+added to the fixture document `sample/component`, which the fixture library's
+clean run now checks too. The skill's suite was rewritten for three
+templates: each template's `##` sections must equal the rows of its table in
+the skill, and the index must carry no substance (16 tests). Updated
+`docs/document.md` (the `study/` tree, the paragraph, the `journal` kind),
+`docs/architecture.md` §11 and `README.md`.
+
+`make test`: 593 passed. `make check-library` on the real library reports
+one defect, the one expected: `electronics/notebook` still has its journal in
+one file. That is the migration task, which waits for the user's agreement.
+
 ---
 
 ## Decisions
@@ -213,6 +253,20 @@ version validated on 2026-09-25.
   resolves are what hold that risk. Why the single file cannot stay: kept
   small, it overwrites history; kept whole, it grows with the conversation
   instead of with the document.
+- **The link check lives in `make check-library`, not in the skill.** A test
+  on a fixture proves the rule once. The check on the user's journals proves
+  it every time it is run, and `core/library.py` is already the read-only
+  reader of the user's library (`docs/architecture.md` §2). The skill still
+  ships no script. Sessions are not checked: they are never rewritten, so a
+  link in one records the day it was written. That is why a topic's file name
+  is permanent.
+- **Three additions to the design agreed on 2026-09-25**, all taken from the
+  notebook journal. The index gains **Material**, because a resume must still
+  tell new files in `sources/` apart without reading the sessions. It keeps
+  only the open questions and pending claims, and the closed ones go to the
+  session's **Answered** or to the topic's **Established**. What the user
+  said is split: the index keeps what frames the whole document, and a topic
+  holds the rest. A second session on the same day is `<date>-2.md`.
 - **The skill has no `conftest.py`.** A skill's conftest only puts its
   `scripts/` on the import path, and this skill has none. The suite reads
   files and imports nothing of its own.

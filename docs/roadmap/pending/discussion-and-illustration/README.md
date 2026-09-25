@@ -15,16 +15,16 @@
 ## Overall Progress
 
 ```
-Phase 0  The Discussion Skill             🟡 █████████████░░░░░░░  64%  (9/14)
+Phase 0  The Discussion Skill             🟡 █████████████████░░░  86%  (12/14)
 Phase 1  Discussion Pilot — Transistor    🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/9)
 Phase 2  The Drawing Brick                🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 3  The Illustration Skill           🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/10)
 Phase 4  Illustration Pilot — Transistor  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
-TOTAL                                        ████░░░░░░░░░░░░░░░░  19%  (9/48)
+TOTAL                                        █████░░░░░░░░░░░░░░░  25%  (12/48)
 ```
 
 **Current Phase:** Phase 0 — The Discussion Skill
-**Blocked By:** the [suite-and-review](../../completed/suite-and-review/README.md) roadmap, Phase 1 — the user asked to settle the review of skill triggers before the archive (`make test` is green since its Phase 0)
+**Blocked By:** —
 **Next Milestone:** Phase 0 — The Discussion Skill
 
 ---

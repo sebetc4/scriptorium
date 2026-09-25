@@ -797,7 +797,7 @@ the interesting cases.
 | `extracted.md` | `study/` | Regenerable from `sources/`, but its worth is that it does not change: a translation reads it to check that nothing was invented. Durable by choice. |
 | `meta.json` | `study/` | A URL, a date, a digest. Nothing recomputes when a page was fetched. Durable by necessity. |
 | `NOTES.md` | `study/` | An investigation's journal. Written, neither received nor derived, and no command makes it again. |
-| `discussion.md` | `study/` | A discussion's journal. Written, neither received nor derived — and the conversation it records is gone once the session ends, so it is the only copy of what the user said. |
+| `discussion/` | `study/` | A discussion's journal: an index, its topics, the sessions' archive. Written, neither received nor derived — and the conversation it records is gone once the session ends, so it is the only copy of what the user said. |
 | `figures.py` | `generators/` | Code. Deleting it loses the ability to redraw what it drew. |
 | a hand-drawn SVG | `document/assets/` | Expensive, durable, agent-made — and the document references it, so the cut sends it with the document. |
 | a translation workspace | `study/` | A command re-runs a translation, but not the same one: an engine's answers are the work itself, and for the `agent` engine they are an agent's writing. Both halves of the rule fail. It is **spent** once `apply` has written the document, and nothing removes it automatically. |

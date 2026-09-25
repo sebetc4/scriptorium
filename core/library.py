@@ -13,6 +13,7 @@ skill, and it checks what both backbones read (docs/architecture.md §2).
 """
 from __future__ import annotations
 
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -30,12 +31,18 @@ TOLERATED = {"glossary.yaml"}
 # What a tool computes from `sources/` goes to `study/`. Found in `sources/`, it
 # is derived material in the one directory that belongs to the user.
 DERIVED = {"extracted.md", "meta.json", "pages"}
+# A discussion's journal, `discussion` skill: an index, its topics, and the
+# sessions they link to. It exists before `document/` does, so it is found on
+# its own rather than through `documents()`.
+JOURNAL = "discussion"
+# An inline Markdown link's target, up to a title or the closing parenthesis.
+LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
 
 
 @dataclass(frozen=True)
 class Defect:
     where: str      # the document, `<topic…>/<slug>`, or a directory above one
-    kind: str       # anatomy | derived | generator | layout | load | convert | xhtml
+    kind: str       # anatomy | derived | generator | layout | load | convert | xhtml | journal
     what: str
 
     def __str__(self) -> str:
@@ -79,6 +86,41 @@ def anatomy(d: Path, where: str) -> list[Defect]:
     return found
 
 
+def journals(library: Path) -> list[Path]:
+    """Every `study/` holding a discussion's journal, in either layout, in path order."""
+    return sorted({p.parent for p in library.rglob(f"{JOURNAL}*")
+                   if p.parent.name == doc.STUDY and p.name in (JOURNAL, f"{JOURNAL}.md")})
+
+
+def journal(study: Path, where: str) -> list[Defect]:
+    """A journal in three layers whose index and topics link only to what exists.
+
+    The sessions are not read: they are never rewritten, so a link in one is
+    whatever was true the day it was written — and a topic's name is permanent
+    precisely so that it stays true."""
+    single, layered = study / f"{JOURNAL}.md", study / JOURNAL
+    found = []
+    if single.is_file():
+        found.append(Defect(where, "journal", f"{doc.STUDY}/{single.name} — a "
+                            f"journal in one file; the layout is {doc.STUDY}/{JOURNAL}/"
+                            f"index.md, topics/, sessions/ (the discussion skill "
+                            f"migrates it)"))
+    if not layered.is_dir():
+        return found
+    index = layered / "index.md"
+    if not index.is_file():
+        return found + [Defect(where, "journal", f"{doc.STUDY}/{JOURNAL}/ has no index.md")]
+    for page in [index, *sorted((layered / "topics").glob("*.md"))]:
+        text = page.read_text(encoding="utf-8")
+        for target in LINK.findall(text):
+            if re.match(r"[a-z][a-z0-9+.-]*:|#", target):   # a URL, or an anchor here
+                continue
+            if not (page.parent / target.split("#", 1)[0]).exists():
+                found.append(Defect(where, "journal", f"{page.relative_to(study.parent).as_posix()}"
+                                    f" links to {target}, which does not exist"))
+    return found
+
+
 def readable(d: Path, where: str) -> list[Defect]:
     """What the build would refuse: a front matter it cannot load, a body that
     does not convert, an XHTML the EPUB could not package."""
@@ -107,6 +149,8 @@ def check(library: Path | None = None) -> list[Defect]:
     for d in documents(library):
         where = d.relative_to(library).as_posix()
         found += anatomy(d, where) + readable(d, where)
+    for study in journals(library):
+        found += journal(study, study.parent.relative_to(library).as_posix())
     return found
 
 

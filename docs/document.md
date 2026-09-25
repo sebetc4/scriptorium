@@ -93,7 +93,7 @@ study/
   extracted.md  the raw extraction of an import or a capture, never edited
   meta.json     provenance: where it came from, when, its digest
   NOTES.md      an investigation's journal
-  discussion.md a discussion's journal: what you said, what was decided, what is established
+  discussion/   a discussion's journal: index.md, topics/, sessions/
   translate/    a translation in progress, or one already applied
 ```
 
@@ -111,10 +111,15 @@ placeholder caption. That is why the file is kept rather than recomputed.
 status, whether a certificate verified: facts about a moment, which nothing
 recomputes.
 
-**`discussion.md` is the only memory of a conversation.** The `discussion`
+**`discussion/` is the only memory of a conversation.** The `discussion`
 skill writes it while you talk a document through, and a later session resumes
 from it rather than from the conversation, which is gone. It may exist before
-`document/` does: a discussion usually starts before `make new`.
+`document/` does: a discussion usually starts before `make new`. It has three
+layers: `index.md`, what you said about the whole document, the decisions, the
+open questions, the outline, and a map of the topics — the only file a resume
+reads; `topics/`, one file per subject, as it stands now; `sessions/`, what
+each session covered and what it replaced, never rewritten. Nothing is lost
+when a point is superseded: it moves to its session, with a link both ways.
 
 **`translate/` is durable, and that is deliberate.** An engine's answers are the
 translation; re-running gives *a* translation, not the one that was under way.
@@ -218,7 +223,7 @@ that one document's `.work/`, and `out/` is left alone.
 
 ### `make check-library`
 
-Reads every document of `library/` and **writes nothing** — no `.work/`, no
+Reads every document of `library/`, and every discussion's journal, and **writes nothing** — no `.work/`, no
 `out/`, no EPUB. It prints one line per defect, naming the document:
 
 | Kind | What it found |
@@ -229,6 +234,7 @@ Reads every document of `library/` and **writes nothing** — no `.work/`, no
 | `layout` | an `out/`, or a `source/` in the singular, anywhere in the tree |
 | `load` | a front matter the build cannot read — an unknown preset or theme |
 | `convert`, `xhtml` | a body that does not convert, or that the EPUB could not package |
+| `journal` | a discussion's journal still in one file, or a link from its `index.md` or a topic to a file that does not exist |
 
 It ends with the count, and fails when it found anything. It is not part of
 `make test`, which never reads your library.

@@ -135,6 +135,79 @@ def test_malformed_xhtml_is_reported(lib):
     assert d.what.startswith("malformed XHTML")
 
 
+# --- a discussion's journal, the `discussion` skill ---------------------------
+
+def make_journal(root, index="# D\n", topics=None, sessions=None):
+    """A journal in three layers under `root/study/discussion/`."""
+    journal = root / doc.STUDY / library.JOURNAL
+    for sub, pages in (("topics", topics or {}), ("sessions", sessions or {})):
+        (journal / sub).mkdir(parents=True)
+        for name, text in pages.items():
+            (journal / sub / name).write_text(text, encoding="utf-8")
+    (journal / "index.md").write_text(index, encoding="utf-8")
+    return journal
+
+
+def test_the_fixture_journal_is_checked_and_clean(fixture_library):
+    assert library.journals(fixture_library) == [
+        fixture_library / "sample" / "component" / doc.STUDY]
+    assert library.check() == []
+
+
+def test_a_link_from_the_index_to_a_missing_topic_is_reported(lib):
+    root = make_doc(lib, "topic/slug")
+    make_journal(root, index="- [Gone](topics/gone.md) — a topic renamed\n")
+    d = only(library.check())
+    assert (d.where, d.kind) == ("topic/slug", "journal")
+    assert "study/discussion/index.md links to topics/gone.md" in d.what
+
+
+def test_a_link_from_a_topic_to_a_missing_session_is_reported(lib):
+    root = make_doc(lib, "topic/slug")
+    make_journal(root, index="[T](topics/t.md)\n",
+                 topics={"t.md": "[Index](../index.md) · [s](../sessions/2026-01-01.md)\n"})
+    d = only(library.check())
+    assert "topics/t.md links to ../sessions/2026-01-01.md" in d.what
+
+
+def test_links_that_resolve_urls_and_anchors_are_not_reported(lib):
+    root = make_doc(lib, "topic/slug")
+    make_journal(root,
+                 index="[T](topics/t.md#key-points) [w](https://example.org) [h](#topics)\n",
+                 topics={"t.md": "[Index](../index.md) [s](../sessions/2026-01-01.md)\n"},
+                 sessions={"2026-01-01.md": "# S\n"})
+    assert library.check() == []
+
+
+def test_a_session_is_never_checked(lib):
+    """Sessions are never rewritten: a link in one is true of the day it was written."""
+    root = make_doc(lib, "topic/slug")
+    make_journal(root, sessions={"2026-01-01.md": "[Old](../topics/old.md)\n"})
+    assert library.check() == []
+
+
+def test_a_journal_is_checked_before_its_document_exists(lib):
+    """A discussion usually starts before `make new`."""
+    make_journal(lib / "topic" / "slug", index="[T](topics/t.md)\n")
+    d = only(library.check())
+    assert (d.where, d.kind) == ("topic/slug", "journal")
+
+
+def test_a_journal_without_an_index_is_reported(lib):
+    root = make_doc(lib, "topic/slug")
+    (make_journal(root) / "index.md").unlink()
+    assert "has no index.md" in only(library.check()).what
+
+
+def test_a_journal_in_one_file_is_reported(lib):
+    root = make_doc(lib, "topic/slug")
+    (root / doc.STUDY).mkdir()
+    (root / doc.STUDY / "discussion.md").write_text("# D\n", encoding="utf-8")
+    d = only(library.check())
+    assert (d.where, d.kind) == ("topic/slug", "journal")
+    assert "a journal in one file" in d.what
+
+
 # --- the report ---------------------------------------------------------------
 
 def test_a_defect_prints_as_one_line_naming_its_document(lib):

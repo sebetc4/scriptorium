@@ -181,7 +181,8 @@ make check-library
 
 checks your own library instead, and writes nothing: a document root holding
 anything but the five roles, derived material in `sources/`, a front matter
-that does not load, a body the EPUB could not package. One line per defect,
+that does not load, a body the EPUB could not package, a discussion's journal
+whose links lead nowhere. One line per defect,
 naming the document.
 
 ## Example
