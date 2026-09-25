@@ -17,15 +17,15 @@
 ```
 Phase 0  The Manifest               🟢 ████████████████████ 100%  (12/12)
 Phase 1  Navigating the Library     🟢 ████████████████████ 100%  (8/8)
-Phase 2  The Catalogue Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
+Phase 2  The Catalogue Skill        🟢 ████████████████████ 100%  (8/8)
 Phase 3  The Library Mapped         🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 4  The Skills Use the Map     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-TOTAL                                  ██████████░░░░░░░░░░  49%  (20/41)
+TOTAL                                  ██████████████░░░░░░  68%  (28/41)
 ```
 
 **Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 2 — The Catalogue Skill
+**Next Milestone:** Phase 3 — The Library Mapped
 
 ---
 
@@ -224,7 +224,7 @@ like the rest of the repository.
 |---|---|---|---|
 | 0 | [The Manifest](phase-0-manifest.md) | 12 | 🟢 Done |
 | 1 | [Navigating the Library](phase-1-navigation.md) | 8 | 🟢 Done |
-| 2 | [The Catalogue Skill](phase-2-catalogue-skill.md) | 8 | 🔴 Not Started |
+| 2 | [The Catalogue Skill](phase-2-catalogue-skill.md) | 8 | 🟢 Done |
 | 3 | [The Library Mapped](phase-3-library-mapped.md) | 6 | 🔴 Not Started |
 | 4 | [The Skills Use the Map](phase-4-skills-use-the-map.md) | 7 | 🔴 Not Started |
 
@@ -261,13 +261,26 @@ like the rest of the repository.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/library-catalogue/`
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.3.0 (2026-09-25)
+
+Phase 2 closed, 8 of 8 tasks. Delivered the `catalogue` skill, with its rules
+for naming and describing in a reference its agent shares; the commands
+`unused`, `remove`, `merge`, `rename` and `peek`; retired ids, so that a
+removed or merged item's citations keep leading somewhere; and the
+`catalogue-describer` agent, tried on a copy of the fixture library (54,518
+tokens) and on the user's `electronics/components/capacitor` (64,968 tokens),
+whose manifests are the only ones written into `library/` so far. Found and
+closed a hole: a path with `..` resolved outside the library just as commands
+became able to delete and rename. Two constraints were added to Phase 3 and a
+task reworded in Phase 4.
 
 ### 1.2.0 (2026-09-25)
 

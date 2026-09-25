@@ -142,7 +142,8 @@ def manifests(library: Path) -> list[Defect]:
         if missing:
             found.append(Defect(where, "manifest", f"no {' and no '.join(missing)} "
                                 f"— describe the {kind}"))
-        labels = [(m.id, "its id")] + [(i.id, i.path) for i in m.items or []]
+        labels = ([(m.id, "its id")] + [(i.id, i.path) for i in m.items or []]
+                  + [(r.id, f"retired {r.path}") for r in m.retired])
         found += [Defect(where, "id", f"{label}: {ident!r} is not an id (prefix, "
                          f"hyphen, {cat.SUFFIX} characters)")
                   for ident, label in labels if ident and not cat.ID.fullmatch(ident)]

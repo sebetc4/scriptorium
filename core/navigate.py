@@ -18,7 +18,8 @@ from pathlib import Path
 from core import catalogue as cat
 from core import doc
 
-LIMIT = 20
+LIMIT = cat.LIMIT
+bounded = cat.bounded
 
 
 # --- the map, read once per command -----------------------------------------
@@ -49,6 +50,7 @@ class Atlas:
         self.library = library
         self.nodes: dict[Path, Node] = {}
         self.ids: dict[str, tuple[Node, cat.Item | None]] = {}
+        self.retired: dict[str, tuple[Node, cat.Retired]] = {}
         for d, kind in cat.nodes(library):
             try:
                 m = cat.read(d)
@@ -60,6 +62,8 @@ class Atlas:
             for item in node.items:
                 if item.id:
                     self.ids.setdefault(item.id, (node, item))
+            for r in (m.retired if m else []):
+                self.retired.setdefault(r.id, (node, r))
 
     def where(self, node: Node, item: cat.Item | None = None) -> str:
         w = node.dir.relative_to(self.library).as_posix()
@@ -71,8 +75,10 @@ class Atlas:
         names is its entry and the item that covers it."""
         target = (target or "").strip()
         bare = target.removeprefix("id:")
-        full = self.library / target.removeprefix("library/").strip("/")
+        full = cat.under(self.library, target)
         if target.startswith("id:") or (cat.ID.fullmatch(bare) and not full.exists()):
+            if bare in self.retired:
+                raise cat.ManifestError(f"{target}: retired — path {bare} says where it went")
             if bare not in self.ids:
                 raise cat.ManifestError(f"{target}: no such id")
             return self.ids[bare]
@@ -105,15 +111,6 @@ class Atlas:
 
 
 # --- output -------------------------------------------------------------------
-
-def bounded(lines: list[str], limit: int = LIMIT, narrow: str = "") -> list[str]:
-    """At most `limit` lines: past it, the last one says how many more there are."""
-    if limit <= 0 or len(lines) <= limit:
-        return lines
-    more = len(lines) - (limit - 1)
-    hint = f" — {narrow}" if narrow else ""
-    return lines[:limit - 1] + [f"… {more} more{hint}, or --limit {len(lines)}"]
-
 
 def fold(text: str) -> str:
     """Lower case, accents stripped, apostrophes made one: `« Étain »` finds `etain`."""
@@ -327,7 +324,9 @@ def links(library: Path, target: str, limit: int = LIMIT) -> list[str]:
     node, item = atlas.resolve(target)
     if node is None:
         raise cat.ManifestError("links takes an entry or an item, not the library")
-    own = {item.id} if item else {node.id, *(i.id for i in node.items)}
+    retired = node.m.retired if node.m else []
+    own = ({item.id, *(r.id for r in retired if r.into == item.id)} if item
+           else {node.id, *(i.id for i in node.items), *(r.id for r in retired)})
     own.discard(None)
     here = node.dir / item.path if item else node.dir
 
@@ -337,6 +336,13 @@ def links(library: Path, target: str, limit: int = LIMIT) -> list[str]:
         inside = f == here or here in f.parents
         if inside and ident not in own:
             got = atlas.ids.get(ident)
+            if got is None and ident in atlas.retired:
+                n, r = atlas.retired[ident]
+                fate = f"merged into {r.into}" if r.into else "removed"
+                cites.setdefault(n.dir, []).append(
+                    f"  {r.name or r.path}  {ident} ({fate} {r.date}) "
+                    f"← {f.relative_to(node.dir).as_posix()}:{line}")
+                continue
             if got is None:
                 cites.setdefault(Path("?"), []).append(
                     f"  {ident} (no such id) ← {f.relative_to(node.dir).as_posix()}:{line}")
@@ -348,7 +354,8 @@ def links(library: Path, target: str, limit: int = LIMIT) -> list[str]:
         elif not inside and ident in own:
             by = atlas.nodes.get(cat.node_of(library, f))
             n_dir = by.dir if by else f.parent
-            target_name = atlas.ids[ident][1].name if atlas.ids[ident][1] else "(the entry)"
+            held = atlas.ids.get(ident) or atlas.retired.get(ident)
+            target_name = (held[1].name or held[1].path) if held and held[1] else "(the entry)"
             cited.setdefault(n_dir, []).append(
                 f"  {target_name} ← {f.relative_to(n_dir).as_posix()}:{line}")
 
@@ -371,8 +378,92 @@ def path(library: Path, ident: str) -> str:
     """Where an id is, from the repository's root."""
     atlas = Atlas(library)
     bare = ident.strip().removeprefix("id:")
+    seen = set()
+    while bare in atlas.retired and bare not in seen:      # merged: follow it
+        seen.add(bare)
+        node, r = atlas.retired[bare]
+        if not r.into:
+            was = doc.shown(node.dir / r.path).as_posix()
+            return f"removed on {r.date} — it was {was}"
+        bare = r.into
     if bare not in atlas.ids:
         raise cat.ManifestError(f"{ident}: no such id")
     node, item = atlas.ids[bare]
     full = node.dir / item.path if item else node.dir
     return doc.shown(full).as_posix()
+
+
+# --- peek -------------------------------------------------------------------------
+
+def _pages(spec: str | None, total: int) -> list[int]:
+    """`3` or `2-5` as zero-based page indexes within the document; 1-2 by default."""
+    first, _, last = (spec or "1-2").partition("-")
+    try:
+        a, b = int(first), int(last or first)
+    except ValueError:
+        raise cat.ManifestError(f"--pages {spec}: a page, or a range such as 2-5") from None
+    return [p - 1 for p in range(max(a, 1), min(b, total) + 1)]
+
+
+def peek(library: Path, target: str, pages: str | None = None,
+         limit: int = LIMIT) -> list[str]:
+    """A first look at a file, cheap enough to take before any image: a PDF's
+    page count and the text layer of its first pages, an image's size and the
+    date and camera it records, a text's first lines, a directory's files."""
+    atlas = Atlas(library)
+    bare = target.strip().removeprefix("id:")
+    if bare in atlas.ids and not cat.under(library, target).exists():
+        node, item = atlas.ids[bare]
+        full = node.dir / item.path if item else node.dir
+    else:
+        full = cat._inside(library, target)
+    size = _human(_size(full))
+    kind = cat.kind_of(full)
+    if kind == "directory":
+        files = cat.files_under(full)
+        lines = [f"directory, {len(files)} file{'s' * (len(files) != 1)}, {size}"]
+        lines += [f"  {f}  {cat.kind_of(full / f)}  {_human(_size(full / f))}" for f in files]
+        return bounded(lines, limit, "peek one file of it")
+    if kind == "pdf":
+        from core import pdfpage               # pypdfium2, loaded only when needed
+        try:
+            text = pdfpage.text(full)
+        except Exception as exc:               # a damaged file is a finding, not a crash
+            return [f"pdf, {size}, not readable: {str(exc).splitlines()[0]}"]
+        lines = [f"pdf, {len(text)} page{'s' * (len(text) != 1)}, {size}"]
+        for i in _pages(pages, len(text)):
+            body = [l.strip() for l in text[i].splitlines() if l.strip()]
+            if not body:
+                lines.append(f"— p.{i + 1}: no text layer — read it as an image —")
+                continue
+            lines.append(f"— p.{i + 1} —")
+            lines += [l[:200] for l in body]
+        return bounded(lines, limit, "--pages to read further")
+    if kind == "image":
+        return [_image(full, size), "read it to see what it shows"]
+    if kind == "text":
+        try:
+            body = full.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError:
+            return [f"file, {size}, not UTF-8 text"]
+        lines = [f"text, {len(body)} line{'s' * (len(body) != 1)}, {size}"]
+        return bounded(lines + [l[:200] for l in body], limit, "read the file for the rest")
+    return [f"{kind}, {size}"]
+
+
+def _image(p: Path, size: str) -> str:
+    """An image's size, and the date and camera its EXIF records, when it can be read."""
+    from PIL import Image, UnidentifiedImageError
+    try:
+        with Image.open(p) as im:
+            exif = im.getexif()
+            shot = exif.get(306) or exif.get_ifd(0x8769).get(36867)   # DateTime(Original)
+            camera = " ".join(str(exif.get(k, "")).strip() for k in (271, 272)).strip()
+            facts = [f"image, {im.width}×{im.height} px, {size}"]
+    except (UnidentifiedImageError, OSError):
+        return f"image, {size}, not readable by PIL (an SVG, or damaged)"
+    if shot:
+        facts.append(f"taken {str(shot).strip()}")
+    if camera:
+        facts.append(camera)
+    return ", ".join(facts)

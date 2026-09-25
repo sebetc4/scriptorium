@@ -372,3 +372,15 @@ def test_what_remains_to_do_is_counted_without_failing(lib, capsys):
     assert library.main() == 0
     assert ("to do: 1 file no item covers, 1 item to describe, "
             "1 source changed since described") in capsys.readouterr().out
+
+
+def test_a_citation_to_a_retired_id_is_not_reported(lib):
+    """A session is never rewritten: what it cites must keep leading somewhere."""
+    root = make_doc(lib, "topic/slug")
+    (root / doc.SOURCES).mkdir()
+    (root / doc.SOURCES / "a.pdf").write_text("a", encoding="utf-8")
+    catalogued(lib)
+    ident = cat.describe(lib, "topic/slug/sources/a.pdf", "A", "Le a.", "a").split()[0]
+    make_journal(root, sessions={"2026-01-01.md": f"[A](id:{ident})\n"})
+    cat.remove(lib, [ident], used=True)
+    assert library.check() == []

@@ -302,3 +302,77 @@ def test_a_question_that_matches_everything_is_still_bounded(large):
     assert len(out) == nav.LIMIT and out[-1].startswith("… ")
     assert len(nav.ls(large, "generated")) == nav.LIMIT
     assert len(nav.find(large, "remplissage", text=True)) == nav.LIMIT
+
+
+# --- peek ---------------------------------------------------------------------------
+
+def a_pdf(path, pages):
+    """A PDF with a text layer on each page given as text, none on a page given as None."""
+    import pymupdf
+    pdf = pymupdf.open()
+    for text in pages:
+        page = pdf.new_page()
+        if text:
+            page.insert_text((72, 72), text)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    pdf.save(path)
+    return path
+
+
+def test_peek_reads_the_text_layer_of_a_pdfs_first_pages(lib):
+    a_pdf(lib / "lab" / "fer" / "sources" / "manuel.pdf",
+          ["Station TC22\nManuel", None, "Codes d'erreur"])
+    out = nav.peek(lib, "lab/fer/sources/manuel.pdf")
+    assert out[0].startswith("pdf, 3 pages, ")
+    assert out[1:] == ["— p.1 —", "Station TC22", "Manuel",
+                       "— p.2: no text layer — read it as an image —"]
+    assert nav.peek(lib, "lab/fer/sources/manuel.pdf", pages="3")[1:] == [
+        "— p.3 —", "Codes d'erreur"]
+
+
+def test_peek_gives_an_images_size_without_showing_it(lib):
+    from PIL import Image
+    p = lib / "lab" / "fer" / "sources" / "photo.png"
+    p.parent.mkdir(parents=True)
+    Image.new("RGB", (40, 30)).save(p)
+    out = nav.peek(lib, "lab/fer/sources/photo.png")
+    assert out[0].startswith("image, 40×30 px, ")
+    assert out[1] == "read it to see what it shows"
+
+
+def test_peek_reads_a_text_and_lists_a_directory_by_path_or_id(workshop):
+    assert nav.peek(workshop, "lab/bobine/sources/fiche.md")[1:] == [
+        "# Fiche", "", "Alliage Sn60Pb40, soudure à l'étain."]
+    out = nav.peek(workshop, "lab/tc-22/sources/pannes")
+    assert out[0].startswith("directory, 1 file, ") and out[1].startswith("  p1.jpg  image  ")
+    manual = ident_of(workshop, "lab/tc-22/sources/manuel.pdf")     # "%PDF": no real PDF
+    (line,) = nav.peek(workshop, manual)
+    assert line.startswith("pdf, 4 B, not readable: ")
+
+
+def test_peek_is_bounded(lib):
+    put(lib, "t/e/sources/long.md", "\n".join(f"ligne {n}" for n in range(50)))
+    out = nav.peek(lib, "t/e/sources/long.md")
+    assert len(out) == nav.LIMIT and out[-1].startswith("… ")
+
+
+# --- retired ids ------------------------------------------------------------------------
+
+def test_a_removed_id_still_answers_path_and_links(workshop):
+    manual = ident_of(workshop, "lab/tc-22/sources/manuel.pdf")
+    cat.remove(workshop, [manual], used=True)
+    assert nav.path(workshop, manual).startswith("removed on ")
+    assert nav.path(workshop, manual).endswith("lab/tc-22/sources/manuel.pdf")
+    out = nav.links(workshop, "carnet")
+    assert any(f"Manuel de la TC22  {manual} (removed " in line for line in out)
+    assert nav.links(workshop, "lab/tc-22")[-1].startswith("  Manuel de la TC22 ← ")
+
+
+def test_a_merged_id_leads_to_the_item_it_was_merged_into(workshop):
+    cat.describe(workshop, "lab/tc-22/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
+    photo = cat.describe(workshop, "lab/tc-22/sources/pannes/p1.jpg", "Panne", "Une panne.",
+                         "panne").split()[0]
+    cat.merge(workshop, [photo])
+    assert nav.path(workshop, photo).endswith("lab/tc-22/sources/pannes")
+    with pytest.raises(cat.ManifestError, match="retired"):
+        nav.ls(workshop, photo)

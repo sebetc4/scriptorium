@@ -67,7 +67,7 @@ discussion-and-illustration roadmap.
 
 ### The other skills
 - [ ] `sourcing`: its pieces become items, and `NOTES.md` cites them by id
-- [ ] `pdf` and `fetch`: look for related material through the map, and never write an id into `document/`
+- [ ] `pdf` and `fetch`: look for related material through the map, and never write an id into `document/`; `pdf`'s description, which claims every repair `make check-library` reports, names `catalogue` for a `manifest`, `id` or `citation` defect, with `tests/test_triggers.py`'s neighbours to match
 
 ### Proof
 - [ ] Hold a notebook session with the map, and record how the agent found the material outside the notebook, what it read, and what it cost, against the baseline session of discussion-and-illustration Phase 0

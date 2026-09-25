@@ -241,24 +241,47 @@ is now: the description was written against that content.
 A manifest is written through these two commands only: the guard refuses an
 edit by hand.
 
-### Reading the map: `find`, `ls`, `links`, `path`
+### Reading the map: `find`, `ls`, `links`, `path`, `peek`
 
-Four read-only commands answer a question from the manifests, in a few lines
+Five read-only commands answer a question from the manifests, in a few lines
 whatever the size of the library. The agent calls them as
-`.venv/bin/catalogue <command>`; you call them through `make`.
+`.venv/bin/catalogue <command>`; you call the first four through `make`.
 
 | Command | `make` | Answers |
 |---|---|---|
 | `find <words> [--in <topic or entry>] [--text]` | `make find Q="…" [IN=…] [TEXT=1]` | every node and item whose name or description holds every word, case and accents folded — `etain` finds « étain ». One line each: kind, id, name, where. With `--text`, the lines of the text items (Markdown, extractions, journals, notes) that hold them, each under its item's name. |
 | `ls [<path or id>] [-l \| -ll]` | `make ls [AT=…] [L=1\|2]` | a topic's topics and entries, with their counts; an entry's items; an item, with a directory's files. `-l` adds the descriptions, `-ll` the kind, size and date. Markers say what is `to describe`, `new` (on the disk, no item covers it), `to review` (a described source changed) or `gone`. |
 | `links <path or id>` | `make links AT=…` | what an entry or an item cites and what cites it, from the `id:` citations alone, grouped by entry, each with the file and line that cites. |
-| `path <id>` | `make path ID=…` | where an id is, from the repository's root. |
+| `path <id>` | `make path ID=…` | where an id is, from the repository's root — or, for a retired id, that it was removed, or the item it was merged into. |
+| `peek <path or id> [--pages 2-5]` | — | a first look at a file, cheap enough to take before any image: a PDF's page count and the text layer of its first pages, an image's size and the date and camera it records, a text's first lines, a directory's files. |
 
 **An answer is 20 lines at most.** Past that, its last line says how many more
 there are and how to narrow the question; `--limit N` raises the bound, `0`
 removes it. Nothing is read in advance: each command reads the manifests when
 it runs, so the size of an answer depends on the question, never on the
 library.
+
+### Cleaning up and renaming: `unused`, `remove`, `merge`, `rename`
+
+Four commands change what the library holds, and the agent runs them only on
+your word, by the `catalogue` skill's rules: it proposes, you confirm, the
+command does exactly that. They have no `make` target.
+
+| Command | Does | Refuses |
+|---|---|---|
+| `unused <entry>` | lists the sources of an entry that no citation points at and no tool derives from — a capture's page, an import's PDF — each with its reason. Writes nothing. | a topic, an item |
+| `remove <item>… [--used]` | deletes the files of the items named and their lines in the manifest, together | anything not named exactly as an item; an item of `document/`; a directory holding an item not named as well; without `--used`, an item still cited or derived from. One refusal, and nothing is deleted. |
+| `merge <item>…` | folds items back into the named item above them — the inverse of describing a file inside a directory — and leaves the files where they are | an item with no named item above it; a file already gone |
+| `rename <item> <new-name>` | renames one of your files and its item together, in its own directory, keeping its extension; the manifest keeps the original name under `original:` | a directory; the agent's own files; a file a tool derives from, which `make rederive` finds by name |
+
+**An id is never erased.** A removed item's id, and a merged one's, stays in
+the entry's manifest under `retired:`, with the item's name, its path, the
+date and, for a merge, the id it went into. A journal's session is never
+rewritten: what it cited keeps leading somewhere, `path` says where it went,
+and the id is never drawn again.
+
+Every command also takes `--library DIR`, before the command, to work on a
+copy rather than on `library/` — for a trial.
 
 ---
 

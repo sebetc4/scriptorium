@@ -406,3 +406,247 @@ def test_the_command_line_syncs_and_describes(station, lib, capsys):
 def test_the_command_line_fails_loudly_on_a_refusal(station, lib, capsys):
     assert cat.main(["describe", "lab", "--name", "Labo"]) == 1
     assert capsys.readouterr().err.startswith("catalogue: ")
+
+
+# --- retired ids and the original name ------------------------------------------
+
+def test_retired_ids_and_an_original_name_round_trip():
+    m = cat.Manifest(id="e-abcdefgh", name="E", description="d",
+                     items=[cat.Item("sources/b.jpg", "image", original="Sans titre.jpg")],
+                     retired=[cat.Retired("old-bcdefghj", "sources/a.pdf", "2026-09-25", "A"),
+                              cat.Retired("p1-cdefghjk", "sources/p/1.jpg", "2026-09-25",
+                                          into="p-defghjkm")])
+    back = cat.parse(cat.dump(m))
+    assert back.retired == m.retired          # a bare date comes back as text
+    assert back.items[0].original == "Sans titre.jpg"
+
+
+@pytest.mark.parametrize("text, what", [
+    ("retired: 3\n", "retired is not a list"),
+    ("retired:\n  - {id: a-bcdefghj, date: 2026-09-25}\n", "retired 1 has no path"),
+    ("retired:\n  - {id: a-bcdefghj, path: x, date: 2026-09-25, why: no}\n", "unknown key why"),
+])
+def test_a_malformed_retired_record_is_refused(text, what):
+    with pytest.raises(cat.ManifestError, match=what):
+        cat.parse(text)
+
+
+# --- the cleaning-up commands ------------------------------------------------------
+
+@pytest.fixture
+def cited(station, lib):
+    """The station, named, its manual cited by a journal elsewhere in the library."""
+    cat.sync(lib)
+    cat.describe(lib, "lab/tools/tc-22", "Station TC22", "Ma station.", "tc22")
+    manual = cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", "Manuel", "Le manuel.",
+                          "manuel").split()[0]
+    cat.describe(lib, "lab/tools/tc-22/notice.txt", "Notice", "Une notice.", "notice")
+    put(lib, "carnet/study/discussion/index.md", f"Voir [le manuel](id:{manual}).\n")
+    cat.sync(lib)
+    return station
+
+
+def others(root, *but):
+    """Every file of the tree and its content, except those named."""
+    return {p: p.read_bytes() for p in root.rglob("*")
+            if p.is_file() and p.name != cat.MANIFEST and p not in but}
+
+
+def test_unused_lists_the_sources_nothing_cites_each_with_its_reason(cited, lib):
+    out = cat.unused(lib, "lab/tools/tc-22")
+    assert out[0] == "2 of 3 sources of lab/tools/tc-22 neither cited nor derived from:"
+    assert out[1].startswith("notice.txt  Notice  notice-") and out[1].endswith(
+        "— cited by nothing; the entry's document may rest on it")
+    assert out[2] == "sources/pannes  (to describe)  - — never named, so never cited"
+
+
+def test_unused_counts_a_directory_holding_a_cited_item_as_used(cited, lib):
+    photo = cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne", "La panne.",
+                         "panne").split()[0]
+    put(lib, "carnet/study/NOTES.md", f"[p](id:{photo})\n")
+    assert not any("sources/pannes" in line for line in cat.unused(lib, "lab/tools/tc-22"))
+
+
+def test_unused_counts_what_a_tool_derives_from(lib):
+    capture = lib / "web" / "page"
+    put(capture, "sources/page.html.gz", "gz")
+    put(capture, "study/meta.json", '{"url": "https://x", "sha256_html": "00"}')
+    imported = lib / "web" / "manual"
+    pdf = put(imported, "sources/first.pdf", "%PDF manual")
+    put(imported, "sources/old/copy.pdf", "%PDF manual")       # the same digest
+    put(imported, "study/meta.json",
+        f'{{"pages_total": 3, "sha256": "{cat.file_digest(pdf)}"}}')
+    cat.sync(lib)
+    assert cat.derived(capture) == {"sources/page.html.gz"}
+    assert cat.derived(imported) == {"sources/first.pdf", "sources/old/copy.pdf"}
+    assert cat.unused(lib, "web/page")[0].startswith("0 of 1 source ")
+    assert cat.unused(lib, "web/manual")[0].startswith("0 of 2 sources ")
+
+
+def test_unused_takes_an_entry_only(cited, lib):
+    for target in ("lab", "lab/tools/tc-22/sources/manuel.pdf"):
+        with pytest.raises(cat.ManifestError, match="unused takes an entry"):
+            cat.unused(lib, target)
+
+
+def test_remove_deletes_the_file_and_its_line_and_retires_the_id(cited, lib):
+    before = others(lib, cited / "notice.txt")
+    ident = items(cited)["notice.txt"].id
+    assert cat.remove(lib, ["lab/tools/tc-22/notice.txt"]) == [
+        f"lab/tools/tc-22/notice.txt — removed, {ident} retired"]
+    assert not (cited / "notice.txt").exists()
+    assert others(lib) == before                      # nothing else touched
+    m = cat.read(cited)
+    assert "notice.txt" not in {i.path for i in m.items}
+    assert [(r.id, r.path, r.name) for r in m.retired] == [(ident, "notice.txt", "Notice")]
+    assert ident in cat.ids(lib)                      # never drawn again
+
+
+def test_remove_acts_only_on_items_named_exactly(cited, lib):
+    before = others(lib)
+    for target in ("lab/tools/tc-22/sources/pannes/p1.jpg",   # inside an item
+                   "lab/tools/tc-22", "lab", "lab/tools/tc-22/sources"):
+        with pytest.raises(cat.ManifestError, match="not an item"):
+            cat.remove(lib, [target])
+    with pytest.raises(cat.ManifestError, match="takes the items"):
+        cat.remove(lib, [])
+    assert others(lib) == before
+
+
+def test_remove_refuses_everything_when_one_target_is_refused(cited, lib):
+    before = others(lib)
+    with pytest.raises(cat.ManifestError, match="document/ is the deliverable"):
+        cat.remove(lib, ["lab/tools/tc-22/notice.txt", "lab/tools/tc-22/document/index.md"])
+    assert others(lib) == before
+
+
+def test_remove_refuses_a_directory_holding_an_item_not_named(cited, lib):
+    cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne", "La panne.", "panne")
+    with pytest.raises(cat.ManifestError, match="holds items not named: sources/pannes/p1.jpg"):
+        cat.remove(lib, ["lab/tools/tc-22/sources/pannes"])
+    out = cat.remove(lib, ["lab/tools/tc-22/sources/pannes",
+                           "lab/tools/tc-22/sources/pannes/p1.jpg"])
+    assert out[0].startswith("lab/tools/tc-22/sources/pannes/p1.jpg — removed")
+    assert not (cited / "sources/pannes").exists()
+
+
+def test_remove_refuses_an_item_in_use_unless_told(cited, lib):
+    with pytest.raises(cat.ManifestError, match=r"in use \(cited\) — --used"):
+        cat.remove(lib, ["lab/tools/tc-22/sources/manuel.pdf"])
+    cat.remove(lib, ["lab/tools/tc-22/sources/manuel.pdf"], used=True)
+    assert not (cited / "sources/manuel.pdf").exists()
+
+
+def test_removing_a_vanished_item_retires_its_id(cited, lib):
+    (cited / "notice.txt").unlink()
+    cat.remove(lib, ["lab/tools/tc-22/notice.txt"])
+    assert [r.path for r in cat.read(cited).retired] == ["notice.txt"]
+
+
+def test_merge_folds_an_item_back_into_the_directory_above(cited, lib):
+    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    photo = cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne", "La panne.",
+                         "panne").split()[0]
+    folder = items(cited)["sources/pannes"].id
+    assert cat.merge(lib, [photo]) == [
+        f"lab/tools/tc-22/sources/pannes/p1.jpg — merged into sources/pannes ({folder})"]
+    assert (cited / "sources/pannes/p1.jpg").is_file()
+    assert "sources/pannes/p1.jpg" not in items(cited)
+    (r,) = cat.read(cited).retired
+    assert (r.id, r.into) == (photo, folder)
+    before = snapshot(lib)
+    cat.sync(lib)                                     # the item does not come back
+    assert snapshot(lib) == before
+
+
+def test_merge_needs_a_named_item_above_and_a_file_on_the_disk(cited, lib):
+    cat.describe(lib, "lab/tools/tc-22/sources/pannes/p2.jpg", "Panne 2", "Deux.", "panne")
+    with pytest.raises(cat.ManifestError, match="no named item above it"):
+        cat.merge(lib, ["lab/tools/tc-22/sources/pannes/p2.jpg"])
+    with pytest.raises(cat.ManifestError, match="no named item above it"):
+        cat.merge(lib, ["lab/tools/tc-22/notice.txt"])       # nothing above a root file
+    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    (cited / "sources/pannes/p2.jpg").unlink()
+    with pytest.raises(cat.ManifestError, match="gone from the disk"):
+        cat.merge(lib, ["lab/tools/tc-22/sources/pannes/p2.jpg"])
+
+
+def test_rename_renames_the_file_and_its_item_and_keeps_the_original(cited, lib):
+    before = items(cited)["sources/manuel.pdf"]
+    out = cat.rename(lib, "lab/tools/tc-22/sources/manuel.pdf", "manuel-tc22.pdf")
+    assert out == ["lab/tools/tc-22/sources/manuel.pdf → manuel-tc22.pdf"
+                   " — original name kept: manuel.pdf"]
+    after = items(cited)["sources/manuel-tc22.pdf"]
+    assert (after.id, after.name, after.sha256) == (before.id, before.name, before.sha256)
+    assert after.original == "manuel.pdf"
+    report = cat.sync(lib)
+    assert report[-1].startswith("0 manifests written")
+    cat.rename(lib, after.id, "manuel-station.pdf")
+    assert items(cited)["sources/manuel-station.pdf"].original == "manuel.pdf"
+    cat.rename(lib, after.id, "manuel.pdf")
+    assert items(cited)["sources/manuel.pdf"].original is None
+
+
+def test_rename_inside_a_directory_gives_the_file_its_item(cited, lib):
+    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    cat.rename(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "panne-fer.jpg")
+    got = items(cited)
+    assert got["sources/pannes/panne-fer.jpg"].original == "p1.jpg"
+    assert got["sources/pannes/panne-fer.jpg"].name is None       # to describe
+    # A rename is not a change: the directory stays current.
+    assert not any("changed" in line for line in cat.sync(lib))
+
+
+@pytest.mark.parametrize("target, new, what", [
+    ("lab/tools/tc-22/sources/pannes", "x", "one file of an entry"),
+    ("lab/tools/tc-22/study/schema.md", "s.md", "only a source"),
+    ("lab/tools/tc-22/sources/manuel.pdf", "manuel.txt", "keeps its extension"),
+    ("lab/tools/tc-22/sources/manuel.pdf", "../x.pdf", "a file name, not a path"),
+    ("lab/tools/tc-22/sources/manuel.pdf", ".cache.pdf", "a file name, not a path"),
+    ("lab/tools/tc-22/sources/pannes/p1.jpg", "p2.jpg", "already exists"),
+])
+def test_rename_refuses_what_is_not_a_plain_source_file_rename(cited, lib, target, new, what):
+    before = others(lib)
+    with pytest.raises(cat.ManifestError, match=what):
+        cat.rename(lib, target, new)
+    assert others(lib) == before
+
+
+def test_rename_refuses_a_source_a_tool_derives_from_by_name(lib):
+    capture = lib / "web" / "page"
+    put(capture, "sources/page.html.gz", "gz")
+    put(capture, "study/meta.json", '{"sha256_html": "00"}')
+    cat.sync(lib)
+    with pytest.raises(cat.ManifestError, match="make rederive"):
+        cat.rename(lib, "web/page/sources/page.html.gz", "article.html.gz")
+
+
+def test_a_retired_id_cannot_be_described(cited, lib):
+    ident = items(cited)["notice.txt"].id
+    cat.remove(lib, ["lab/tools/tc-22/notice.txt"])
+    with pytest.raises(cat.ManifestError, match="retired on .*notice.txt removed"):
+        cat.describe(lib, ident, name="Encore")
+
+
+def test_the_command_line_cleans_up_on_another_library(cited, lib, tmp_path, monkeypatch,
+                                                       capsys):
+    monkeypatch.setattr(doc, "LIBRARY", tmp_path / "elsewhere")      # not this one
+    assert cat.main(["--library", str(lib), "unused", "lab/tools/tc-22"]) == 0
+    assert "2 of 3 sources" in capsys.readouterr().out
+    assert cat.main(["--library", str(lib), "remove", "lab/tools/tc-22/notice.txt"]) == 0
+    assert cat.main(["--library", str(lib), "rename", "lab/tools/tc-22/sources/manuel.pdf",
+                     "m.pdf"]) == 0
+    assert (cited / "sources/m.pdf").is_file()
+
+
+@pytest.mark.parametrize("call", [
+    lambda lib: cat.rename(lib, "lab/tools/tc-22/../../../outside.txt", "moved.txt"),
+    lambda lib: cat.remove(lib, ["lab/tools/tc-22/../../../outside.txt"]),
+    lambda lib: cat.describe(lib, "lab/../../outside.txt", "N", "D", "p"),
+    lambda lib: cat.sync(lib, ["lab/../.."]),
+])
+def test_no_command_follows_a_path_out_of_the_library(cited, lib, call):
+    outside = put(lib.parent, "outside.txt", "not the library's")
+    with pytest.raises(cat.ManifestError, match="without `..`"):
+        call(lib)
+    assert outside.read_text() == "not the library's"

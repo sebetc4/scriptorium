@@ -25,6 +25,7 @@ DISCRIMINATORS = {
                    "pasted out of conversations with other agents"),
     "translate": ("already in this library, in place",),
     "session-review": ("once it is finished",),
+    "catalogue": ("Keep the library's map", "`manifest.yaml`"),
 }
 
 # The neighbours each description must name, from the overlaps met in real
@@ -39,6 +40,9 @@ NEIGHBOURS = {
     "discussion": {"sourcing", "pdf"},
     "translate": {"pdf", "fetch"},
     "session-review": {"pdf"},
+    # Reading the map is every skill's; `catalogue` keeps it. It must not fire
+    # on writing a document, on a discussion, or on an investigation.
+    "catalogue": {"pdf", "discussion", "sourcing"},
 }
 
 

@@ -31,7 +31,7 @@ consumer, one skill.*
 
 ```
 pyproject.toml          the package; installed editable by `make setup`
-Makefile                the human facade — seventeen targets (§8)
+Makefile                the human facade — its targets, and the rule that admits one (§8)
 requirements.txt        runtime dependencies
 CLAUDE.md               repo map, commands, and the rules no skill owns
 README.md               what the repository is, for a reader arriving cold
@@ -128,8 +128,9 @@ core/
   imaging.py    store() · crop() · contact_sheet()
   pdfpage.py    render every page or one · each page's text layer, empty when there is none
   net.py        probe · MIME verification · browser UA · relaxed TLS
-  catalogue.py  the manifests · ids · sync · describe · the `id:` citations
-  navigate.py   find · ls · links · path — the map, read in 20 lines at most
+  catalogue.py  the manifests · ids · sync · describe · the `id:` citations ·
+                unused · remove · merge · rename
+  navigate.py   find · ls · links · path · peek — the map, read in 20 lines at most
   library.py    make check-library
 ```
 
@@ -224,7 +225,7 @@ They do not carry the document.
 
 ---
 
-## 5. The seven skills, and where each one stops
+## 5. The eight skills, and where each one stops
 
 ### What each is for
 
@@ -236,6 +237,7 @@ They do not carry the document.
 | `sourcing` | A question established across several sources not known in advance. Produces knowledge, not a document. |
 | `discussion` | A subject talked through with the user before its document exists, and resumed from its journal. Produces a journal and an outline, not a document. |
 | `translate` | A document already in this library, translated in place. |
+| `catalogue` | The library's map: the manifests that name and describe what it holds, kept true to the disk, cleaned up and renamed on the user's word. Reading the map is a command any skill runs; keeping it is this skill. *Added by the library-catalogue roadmap, phase 2.* |
 | `session-review` | A finished task, measured, and written to `reviews/`. Outside the production chain: it makes no document and changes no skill. |
 
 ### The boundaries that needed a rule
@@ -281,6 +283,17 @@ number, a date or a point two accounts disagree on, the claim is handed to
 `sourcing`, and its result comes back to the discussion's journal as
 established. *Added by the discussion-and-illustration roadmap, phase 0.*
 
+**`catalogue` / every other skill — keeping the map, not reading it.** Every
+skill needs to know what the library holds, and none of them should load a
+skill to find out.
+
+> **Reading the map — `find`, `ls`, `links`, `path`, `peek` — is a brick in the
+> core, run through `.venv/bin/catalogue` by any skill, each carrying the one
+> rule that concerns it. Keeping it — naming, describing, syncing, cleaning
+> up, renaming — is `catalogue`'s.**
+
+*Added by the library-catalogue roadmap, phase 2.*
+
 And what each refuses, which is the part a reader actually needs:
 
 | Skill | Refuses to |
@@ -291,6 +304,7 @@ And what each refuses, which is the part a reader actually needs:
 | `pdf` | produce reflowable output; review an EPUB page by page; translate |
 | `epub` | write or build the paginated document; be reviewed screen by screen |
 | `translate` | import or capture; edit `study/extracted.md`, which is immutable |
+| `catalogue` | change a source's content; write an id or a manifest by hand; put an id in `document/`; describe a file from its name alone; remove or rename without the user's word |
 
 ### The trigger check
 
@@ -306,6 +320,7 @@ description must carry one discriminating phrase that no other carries:
 | `discussion` | talk a subject through **before its document exists**; resume that discussion; passages pasted out of other agents' conversations | an exchange about the repository itself; establishing a fact; writing `index.md` |
 | `translate` | translate an `index.md`; a document in the wrong language | importing; capturing |
 | `session-review` | a task **once it is finished**, when a review is asked for | a task in progress; reviewing a built PDF or code |
+| `catalogue` | **keep the library's map**: name, describe, sync the manifests; a `manifest`, `id` or `citation` defect; clean up or rename sources on the user's word | searching the library, which any skill does; writing a document; a discussion |
 
 The overlap to watch, because it is real rather than theoretical: `fetch` and
 `sourcing` both start from a URL. The discriminator is *how many* and *known in
@@ -529,6 +544,13 @@ Two consequences:
 *After the roadmap, the rule let in a seventeenth: `review`. Its subject is a
 document of the library — the PDF `make build` made of it — so it is a target,
 not a tool run directly.*
+
+*The library-catalogue roadmap, phase 1, let in `find`, `ls`, `links` and
+`path`: their subject is the library, read through its manifests. Recorded in
+phase 2, which found the omission. The commands that keep the map — `sync`,
+`describe`, `unused`, `remove`, `merge`, `rename` — get no target: the agent
+runs them through `.venv/bin/catalogue`, by the `catalogue` skill's rules, and
+a `make` target would invite running them without those rules.*
 
 `make help` must keep listing every target that exists — a test already enforces
 it, and that test stays at the root because its subject is the repository.
@@ -858,7 +880,9 @@ the user renames as they like and no file is renamed for the agent's sake.
 **What the agent cites, it cites by id**, never by path: a path breaks at the
 next rename, silently when it sits between backticks. The id is permanent and
 never reused, because a discussion's sessions are never rewritten and must not
-end up pointing at something else. No id goes into `document/`: references
-between documents serve the agent, not the reader.
+end up pointing at something else — nor at nothing: when an item is removed or
+merged, its id is retired, not erased, and a citation of it still says where
+the thing went (*phase 2*). No id goes into `document/`: references between
+documents serve the agent, not the reader.
 
 `docs/document.md` is the manual for all of it.

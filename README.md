@@ -25,9 +25,9 @@ each with one job — `sources/` is yours, `study/` is what the tools learned,
 `generators/` is code that draws, `.work/` is anything a command can remake.
 [`docs/document.md`](docs/document.md) is the manual.
 
-The repository is organised around six Claude Code skills, one per job. Each
+The repository is organised around seven Claude Code skills, one per job. Each
 carries its own rules, scripts and tests under `.claude/skills/<name>/`; what two
-or more of them share lives in the `core/` package. A seventh,
+or more of them share lives in the `core/` package. An eighth,
 `session-review`, stands outside that chain: it produces no document and
 measures a finished task instead.
 
@@ -39,6 +39,7 @@ measures a finished task instead.
 | `sourcing` | Investigate a question across sources — produces knowledge, not a document |
 | `discussion` | Talk a subject through with the user before its document exists, keeping a journal any session resumes from |
 | `translate` | Translate a document already in the library, in place |
+| `catalogue` | Keep the library's map: the manifest in every directory that names and describes what it holds, cleaned up and renamed on the user's word |
 | `session-review` | Measure a finished task and write the review to `reviews/` — outside the production chain |
 
 `docs/architecture.md` explains why each directory exists and where each skill

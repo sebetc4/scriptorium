@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/8)
-**Started:** {{START_DATE}}
-**Completed:** {{COMPLETION_DATE}}
+**Current Status:** 🟢 Done (100% — 8/8)
+**Started:** 2026-09-25
+**Completed:** 2026-09-25
 **Blocked By:** —
 
 ---
@@ -57,18 +57,18 @@ Describing the user's library (Phase 3). Changes to the other skills
 ## Tasks
 
 ### The commands the procedures need
-- [ ] Write `unused`: the sources of an entry that no `id:` citation of the library points at, each with its reason; a source a tool derived something from (an import, a capture) counts as used
-- [ ] Write `remove`: delete the files of the items it is given and their lines in the manifest, together; no default, each item named
-- [ ] Write `rename`: rename a source file and update its item in one step, keeping the original file name in the manifest
+- [x] Write `unused`: the sources of an entry that no `id:` citation of the library points at, each with its reason; a source a tool derived something from (an import, a capture) counts as used
+- [x] Write `remove`: delete the files of the items it is given and their lines in the manifest, together; no default, each item named
+- [x] Write `rename`: rename a source file and update its item in one step, keeping the original file name in the manifest
 
 ### The skill
-- [ ] Write `.claude/skills/catalogue/SKILL.md`: when it fires; naming and describing (the words someone would search for, where to look inside the file); splitting and merging items; when to turn to the user (a new source whose nature is unclear, a vanished source, something hard to identify, a name to find); cleaning up and renaming only on the user's word; what it refuses (changing a source's content, writing an id by hand, an id in `document/`)
-- [ ] Write the skill's suite: the commands it names exist, and it states its refusals
-- [ ] Give the description a phrase no other skill carries, and register the skill in `CLAUDE.md`, `README.md` and every table of `docs/architecture.md` §5, with `tests/test_triggers.py` passing
+- [x] Write `.claude/skills/catalogue/SKILL.md`: when it fires; naming and describing (the words someone would search for, where to look inside the file); splitting and merging items; when to turn to the user (a new source whose nature is unclear, a vanished source, something hard to identify, a name to find); cleaning up and renaming only on the user's word; what it refuses (changing a source's content, writing an id by hand, an id in `document/`)
+- [x] Write the skill's suite: the commands it names exist, and it states its refusals
+- [x] Give the description a phrase no other skill carries, and register the skill in `CLAUDE.md`, `README.md` and every table of `docs/architecture.md` §5, with `tests/test_triggers.py` passing
 
 ### The describing agent
-- [ ] Write `.claude/agents/catalogue-describer.md`: given an entry, it reads the items left to describe, writes their names and descriptions through `describe`, and returns only a summary and the questions for the user
-- [ ] Run it on one fixture entry and on one of the user's waiting entries, and record its cost in tokens
+- [x] Write `.claude/agents/catalogue-describer.md`: given an entry, it reads the items left to describe, writes their names and descriptions through `describe`, and returns only a summary and the questions for the user
+- [x] Run it on one fixture entry and on one of the user's waiting entries, and record its cost in tokens
 
 ---
 
@@ -104,6 +104,6 @@ Phase 1: `find` and `ls`, which the skill's rules rely on.
 
 ## Acceptance Criteria
 
-- [ ] `make test` passes, `tests/test_triggers.py` included
-- [ ] No command deletes or renames a file that was not named on its command line
-- [ ] The describing agent's cost on a real entry is recorded in the report
+- [x] `make test` passes, `tests/test_triggers.py` included
+- [x] No command deletes or renames a file that was not named on its command line
+- [x] The describing agent's cost on a real entry is recorded in the report

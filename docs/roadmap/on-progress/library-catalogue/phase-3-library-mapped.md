@@ -91,6 +91,13 @@ of the named tree, and for the rename proposals.
 - Until this phase's first task runs, `make check-library` fails on the
   user's library, reporting each of its directories as without a manifest
   (Phase 0).
+- The describing agent cost 54,518 and 64,968 tokens on two small entries
+  (Phase 2), most of it fixed per call — its rules, and a context resent at
+  each of a dozen tool calls. Small entries are best given to it several per
+  call. It is callable as `catalogue-describer` from a session started after
+  Phase 2; the trials ran it as a general agent told to follow its file.
+- `electronics/components/capacitor` is already named and described (the
+  Phase 2 trial), and its two images come with rename proposals for the user.
 
 ---
 
