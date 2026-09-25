@@ -1,0 +1,5 @@
+# Written by the catalogue, core/catalogue.py: change it through
+# `sync` and `describe`, never by hand.
+id: echantillons-ynbpytwa
+name: Échantillons
+description: "Des documents fictifs, écrits pour la suite de tests et pour rien d'autre."

@@ -115,6 +115,7 @@ Principles do not settle arguments; names do. These were the arguable ones.
 | Checking that a converted body is well-formed XHTML | **core** — `core/doc.py` | *suite-and-review, phase 0.* The EPUB build refuses a chapter it could not package, and `make check-library` reports the same document before anyone builds it. Two callers, one of them outside every skill. |
 | The style guide | **root** — `brand/style-guide/` | *suite-and-review, at the user's request.* The art direction's own document, beside `brand/tokens.yaml`, rather than an `exemples/` topic in a library the user organises. `core.doc.STYLE_GUIDE` names it; `doc.relative()` places it from the repository root, so its outputs go under `out/<kind>/brand/style-guide/`. |
 | Checking the user's library | **core** — `core/library.py` | *suite-and-review, phase 0.* Reached by `make check-library`, outside every skill, and it checks what both backbones read. |
+| The catalogue: manifests, ids, `sync`, `describe` | **core** — `core/catalogue.py` | *library-catalogue, phase 0.* `make` and several skills read the map, and `make check-library` checks it. Keeping it — naming, describing, cleaning up — is an intent, and goes to a skill. |
 
 ### The shared core
 
@@ -126,6 +127,8 @@ core/
   imaging.py    store() · crop() · contact_sheet()
   pdfpage.py    render every page or one · each page's text layer, empty when there is none
   net.py        probe · MIME verification · browser UA · relaxed TLS
+  catalogue.py  the manifests · ids · sync · describe · the `id:` citations
+  library.py    make check-library
 ```
 
 The package is named `core` because that is the phrase this document already
@@ -573,6 +576,11 @@ that mixes the two reads as two authors.
 | jetable | disposable | remade by a command, in `.work/`, removed by `make clean` (§11) |
 | provenance | provenance | |
 | empreinte | digest | SHA-256 |
+| manifeste | manifest | `manifest.yaml`, in every directory of the library but its root (§11) |
+| entrée | entry | a directory holding one of the five roles, or a file (§11) |
+| élément | item | what an entry's manifest says about one of its files or directories |
+| identifiant | id | a prefix and 8 drawn characters, permanent: `manuel-k7m3p2x9` |
+| citation | citation | a Markdown link whose target is an id: `[…](id:…)` |
 | horodatage | timestamp | |
 | clé | key | |
 
@@ -733,6 +741,7 @@ library/<topic…>/<slug>/
   study/        extracted text, provenance, the investigation and discussion journals
   generators/   the code that draws an asset
   .work/        review sheets, EPUB proofs, page renders
+  manifest.yaml what each of the above is (see *The manifest*, below)
 ```
 
 | | Written by | Read by the build | `make clean` |
@@ -815,3 +824,39 @@ deterministic. If it is not — a library version moves, an extraction changes �
 then the reference a translation checked against is gone, and the file was never
 disposable. It is placed in `study/` on that argument, and the roadmap's phase 3
 verifies the premise rather than assuming it.
+
+### The manifest
+
+*Added by the `library-catalogue` roadmap, phase 0.*
+
+The five roles say where a file goes; they do not say what it is. Knowing that
+meant opening it, and a file named `Sans titre.jpg` or `20260924_123413.jpg`
+says nothing. So every directory of the library describes itself in a
+`manifest.yaml`, beside what it describes: a directory the user renames or
+moves takes its manifest along, and nothing has to be reconciled. A database
+was considered and rejected — it sits beside the directories rather than in
+them, and would keep the one costly part, the descriptions, in a file git does
+not track. It comes back only as an index rebuilt from the manifests, if a
+search grows slow.
+
+**Two kinds of node, read from the directory.** A *topic* holds only
+directories, and its manifest never lists them: its description says what
+belongs there, so it stays true when an entry arrives. An *entry* holds one of
+the five roles, or a file, and its manifest sits at its root, never below:
+a subdirectory of `sources/` is an item of that manifest, and nothing is
+written into `sources/`. An entry need not be a document — most of the
+user's directories are sources waiting to be studied, and they are entries
+all the same.
+
+**The agent writes the name, the description and an id's prefix; the tool
+writes the rest** — paths, kinds, file counts, and a digest for what is the
+user's. The digest is what lets `sync` follow a source the user renamed, so
+the user renames as they like and no file is renamed for the agent's sake.
+
+**What the agent cites, it cites by id**, never by path: a path breaks at the
+next rename, silently when it sits between backticks. The id is permanent and
+never reused, because a discussion's sessions are never rewritten and must not
+end up pointing at something else. No id goes into `document/`: references
+between documents serve the agent, not the reader.
+
+`docs/document.md` is the manual for all of it.

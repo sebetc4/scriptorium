@@ -14,6 +14,7 @@
 ## Key points
 
 - La broche 1 est repérée par le méplat.
+- Le dessin suit les couleurs du [guide de style](id:guide-style-6bhjjn7c).
 
 ## Claims
 

@@ -26,7 +26,7 @@ changes no skill. It runs once a task is done, never during one.
 
 | Path | Role |
 |---|---|
-| `core/` | Installable package shared by the skills: `doc` (discovery, front matter, Markdown → HTML), `mdext`, `imaging`, `pdfpage`, `net`, `library` (`make check-library`) |
+| `core/` | Installable package shared by the skills: `doc` (discovery, front matter, Markdown → HTML), `mdext`, `imaging`, `pdfpage`, `net`, `catalogue` (the manifests, ids, `sync`, `describe`), `library` (`make check-library`) |
 | `.claude/skills/<name>/` | One skill: `SKILL.md`, `scripts/`, `tests/`, optional `references/` and `assets/` |
 | `.claude/agents/` | `pdf-reviewer`: reviews a built PDF through `make review` — checks, sheets, zooms — and returns only the defects |
 | `.claude/hooks/` | Declared in `.claude/settings.json`: guard generated and immutable files, refuse the system Python, run `make brand` after `tokens.yaml`, run a skill's tests after its scripts change |

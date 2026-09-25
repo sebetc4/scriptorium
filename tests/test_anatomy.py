@@ -51,6 +51,13 @@ def test_the_guard_allows_what_belongs_to_the_agent(repo, tmp_path, document):
         assert probe(repo, tmp_path, document / role / "a-file.md") == 0, role
 
 
+def test_the_guard_refuses_a_manifest_edited_by_hand(repo, tmp_path, document):
+    # The catalogue writes it: by hand, a path or a digest drifts from the disk.
+    for d in (document, document.parent):
+        assert probe(repo, tmp_path, d / "manifest.yaml") == 2, d
+    assert probe(repo, tmp_path, tmp_path / "tests" / "manifest.yaml") == 0
+
+
 def test_the_guard_still_finds_an_investigation_after_the_journal_moved(repo,
                                                                         tmp_path):
     # `NOTES.md` moved to `study/` when the anatomy landed, and the guard looked

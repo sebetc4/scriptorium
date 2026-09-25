@@ -14,11 +14,13 @@ library/<topic…>/<slug>/
   study/        what the tools learned from your sources
   generators/   code that draws an asset
   .work/        everything a command can make again
+  manifest.yaml what each of the above is, kept by the catalogue
 ```
 
 The directories above it are topics, at whatever depth: `library/finance/2026/`
 holds `report-q3/`, and nothing anywhere declares that. A directory becomes a
-document the moment it holds a `document/index.md`.
+document the moment it holds a `document/index.md`. Every directory also
+describes itself in a `manifest.yaml`: see [The catalogue](#the-catalogue--manifestyaml).
 
 One document lives outside the library: the style guide, `brand/style-guide/`,
 which the repository owns and your library does not have to carry. It has the
@@ -152,6 +154,95 @@ change what produces it.
 
 ---
 
+## The catalogue — `manifest.yaml`
+
+Every directory of `library/` except the root holds a `manifest.yaml` that
+says what it is, so that finding something never means opening everything.
+`core/catalogue.py` keeps them.
+
+**Two kinds of directory, read from what they hold.** A **topic** holds only
+directories: `electronics`, `electronics/lab`. An **entry** holds one of the
+five roles, or a file: a document, a directory of sources waiting to be
+studied, or a directory holding a single PDF. A directory with no visible file
+anywhere under it is neither, and has no manifest.
+
+```yaml
+# Written by the catalogue, core/catalogue.py: change it through
+# `sync` and `describe`, never by hand.
+id: tc22-a8f2c3d9
+name: Station de soudage TC22
+description: "La station de soudage de l'atelier : son manuel et les photos de ses pannes."
+items:
+- path: sources/manuel.pdf
+  id: manuel-k7m3p2x9
+  name: Manuel de la TC22
+  description: "Le manuel du fabricant : réglages, entretien, codes d'erreur."
+  kind: pdf
+  sha256: 9f2c…
+- path: sources/pannes
+  kind: directory
+  files: 12
+  sha256: 41ab…
+```
+
+- **A topic's manifest never lists its children**: the file system knows
+  them. Its description says what belongs in the topic, not what is in it,
+  so it stays true when an entry arrives.
+- **An entry's items describe its files**: by default one per direct child of
+  each role, and one per file or other directory at its root; `.work/` is
+  never listed. An item that names one file inside a covered directory takes
+  that file out of it: a file is covered by the item with the longest path
+  leading to it.
+- **The anatomy's standard files are named by the tool**: `document/index.md`,
+  `cover.md`, `theme.css`, `assets/`, `study/extracted.md`, `meta.json`,
+  `NOTES.md`, `discussion/`, `translate/`, `glossary.yaml`.
+- **A digest for your files only** — anything outside `document/`, `study/`
+  and `generators/`. A source never changes, so a new digest means something:
+  a rename to follow, or a description to review. The agent's files change
+  every session, and a digest would say nothing there.
+- **Names and descriptions are in French**, the language of the library, so
+  that a search finds everything with the same words; the keys are English.
+
+### Ids, and how the agent cites
+
+An id is the prefix the agent gives when it names a node, a hyphen, and 8
+characters the tool draws from an alphabet without `0`, `o`, `1`, `l` or `i`:
+`manuel-k7m3p2x9`. It is unique in the library, it never changes and is never
+reused, so a session written today still points at the same thing after any
+rename. A node not named yet has no id, and cannot be cited.
+
+The agent cites by a Markdown link whose target is an id, in its own files —
+`[Manuel de la TC22](id:manuel-k7m3p2x9)`: the text for the reader, the id for
+the tool. Everything a manifest describes is cited that way, an entry's own
+sources included. **No id goes into `document/`**: those references serve the
+agent, not the reader.
+
+### `sync` and `describe`
+
+```bash
+.venv/bin/python -m core.catalogue sync [topic/slug …]
+.venv/bin/python -m core.catalogue describe <path or id> --name "…" --description "…" [--prefix p]
+```
+
+**`sync`** brings the manifests in step with the disk, for the whole library
+or for what it is given (with the topics above it). It creates the missing
+manifests, adds an item for each file no item covers, follows a source you
+renamed or moved by its digest, keeps its id, name and description, and
+reports a named source gone or changed since it was described. It never
+touches a name or a description, and a second run changes nothing. It reads
+your sources only to compute their digests.
+
+**`describe`** names and describes a topic, an entry or an item, reached by
+its path or its id. The first naming gives the name, the description and the
+id's prefix; after that, either one alone. A path inside an entry that no item
+names becomes an item of its own. Describing a source records its digest as it
+is now: the description was written against that content.
+
+A manifest is written through these two commands only: the guard refuses an
+edit by hand.
+
+---
+
 ## The life of a document
 
 What each command reads, what it writes, and what is left.
@@ -223,8 +314,10 @@ that one document's `.work/`, and `out/` is left alone.
 
 ### `make check-library`
 
-Reads every document of `library/`, and every discussion's journal, and **writes nothing** — no `.work/`, no
-`out/`, no EPUB. It prints one line per defect, naming the document:
+Reads every document of `library/`, every discussion's journal, and every
+manifest, and **writes nothing** — no `.work/`, no `out/`, no EPUB, no
+manifest. It prints one line per defect, naming the document, the entry or the
+topic:
 
 | Kind | What it found |
 |---|---|
@@ -235,9 +328,14 @@ Reads every document of `library/`, and every discussion's journal, and **writes
 | `load` | a front matter the build cannot read — an unknown preset or theme |
 | `convert`, `xhtml` | a body that does not convert, or that the EPUB could not package |
 | `journal` | a discussion's journal still in one file, or a link from its `index.md` or a topic to a file that does not exist |
+| `manifest` | a directory without a manifest or with an unreadable one, a topic or entry without a name or a description, a topic's manifest listing items, two items for one path, an item whose path is gone |
+| `id` | an id that is not one, or an id held twice — a copied directory, whose copy has to be told which ids it keeps |
+| `citation` | an `id:` link that leads to no manifest, or one inside `document/` |
 
-It ends with the count, and fails when it found anything. It is not part of
-`make test`, which never reads your library.
+It ends with the count, and fails when it found anything. A last line counts
+what remains to do without failing on it: the files no item covers, the items
+not described yet, the sources changed since they were described. It is not
+part of `make test`, which never reads your library.
 
 ---
 
@@ -249,6 +347,10 @@ Inside a document it refuses two paths:
 - **`sources/`** — it is yours. Derived material belongs in `study/`, the
   document in `document/index.md`.
 - **`.work/`** — a command remakes it. Change what produces it.
+
+Anywhere in the library it refuses **`manifest.yaml`**: the catalogue keeps
+its paths, kinds and digests true to the disk, and `sync` and `describe` are
+how it changes.
 
 It also refuses the pieces of an investigation — `raw/`, `datasheets/`,
 `images/` in a document whose `study/NOTES.md` exists — which are kept as they

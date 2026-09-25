@@ -15,17 +15,17 @@
 ## Overall Progress
 
 ```
-Phase 0  The Manifest               🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/12)
+Phase 0  The Manifest               🟢 ████████████████████ 100%  (12/12)
 Phase 1  Navigating the Library     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
 Phase 2  The Catalogue Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
 Phase 3  The Library Mapped         🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 4  The Skills Use the Map     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-TOTAL                                  ░░░░░░░░░░░░░░░░░░░░   0%  (0/41)
+TOTAL                                  ██████░░░░░░░░░░░░░░  29%  (12/41)
 ```
 
 **Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 0 — The Manifest
+**Next Milestone:** Phase 1 — Navigating the Library
 
 ---
 
@@ -222,7 +222,7 @@ like the rest of the repository.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [The Manifest](phase-0-manifest.md) | 12 | 🔴 Not Started |
+| 0 | [The Manifest](phase-0-manifest.md) | 12 | 🟢 Done |
 | 1 | [Navigating the Library](phase-1-navigation.md) | 8 | 🔴 Not Started |
 | 2 | [The Catalogue Skill](phase-2-catalogue-skill.md) | 8 | 🔴 Not Started |
 | 3 | [The Library Mapped](phase-3-library-mapped.md) | 6 | 🔴 Not Started |
@@ -249,7 +249,7 @@ like the rest of the repository.
 - [`docs/architecture.md`](../../../architecture.md): §2, core or skill; §5,
   the skills and the trigger check; §11, the inside of a document.
 - [`docs/document.md`](../../../document.md): what each command puts where.
-- [discussion-and-illustration, phase 0 report](../discussion-and-illustration/phase-0-discussion-skill-report.md):
+- [discussion-and-illustration, phase 0 report](../../pending/discussion-and-illustration/phase-0-discussion-skill-report.md):
   the three-layer journal, and the migration that showed the Material
   section at work.
 - The notebook's journal, `library/electronics/notebook/study/discussion/index.md`:
@@ -259,15 +259,27 @@ like the rest of the repository.
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
-**Location:** `docs/roadmap/pending/library-catalogue/`
-**Version:** 1.0.0
+**Roadmap Status:** 🟡 In Progress
+**Location:** `docs/roadmap/on-progress/library-catalogue/`
+**Version:** 1.1.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.1.0 (2026-09-25)
+
+Phase 0 closed, 12 of 12 tasks. Delivered `core/catalogue.py` (the manifest,
+ids, `sync`, `describe`, the `id:` citations), the catalogue's defects and
+to-do counts in `make check-library`, the guard's refusal of a manifest edited
+by hand, manifests for the fixture library, and the documentation. Found: a
+directory outside the roles at an entry's root, and an empty directory, which
+the Decisions did not place; the phase report records how each was settled.
+`make check-library` fails on the user's library until Phase 3 syncs it. A
+constraint was added to Phases 2 and 3. The roadmap moved from `pending/` to
+`on-progress/`.
 
 ### 1.0.0 (2026-09-25)
 

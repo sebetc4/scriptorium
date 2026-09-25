@@ -94,6 +94,8 @@ Phase 1: `find` and `ls`, which the skill's rules rely on.
 - The describing agent's trial on a real entry writes that entry's manifest:
   the one write into `library/` before Phase 3, and it is announced to the
   user first.
+- The manifest's format refuses an unknown key (Phase 0): `rename` adds the
+  key that keeps the original file name to `ITEM_KEYS` in `core/catalogue.py`.
 
 ---
 

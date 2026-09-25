@@ -20,6 +20,7 @@ from pathlib import Path
 
 import yaml
 
+from core import catalogue as cat
 from core import doc
 
 # The five roles of a document root, docs/architecture.md §11.
@@ -27,7 +28,7 @@ ROLES = {doc.DOCUMENT, doc.SOURCES, doc.STUDY, doc.GENERATORS, doc.WORK}
 # What the anatomy does not place yet, and a skill already writes at the root:
 # `translate` reads a document's glossary there (docs/document.md, *What the
 # anatomy does not place yet*). Reporting it would fail every translated document.
-TOLERATED = {"glossary.yaml"}
+TOLERATED = {"glossary.yaml", cat.MANIFEST}
 # What a tool computes from `sources/` goes to `study/`. Found in `sources/`, it
 # is derived material in the one directory that belongs to the user.
 DERIVED = {"extracted.md", "meta.json", "pages"}
@@ -43,6 +44,7 @@ LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
 class Defect:
     where: str      # the document, `<topic…>/<slug>`, or a directory above one
     kind: str       # anatomy | derived | generator | layout | load | convert | xhtml | journal
+                    # | manifest | id | citation
     what: str
 
     def __str__(self) -> str:
@@ -121,6 +123,82 @@ def journal(study: Path, where: str) -> list[Defect]:
     return found
 
 
+def manifests(library: Path) -> list[Defect]:
+    """Every directory described, every id well formed and held once, every item
+    on the disk — core/catalogue.py."""
+    found = []
+    for d, kind in cat.nodes(library):
+        where = d.relative_to(library).as_posix()
+        try:
+            m = cat.read(d)
+        except cat.ManifestError as exc:
+            found.append(Defect(where, "manifest", f"{cat.MANIFEST} unreadable: {exc}"
+                                if (d / cat.MANIFEST).exists() else str(exc)))
+            continue
+        if kind == "topic" and m.items is not None:
+            found.append(Defect(where, "manifest", "a topic's manifest lists items; "
+                                "a topic holds only directories"))
+        missing = [k for k in ("name", "description") if not getattr(m, k)]
+        if missing:
+            found.append(Defect(where, "manifest", f"no {' and no '.join(missing)} "
+                                f"— describe the {kind}"))
+        labels = [(m.id, "its id")] + [(i.id, i.path) for i in m.items or []]
+        found += [Defect(where, "id", f"{label}: {ident!r} is not an id (prefix, "
+                         f"hyphen, {cat.SUFFIX} characters)")
+                  for ident, label in labels if ident and not cat.ID.fullmatch(ident)]
+        paths = [i.path for i in m.items or []]
+        found += [Defect(where, "manifest", f"two items for {p}")
+                  for p in sorted({p for p in paths if paths.count(p) > 1})]
+        found += [Defect(where, "manifest", f"{p} is gone from the disk — sync "
+                         "follows a moved source; otherwise remove the item")
+                  for p in dict.fromkeys(paths) if not (d / p).exists()]
+    for ident, holders in sorted(cat.ids(library).items()):
+        if len(holders) > 1:
+            places = [f"{h.relative_to(library).as_posix()}" + (f"/{i.path}" if i else "")
+                      for h, i in holders]
+            found.append(Defect(holders[0][0].relative_to(library).as_posix(), "id",
+                                f"{ident} held {len(holders)} times ({', '.join(places)})"
+                                " — a copied directory: say which copy keeps its ids"))
+    return found
+
+
+def citations(library: Path) -> list[Defect]:
+    """Every `id:` citation leads to a node, and none sits in `document/`: ids
+    serve the agent, never the reader."""
+    known = cat.ids(library)
+    found = []
+    for p, line, ident in cat.citations(library):
+        node = cat.node_of(library, p)
+        where, inside = node.relative_to(library).as_posix(), p.relative_to(node).as_posix()
+        if inside.split("/", 1)[0] == doc.DOCUMENT:
+            found.append(Defect(where, "citation", f"{inside}:{line} cites id:{ident} — "
+                                "no id goes into document/"))
+        elif ident not in known:
+            found.append(Defect(where, "citation", f"{inside}:{line} cites id:{ident}, "
+                                "which no manifest holds"))
+    return found
+
+
+def todo(library: Path) -> dict[str, int]:
+    """What remains to do, reported without failing: files no item covers,
+    items not described yet, sources changed since they were described."""
+    counts = {"uncovered": 0, "to describe": 0, "changed": 0}
+    for d, kind in cat.nodes(library):
+        if kind != "entry":
+            continue
+        try:
+            items = cat.read(d).items or []
+        except cat.ManifestError:
+            continue
+        counts["uncovered"] += len(cat.uncovered(d, items))
+        counts["to describe"] += sum(not i.described for i in items)
+        counts["changed"] += sum(1 for i in items
+                                 if i.source and i.described and i.sha256
+                                 and (d / i.path).exists()
+                                 and cat.digest(d, i.path) != i.sha256)
+    return counts
+
+
 def readable(d: Path, where: str) -> list[Defect]:
     """What the build would refuse: a front matter it cannot load, a body that
     does not convert, an XHTML the EPUB could not package."""
@@ -151,7 +229,7 @@ def check(library: Path | None = None) -> list[Defect]:
         found += anatomy(d, where) + readable(d, where)
     for study in journals(library):
         found += journal(study, study.parent.relative_to(library).as_posix())
-    return found
+    return found + manifests(library) + citations(library)
 
 
 def main() -> int:
@@ -166,6 +244,10 @@ def main() -> int:
     n = len(defects)
     verdict = "no defect" if not n else f"{n} defect{'s' * (n != 1)}"
     print(f"{count} document{'s' * (count != 1)} checked — {verdict}")
+    left = todo(library)
+    print(f"to do: {left['uncovered']} file{'s' * (left['uncovered'] != 1)} no item covers, "
+          f"{left['to describe']} item{'s' * (left['to describe'] != 1)} to describe, "
+          f"{left['changed']} source{'s' * (left['changed'] != 1)} changed since described")
     return 1 if defects else 0
 
 

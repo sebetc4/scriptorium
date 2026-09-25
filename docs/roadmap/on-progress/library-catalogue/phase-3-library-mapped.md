@@ -88,6 +88,9 @@ of the named tree, and for the rename proposals.
   the user's yes. No source's content changes.
 - The tree is shown to the user once, with every name and description, not
   entry by entry.
+- Until this phase's first task runs, `make check-library` fails on the
+  user's library, reporting each of its directories as without a manifest
+  (Phase 0).
 
 ---
 

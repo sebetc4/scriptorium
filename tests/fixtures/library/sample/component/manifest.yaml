@@ -1,0 +1,28 @@
+# Written by the catalogue, core/catalogue.py: change it through
+# `sync` and `describe`, never by hand.
+id: composant-yqbta74m
+name: "Composant d'essai"
+description: "La fiche fictive d'un composant, avec son brochage, sa courbe et le journal de sa discussion."
+items:
+- path: document/assets
+  id: illustrations-58xngx73
+  name: Illustrations du document
+  description: Les images et les schémas que le texte du document insère.
+  kind: directory
+  files: 4
+- path: document/cover.md
+  id: couverture-pn2vf5q9
+  name: Couverture du document
+  description: Le Markdown propre à la couverture du document.
+  kind: text
+- path: document/index.md
+  id: document-r4hpq473
+  name: Texte du document
+  description: "Le texte Markdown du document et sa front matter : ce que la construction lit."
+  kind: text
+- path: study/discussion
+  id: discussion-wgc32rtt
+  name: Journal de discussion
+  description: "Le journal de la discussion avec l'utilisateur : index, sujets et séances."
+  kind: directory
+  files: 4

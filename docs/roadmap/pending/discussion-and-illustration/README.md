@@ -139,7 +139,7 @@ records that decision, and what would reopen it.
   least two sessions, and the outline; in Phase 4, the figure list and the
   cover.
 - `diagram-design`, unchanged, for the figures that are relations.
-- The [library-catalogue](../library-catalogue/README.md) roadmap, for Phase
+- The [library-catalogue](../../on-progress/library-catalogue/README.md) roadmap, for Phase
   1: the pilot finds the transistor's material through the map.
 
 ---
