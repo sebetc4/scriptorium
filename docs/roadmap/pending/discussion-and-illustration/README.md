@@ -24,7 +24,7 @@ TOTAL                                        ████░░░░░░░�
 ```
 
 **Current Phase:** Phase 0 — The Discussion Skill
-**Blocked By:** the [suite-and-review](../suite-and-review/README.md) roadmap — `make test` must be green before Phase 0 can close
+**Blocked By:** the [suite-and-review](../../on-progress/suite-and-review/README.md) roadmap, Phase 1 — the user asked to settle the review of skill triggers before the archive (`make test` is green since its Phase 0)
 **Next Milestone:** Phase 0 — The Discussion Skill
 
 ---

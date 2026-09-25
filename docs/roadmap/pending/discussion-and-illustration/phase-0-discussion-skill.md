@@ -7,7 +7,7 @@
 **Current Status:** 🟡 In Progress (64% — 9/14)
 **Started:** 2026-09-24
 **Completed:** {{COMPLETION_DATE}}
-**Blocked By:** the `suite-and-review` roadmap — `make test` must be green for this phase to close
+**Blocked By:** the `suite-and-review` roadmap, Phase 1 — the user asked to settle the review of skill triggers before the archive (`make test` is green since its Phase 0)
 
 ---
 

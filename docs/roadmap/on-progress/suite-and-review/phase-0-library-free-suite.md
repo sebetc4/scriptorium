@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (0% — 0/9)
+**Current Status:** 🟢 Done (100% — 9/9)
 **Started:** 2026-09-25
-**Completed:** {{COMPLETION_DATE}}
+**Completed:** 2026-09-25
 **Blocked By:** —
 
 ---
@@ -64,19 +64,19 @@ decides what to do with them.
 ## Tasks
 
 ### The fixtures
-- [ ] Write fictional fixture documents under `tests/fixtures/library/`: one `report` carrying what the family-A tests exercise (a table the EPUB transposes, a diagram, a cover with an eyebrow and a subtitle), and a copy of `exemples/guide-de-style` as the style proof's input
-- [ ] Give the root `conftest.py` a fixture that copies the fixture library into `tmp_path`, so no test writes under `tests/fixtures/` or `out/`
-- [ ] Move the family-A tests of `epub` onto the fixture documents, building into `tmp_path`
-- [ ] Move the family-A tests of `pdf` (`test_pdf_layout.py`, the targeted passes of `test_review.py`) onto the fixture documents
+- [x] Write fictional fixture documents under `tests/fixtures/library/`: one `report` carrying what the family-A tests exercise (a table the EPUB transposes, a diagram, a cover with an eyebrow and a subtitle), and a copy of `exemples/guide-de-style` as the style proof's input
+- [x] Give the root `conftest.py` a fixture that copies the fixture library into `tmp_path`, so no test writes under `tests/fixtures/` or `out/`
+- [x] Move the family-A tests of `epub` onto the fixture documents, building into `tmp_path`
+- [x] Move the family-A tests of `pdf` (`test_pdf_layout.py`, the targeted passes of `test_review.py`) onto the fixture documents
 
 ### The library check
-- [ ] Write `make check-library`: anatomy, layout and well-formed XHTML for every document of `library/`, converted in memory, with no EPUB and no PDF written, and one line per defect naming the document
-- [ ] Remove the family-B tests from `make test`, keeping their logic in the command's own tested module
-- [ ] Add `make check-library` to the `Makefile` help, `CLAUDE.md`'s commands and `docs/document.md`
+- [x] Write `make check-library`: anatomy, layout and well-formed XHTML for every document of `library/`, converted in memory, with no EPUB and no PDF written, and one line per defect naming the document
+- [x] Remove the family-B tests from `make test`, keeping their logic in the command's own tested module
+- [x] Add `make check-library` to the `Makefile` help, `CLAUDE.md`'s commands and `docs/document.md`
 
 ### Proof
-- [ ] Show that `make test` passes with `library/` moved aside, and writes nothing under `out/`
-- [ ] Run `make check-library` on the real library and hand its report to the user
+- [x] Show that `make test` passes with `library/` moved aside, and writes nothing under `out/`
+- [x] Run `make check-library` on the real library and hand its report to the user
 
 ---
 
@@ -108,7 +108,7 @@ None.
 
 ## Acceptance Criteria
 
-- [ ] `make test` passes with `library/` absent or renamed
-- [ ] `make test` writes nothing under `out/` or `library/`
-- [ ] `make check-library` reports the known defects of the real library — the `euskara` XHTML, the `electribe-2/sources/` subdirectories — and writes no file
-- [ ] No test under `tests/` or `.claude/skills/*/tests/` names a path inside the user's `library/`
+- [x] `make test` passes with `library/` absent or renamed
+- [x] `make test` writes nothing under `out/` or `library/`
+- [x] `make check-library` reports the known defects of the real library — the `euskara` XHTML, the `electribe-2/sources/` subdirectories — and writes no file
+- [x] No test under `tests/` or `.claude/skills/*/tests/` names a path inside the user's `library/`

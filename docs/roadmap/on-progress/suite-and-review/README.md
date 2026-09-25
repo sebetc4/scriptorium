@@ -15,22 +15,22 @@
 ## Overall Progress
 
 ```
-Phase 0  A Suite Independent of the Library    🟡 █░░░░░░░░░░░░░░░░░░░   0%  (0/9)
+Phase 0  A Suite Independent of the Library    🟢 ████████████████████ 100%  (9/9)
 Phase 1  Skill Triggers in the Session Review  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
 Phase 2  A Trigger Audit of Every Skill        🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/5)
-TOTAL                                             ░░░░░░░░░░░░░░░░░░░░   0%  (0/20)
+TOTAL                                             █████████░░░░░░░░░░░  45%  (9/20)
 ```
 
-**Current Phase:** Phase 0 — A Suite Independent of the Library
+**Current Phase:** —
 **Blocked By:** —
-**Next Milestone:** Phase 0 — A Suite Independent of the Library
+**Next Milestone:** Phase 1 — Skill Triggers in the Session Review
 
 ---
 
 ## Why This Roadmap Exists
 
 It comes out of Phase 0 of the
-[discussion-and-illustration](../discussion-and-illustration/README.md)
+[discussion-and-illustration](../../pending/discussion-and-illustration/README.md)
 roadmap. That phase met two problems it could not solve inside its own
 scope.
 
@@ -84,7 +84,7 @@ both a skill loaded without need and a job done without its skill.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [A Suite Independent of the Library](phase-0-library-free-suite.md) | 9 | 🟡 In Progress |
+| 0 | [A Suite Independent of the Library](phase-0-library-free-suite.md) | 9 | 🟢 Done |
 | 1 | [Skill Triggers in the Session Review](phase-1-trigger-review.md) | 6 | 🔴 Not Started |
 | 2 | [A Trigger Audit of Every Skill](phase-2-trigger-audit.md) | 5 | 🔴 Not Started |
 
@@ -95,22 +95,34 @@ both a skill loaded without need and a job done without its skill.
 - [`docs/architecture.md`](../../../architecture.md): §2, core or skill; §5,
   the trigger check.
 - [`docs/document.md`](../../../document.md): the commands.
-- [discussion-and-illustration, phase 0 report](../discussion-and-illustration/phase-0-discussion-skill-report.md):
+- [discussion-and-illustration, phase 0 report](../../pending/discussion-and-illustration/phase-0-discussion-skill-report.md):
   the failures as first met, and the measurements of the `discussion` skill.
 
 ---
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
-**Location:** `docs/roadmap/pending/suite-and-review/`
-**Version:** 1.0.0
+**Roadmap Status:** 🟡 In Progress
+**Location:** `docs/roadmap/on-progress/suite-and-review/`
+**Version:** 1.1.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-25
 
 ---
 
 ## Changelog
+
+### 1.1.0 (2026-09-25)
+
+Phase 0 closed: `make test` no longer depends on the user's library. The
+suite reads two fictional documents versioned under `tests/fixtures/library/`,
+through a temporary copy, and writes nothing under `out/` or `library/`. It
+passes on a checkout that has no `library/` at all (546 tests). The checks
+that were about the user's library moved to `make check-library`, a read-only
+command in `core/library.py`; on the real library it reports five known
+defects. The phase found three more tests that read the whole library without
+ever failing, and an ignore rule that would have hidden the fixtures. The
+roadmap moved from `pending/` to `on-progress/`.
 
 ### 1.0.0 (2026-09-25)
 
