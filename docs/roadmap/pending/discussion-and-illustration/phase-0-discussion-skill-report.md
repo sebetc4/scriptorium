@@ -340,6 +340,10 @@ gitignored, so the migration leaves no commit.
 - `phase-1-discussion-pilot.md`: the two transistor excerpts are now described
   as two agents' answers to the same question, as the user specified, rather
   than as two separate conversations. No task changed.
+- `phase-1-discussion-pilot.md`: the journal is now `study/discussion/`, in
+  three layers, not `study/discussion.md`. Updated in the digest task, the
+  resume task (the resume reads `index.md` alone) and *Files to Modify*.
+  No task was added or removed.
 
 ---
 

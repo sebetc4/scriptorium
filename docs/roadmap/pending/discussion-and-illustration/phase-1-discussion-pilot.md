@@ -61,12 +61,12 @@ Phase 4.
 ## Tasks
 
 ### The excerpts
-- [ ] Digest `transistor-1.md` and `transistor-2.md` into `study/discussion.md`: every claim marked as an agent's account, the overlap between the two excerpts merged, and the canvas and images they refer to noted as received material
+- [ ] Digest `transistor-1.md` and `transistor-2.md` into the journal, `study/discussion/`: every claim marked as an agent's account, the overlap between the two excerpts merged, and the canvas and images they refer to noted as received material
 
 ### The live discussion
 - [ ] Open the repository's first live discussion with the user: the document's goal, its reader and its scope, recorded as the user said them
 - [ ] Carry the discussion into the content the excerpts leave thin or contradict each other on, keeping the journal during the session rather than after it
-- [ ] Resume in a fresh session from the journal alone, and record what the resume cost in tokens and what it missed
+- [ ] Resume in a fresh session from the journal's `index.md` alone, and record what the resume cost in tokens and what it missed
 - [ ] Hand at least one dated or numerical claim to `sourcing`, and record its outcome in the journal
 - [ ] Agree the outline with the user and write it into the journal
 
@@ -83,7 +83,7 @@ Phase 4.
 
 ### Files to Modify
 ```
-library/electronics/components/transistor/study/discussion.md   new, the journal
+library/electronics/components/transistor/study/discussion/    new, the journal: index.md, topics/, sessions/
 library/electronics/components/transistor/document/              new, the document
 .claude/skills/discussion/SKILL.md                               the pilot's findings
 ```
