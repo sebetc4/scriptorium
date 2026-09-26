@@ -41,7 +41,7 @@ and prints at most 20 lines (`--limit N` for more). A target is a path under
 | Command | Does | Writes |
 |---|---|---|
 | `sync [<topic or entry>…]` | creates the missing manifests, adds an item for each file no item covers, follows a moved source by its digest, reports a named source vanished or changed | manifests |
-| `describe <target> --name … --description … [--prefix …]` | names and describes a topic, an entry or an item; the first naming draws the id from the prefix | a manifest |
+| `describe <target> --name … --description …` | names and describes a topic, an entry or an item; the first naming draws its id | a manifest |
 | `ls [<target>] [-l \| -ll]` | a topic's entries, an entry's items, with the markers `to describe`, `new`, `to review`, `gone` | nothing |
 | `find <words> [--in <target>] [--text]` | what the library holds about the words | nothing |
 | `links <target>` | what an entry or an item cites, and what cites it | nothing |
@@ -72,8 +72,8 @@ and prints at most 20 lines (`--limit N` for more). A target is a path under
 ## Naming and describing
 
 **Read [`references/describing.md`](references/describing.md) before naming
-or describing anything.** It holds the rules for the name, the description
-and the id's prefix, and where to look inside each kind of file. The
+or describing anything.** It holds the rules for the name and the
+description, and where to look inside each kind of file. The
 `catalogue-describer` agent reads the same file, so that a name given in the
 main conversation and one given by the agent follow the same rules.
 

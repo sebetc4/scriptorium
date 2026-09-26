@@ -17,7 +17,7 @@ def catalogued(lib):
     cat.sync(lib)
     for d, kind in cat.nodes(lib):
         if not cat.read(d).described:
-            cat.describe(lib, cat.where(lib, d), d.name, f"The {kind} {d.name}.", "t")
+            cat.describe(lib, cat.where(lib, d), d.name, f"The {kind} {d.name}.")
     return lib
 
 
@@ -326,7 +326,7 @@ def test_an_item_whose_path_is_gone_is_reported(lib):
     (root / doc.SOURCES).mkdir()
     (root / doc.SOURCES / "manual.pdf").write_text("pdf", encoding="utf-8")
     catalogued(lib)
-    cat.describe(lib, "topic/slug/sources/manual.pdf", "Manuel", "Le manuel.", "manuel")
+    cat.describe(lib, "topic/slug/sources/manual.pdf", "Manuel", "Le manuel.")
     (root / doc.SOURCES / "manual.pdf").unlink()
     d = only(library.check())
     assert (d.where, d.kind) == ("topic/slug", "manifest")
@@ -338,7 +338,8 @@ def test_a_citation_that_leads_nowhere_is_reported(lib):
     make_journal(root, index="Voir [le manuel](id:manuel-abcdefgh).\n")
     d = only(library.check())
     assert (d.where, d.kind) == ("topic/slug", "citation")
-    assert d.what == ("study/discussion/index.md:1 cites id:manuel-abcdefgh, "
+    # Written with the prefix ids once had, it is reported by its drawn characters.
+    assert d.what == ("study/discussion/index.md:1 cites id:abcdefgh, "
                       "which no manifest holds")
 
 
@@ -364,7 +365,7 @@ def test_what_remains_to_do_is_counted_without_failing(lib, capsys):
     (root / doc.SOURCES / "a.pdf").write_text("a", encoding="utf-8")
     (root / doc.SOURCES / "b.pdf").write_text("b", encoding="utf-8")
     cat.sync(lib)
-    cat.describe(lib, "topic/slug/sources/a.pdf", "A", "Le a.", "a")
+    cat.describe(lib, "topic/slug/sources/a.pdf", "A", "Le a.")
     (root / doc.SOURCES / "a.pdf").write_text("a, changed", encoding="utf-8")
     (root / doc.SOURCES / "c.pdf").write_text("c", encoding="utf-8")
     assert library.todo(lib) == {"uncovered": 1, "to describe": 1, "changed": 1}
@@ -380,7 +381,7 @@ def test_a_citation_to_a_retired_id_is_not_reported(lib):
     (root / doc.SOURCES).mkdir()
     (root / doc.SOURCES / "a.pdf").write_text("a", encoding="utf-8")
     catalogued(lib)
-    ident = cat.describe(lib, "topic/slug/sources/a.pdf", "A", "Le a.", "a").split()[0]
+    ident = cat.describe(lib, "topic/slug/sources/a.pdf", "A", "Le a.").split()[0]
     make_journal(root, sessions={"2026-01-01.md": f"[A](id:{ident})\n"})
     cat.remove(lib, [ident], used=True)
     assert library.check() == []

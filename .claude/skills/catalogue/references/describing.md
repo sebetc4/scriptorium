@@ -1,7 +1,6 @@
 # Naming and describing
 
-The rules for the name, the description and the id's prefix of a topic, an
-entry or an item. Read by the `catalogue` skill and by the
+The rules for the name and the description of a topic, an entry or an item. Read by the `catalogue` skill and by the
 `catalogue-describer` agent: one set of rules, so that a search finds the same
 words whoever wrote them.
 
@@ -72,15 +71,11 @@ never replaces opening it.
   *La maison : les travaux, les équipements, les contrats et leurs
   documents.*
 
-## The id's prefix
+## The id
 
-The tool draws 8 characters and adds them; the prefix is yours, given once, at
-the first naming, and it never changes.
-
-- **One to three short words**, lowercase ASCII, joined by hyphens, accents
-  dropped: `notice-k450`, `photos-facade`, `plan-rdc`, `devis`.
-- **What the thing is**, so that a citation reads well:
-  `[la notice](id:notice-k450-a8f2c3d9)`.
+The tool draws it at the first naming: 8 characters that say nothing of the
+thing, and never change. What the thing is, the name and the description say,
+and a wrong one is corrected with `describe` — nothing else carries it.
 
 ## Examples
 

@@ -7,15 +7,17 @@ the five roles, or a file. Inside an entry, **items** describe its files, and
 an entry's items cover it once: the item that covers a file is the one with
 the longest path leading to it.
 
-The agent writes a node's name, its description and the prefix of its id,
-through `describe`. The tool writes everything else — paths, kinds, file
-counts, digests — through `sync`, and names the anatomy's standard files
-itself. A manifest is written by this module only: the PreToolUse guard
-refuses an edit by hand.
+The agent writes a node's name and its description, through `describe`. The
+tool draws its id, and writes everything else — paths, kinds, file counts,
+digests — through `sync`, and names the anatomy's standard files itself. A
+manifest is written by this module only: the PreToolUse guard refuses an edit
+by hand.
 
 What an agent cites, it cites by id, in a Markdown link of its own files:
-`[Notice du lave-linge](id:notice-a8f2c3d9)`. An id never changes and is never
-reused, so a session written today still points at the same thing tomorrow.
+`[Notice du lave-linge](id:a8f2c3d9)`. An id never changes and is never reused,
+so a session written today still points at the same thing tomorrow — and it
+says nothing of what it names, so nothing in it can turn false: the name and
+the description carry the meaning, and they can be corrected.
 
 In the core rather than in a skill: `make` and several skills read the map
 (docs/architecture.md §2). Keeping it — naming, describing, cleaning up — is
@@ -48,13 +50,17 @@ ROLES = {doc.DOCUMENT, doc.SOURCES, doc.STUDY, doc.GENERATORS, doc.WORK}
 # gets a digest: a source never changes, so a new digest means something.
 AGENT = {doc.DOCUMENT, doc.STUDY, doc.GENERATORS}
 
-# An id: the prefix the agent gives, a hyphen, and a suffix the tool draws from
-# an alphabet without the characters that read alike (0 o, 1 l i).
+# An id: 8 characters the tool draws from an alphabet without the characters
+# that read alike (0 o, 1 l i), checked against every id of the library. 31^8,
+# some 850 billion ids: unique by that check, never by chance.
 ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"
-SUFFIX = 8
-PREFIX_MAX = 24
-PREFIX = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
-ID = re.compile(rf"[a-z0-9]+(?:-[a-z0-9]+)*-[{ALPHABET}]{{{SUFFIX}}}")
+LENGTH = 8
+ID = re.compile(rf"[{ALPHABET}]{{{LENGTH}}}")
+# An id as ids were first written, a prefix the agent chose before the drawn
+# characters: `notice-a8f2c3d9`. A prefix could say something false, and could
+# never be corrected; the drawn characters alone are the id. Still read, since
+# a session is never rewritten — never written.
+LEGACY = re.compile(rf"[a-z0-9]+(?:-[a-z0-9]+)*-({ID.pattern})")
 # An `id:` citation: an inline Markdown link whose target is an id.
 CITATION = re.compile(r"\]\(\s*<?id:([^)\s>]*)")
 
@@ -70,74 +76,74 @@ KINDS = {
 
 # The anatomy's standard files, named by the tool rather than the agent: their
 # role says what they are. Keyed by the library's language, then by path inside
-# the entry → prefix, name, description. A library says its language in
+# the entry → name, description. A library says its language in
 # `.catalogue.yaml` at its root (`language()`); English when it says nothing.
 SETTINGS = ".catalogue.yaml"
 STANDARD = {
     "en": {
         "document/index.md": (
-            "document", "Document text",
+            "Document text",
             "The document's Markdown text and its front matter: what the build reads."),
         "document/cover.md": (
-            "cover", "Document cover",
+            "Document cover",
             "The Markdown of the document's cover."),
         "document/theme.css": (
-            "theme", "The document's own style",
+            "The document's own style",
             "This document's departures from the shared art direction."),
         "document/assets": (
-            "illustrations", "Document illustrations",
+            "Document illustrations",
             "The images and the diagrams the document's text inserts."),
         "study/extracted.md": (
-            "extraction", "Text extracted from the sources",
+            "Text extracted from the sources",
             "The raw extraction of an import or a capture, never edited: the "
             "reference the document is checked against."),
         "study/meta.json": (
-            "provenance", "Provenance of the extraction",
+            "Provenance of the extraction",
             "Where the source came from, when and how it was acquired, and its digest."),
         "study/NOTES.md": (
-            "investigation", "Investigation journal",
+            "Investigation journal",
             "The journal of an investigation: questions, leads, pieces consulted, conclusions."),
         "study/discussion": (
-            "discussion", "Discussion journal",
+            "Discussion journal",
             "The journal of the discussion with the user: index, topics and sessions."),
         "study/translate": (
-            "translation", "Translation workspace",
+            "Translation workspace",
             "A translation in progress or already applied: segments, engine answers, review."),
         "glossary.yaml": (
-            "glossary", "Translation glossary",
+            "Translation glossary",
             "The terms and the translation chosen for each, which the translation respects."),
     },
     "fr": {
         "document/index.md": (
-            "document", "Texte du document",
+            "Texte du document",
             "Le texte Markdown du document et sa front matter : ce que la construction lit."),
         "document/cover.md": (
-            "couverture", "Couverture du document",
+            "Couverture du document",
             "Le Markdown propre à la couverture du document."),
         "document/theme.css": (
-            "theme", "Style propre au document",
+            "Style propre au document",
             "Les écarts de ce document à la direction artistique commune."),
         "document/assets": (
-            "illustrations", "Illustrations du document",
+            "Illustrations du document",
             "Les images et les schémas que le texte du document insère."),
         "study/extracted.md": (
-            "extraction", "Texte extrait des sources",
+            "Texte extrait des sources",
             "L'extraction brute d'un import ou d'une capture, jamais retouchée : la "
             "référence contre laquelle le document est vérifié."),
         "study/meta.json": (
-            "provenance", "Provenance de l'extraction",
+            "Provenance de l'extraction",
             "D'où vient la source, quand et comment elle a été acquise, et son empreinte."),
         "study/NOTES.md": (
-            "enquete", "Journal d'enquête",
+            "Journal d'enquête",
             "Le journal d'une investigation : questions, pistes, pièces consultées, conclusions."),
         "study/discussion": (
-            "discussion", "Journal de discussion",
+            "Journal de discussion",
             "Le journal de la discussion avec l'utilisateur : index, sujets et séances."),
         "study/translate": (
-            "traduction", "Espace de traduction",
+            "Espace de traduction",
             "Une traduction en cours ou déjà appliquée : segments, réponses du moteur, relecture."),
         "glossary.yaml": (
-            "glossaire", "Glossaire de traduction",
+            "Glossaire de traduction",
             "Les termes et la traduction retenue pour chacun, que la traduction respecte."),
     },
 }
@@ -344,6 +350,13 @@ def _text(value, what: str) -> str | None:
     return value.strip() or None
 
 
+def _read_id(value: str | None) -> str | None:
+    """An id as a manifest holds it: one written with a prefix is read as its drawn
+    characters, and the next write stores it so. Anything else is kept as it is,
+    for the check to report."""
+    return canonical(value) or value
+
+
 def parse(text: str) -> Manifest:
     """A manifest from its YAML; ManifestError when its shape is wrong."""
     try:
@@ -357,6 +370,7 @@ def parse(text: str) -> Manifest:
     if unknown:
         raise ManifestError(f"unknown key {', '.join(sorted(map(str, unknown)))}")
     m = Manifest(**{k: _text(data.get(k), k) for k in NODE_KEYS})
+    m.id = _read_id(m.id)
     if "items" in data:
         raw = data["items"] or []
         if not isinstance(raw, list):
@@ -375,11 +389,12 @@ def parse(text: str) -> Manifest:
             files = it.get("files")
             if files is not None and (not isinstance(files, int) or isinstance(files, bool)):
                 raise ManifestError(f"item {n}: files is not a count")
-            m.items.append(Item(path=it["path"].strip().strip("/"),
-                                kind=it["kind"].strip(), files=files,
-                                **{k: _text(it.get(k), f"item {n}: {k}")
-                                   for k in ("id", "name", "description", "sha256",
-                                             "original")}))
+            item = Item(path=it["path"].strip().strip("/"), kind=it["kind"].strip(),
+                        files=files, **{k: _text(it.get(k), f"item {n}: {k}")
+                                        for k in ("id", "name", "description", "sha256",
+                                                  "original")})
+            item.id = _read_id(item.id)
+            m.items.append(item)
     raw = data.get("retired") or []
     if not isinstance(raw, list):
         raise ManifestError("retired is not a list")
@@ -395,6 +410,7 @@ def parse(text: str) -> Manifest:
         for key in ("id", "path", "date"):
             if not fields[key]:
                 raise ManifestError(f"retired {n} has no {key}")
+        fields["id"], fields["into"] = _read_id(fields["id"]), _read_id(fields["into"])
         m.retired.append(Retired(**fields))
     return m
 
@@ -463,27 +479,47 @@ def ids(library: Path) -> dict[str, list[tuple[Path, Item | Retired | None]]]:
     return found
 
 
-def new_id(prefix: str, taken) -> str:
-    """`prefix-xxxxxxxx`, with a suffix drawn until the id is not in `taken`."""
-    if not PREFIX.fullmatch(prefix) or len(prefix) > PREFIX_MAX:
-        raise ManifestError(f"prefix {prefix!r}: lowercase ASCII words joined by "
-                            f"hyphens, at most {PREFIX_MAX} characters")
+def new_id(taken) -> str:
+    """An id drawn until it is none of `taken`, every id of the library."""
     while True:
-        candidate = f"{prefix}-{''.join(secrets.choice(ALPHABET) for _ in range(SUFFIX))}"
+        candidate = "".join(secrets.choice(ALPHABET) for _ in range(LENGTH))
         if candidate not in taken:
             return candidate
 
 
+def canonical(ident: str | None) -> str | None:
+    """The id a written form stands for: an id as it is, or one written with a
+    prefix, by its drawn characters. None when it is neither."""
+    ident = (ident or "").strip()
+    if ID.fullmatch(ident):
+        return ident
+    legacy = LEGACY.fullmatch(ident)
+    return legacy.group(1) if legacy else None
+
+
+def as_id(library: Path, target: str) -> str | None:
+    """The id a command-line target names, when it names one: written `id:…`, or
+    in an id's form where no such path exists in the library. None for a path."""
+    target = target.strip()
+    if target.startswith("id:"):
+        bare = target.removeprefix("id:")
+        return canonical(bare) or bare
+    ident = canonical(target)
+    return ident if ident and not under(library, target).exists() else None
+
+
 def citations(library: Path) -> list[tuple[Path, int, str]]:
-    """Every `id:` citation of the library's Markdown, as `(file, line, id)`.
-    `sources/` is the user's and `.work/` is remade: neither is read."""
+    """Every `id:` citation of the library's Markdown, as `(file, line, id)`: the
+    id a citation written with a prefix stands for, the target as written when it
+    is no id. `sources/` is the user's and `.work/` is remade: neither is read."""
     found = []
     for p in sorted(library.rglob("*.md")):
         parts = p.relative_to(library).parts
         if doc.SOURCES in parts or any(part.startswith(".") for part in parts):
             continue
         for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
-            found += [(p, n, target) for target in CITATION.findall(line)]
+            found += [(p, n, canonical(target) or target)
+                      for target in CITATION.findall(line)]
     return found
 
 
@@ -509,9 +545,9 @@ def _standard(item: Item, taken: set[str], names: dict) -> None:
     """Name an unnamed item that is one of the anatomy's standard files."""
     if item.name or item.path not in names:
         return
-    prefix, item.name, item.description = names[item.path]
+    item.name, item.description = names[item.path]
     if not item.id:
-        item.id = new_id(prefix, taken)
+        item.id = new_id(taken)
         taken.add(item.id)
 
 
@@ -531,7 +567,7 @@ def _scope(library: Path, targets: list[str] | None) -> list[tuple[Path, str]]:
     for t in targets:
         # An id, as every other command takes one: the node that holds it. A
         # path inside an entry is an item, not a node: sync the entry.
-        if t.strip().startswith("id:") or (ID.fullmatch(t.strip()) and not under(library, t).exists()):
+        if as_id(library, t) is not None:
             d = resolve(library, t)[0]
         else:
             d = node_of(library, _inside(library, t))
@@ -676,10 +712,13 @@ def resolve(library: Path, target: str) -> tuple[Path, Item | None, str]:
     names comes back with `None` and the path, for `describe` to create."""
     target = target.strip()
     inside = under(library, target)
-    if target.startswith("id:") or (ID.fullmatch(target) and not inside.exists()):
-        found = ids(library).get(target.removeprefix("id:"), [])
+    ident = as_id(library, target)
+    if ident is not None:
+        found = ids(library).get(ident, [])
         if len(found) != 1:
-            raise ManifestError(f"{target}: {'no such id' if not found else 'id held twice'}")
+            raise ManifestError(f"{target}: {'no such id' if not found else 'id held twice'}"
+                                + ("" if found or target.startswith("id:")
+                                   else ", and nothing there in the library"))
         d, item = found[0]
         if isinstance(item, Retired):
             raise ManifestError(f"{target}: retired on {item.date}, "
@@ -740,10 +779,10 @@ def node_of(library: Path, full: Path) -> Path:
 
 
 def describe(library: Path, target: str, name: str | None = None,
-             description: str | None = None, prefix: str | None = None) -> str:
+             description: str | None = None) -> str:
     """Set the name and description of a topic, an entry or an item, drawing its
-    id from `prefix` the first time it is named. A path inside an entry that no
-    item names becomes an item of its own, taken out of the one that covered it."""
+    id the first time it is named. A path inside an entry that no item names
+    becomes an item of its own, taken out of the one that covered it."""
     name, description = (v.strip() if v else None for v in (name, description))
     if not (name or description):
         raise ManifestError("nothing to write: give a name, a description, or both")
@@ -763,9 +802,7 @@ def describe(library: Path, target: str, name: str | None = None,
     if not node.id and not (name and description):
         raise ManifestError("a first naming gives both the name and the description")
     if not node.id:
-        if not prefix:
-            raise ManifestError("a first naming gives the id's prefix as well")
-        node.id = new_id(prefix, set(ids(library)))
+        node.id = new_id(set(ids(library)))
     if name:
         node.name = name
     if description:
@@ -1075,13 +1112,12 @@ def parser() -> argparse.ArgumentParser:
                     help="another library than the repository's, for a trial on a copy")
     sub = ap.add_subparsers(dest="command", required=True)
     s = sub.add_parser("sync", help="bring the manifests in step with the disk")
-    s.add_argument("targets", nargs="*", metavar="topic/slug",
+    s.add_argument("targets", nargs="*", metavar="path-or-id",
                    help="what to sync, with everything below it; the whole library by default")
     d = sub.add_parser("describe", help="name and describe a topic, an entry or an item")
     d.add_argument("target", help="an id, or a path under the library")
     d.add_argument("--name")
     d.add_argument("--description")
-    d.add_argument("--prefix", help="the id's prefix, at the first naming")
     limit = argparse.ArgumentParser(add_help=False)
     limit.add_argument("--limit", type=int, default=20,
                        help="the most lines an answer prints (default 20; 0 for all)")
@@ -1138,7 +1174,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "sync":
             lines = sync(library, args.targets)
         elif args.command == "describe":
-            lines = [describe(library, args.target, args.name, args.description, args.prefix)]
+            lines = [describe(library, args.target, args.name, args.description)]
         elif args.command == "find":
             lines = navigate.find(library, " ".join(args.query), args.within, args.text,
                                   args.limit)

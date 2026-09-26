@@ -603,7 +603,7 @@ that mixes the two reads as two authors.
 | manifeste | manifest | `manifest.yaml`, in every directory of the library but its root (§11) |
 | entrée | entry | a directory holding one of the five roles, or a file (§11) |
 | élément | item | what an entry's manifest says about one of its files or directories |
-| identifiant | id | a prefix and 8 drawn characters, permanent: `manuel-k7m3p2x9` |
+| identifiant | id | 8 drawn characters, permanent, saying nothing of what they name: `k7m3p2x9` |
 | citation | citation | a Markdown link whose target is an id: `[…](id:…)` |
 | horodatage | timestamp | |
 | clé | key | |
@@ -880,8 +880,7 @@ written into `sources/`. An entry need not be a document — most of the
 user's directories are sources waiting to be studied, and they are entries
 all the same.
 
-**The agent writes the name, the description and an id's prefix; the tool
-writes the rest** — paths, kinds, file counts, and a digest for what is the
+**The agent writes the name and the description; the tool writes the rest** — paths, kinds, file counts, and a digest for what is the
 user's. The digest is what lets `sync` follow a source the user renamed, so
 the user renames as they like and no file is renamed for the agent's sake.
 
@@ -892,5 +891,14 @@ end up pointing at something else — nor at nothing: when an item is removed or
 merged, its id is retired, not erased, and a citation of it still says where
 the thing went (*phase 2*). No id goes into `document/`: references between
 documents serve the agent, not the reader.
+
+**An id says nothing of what it names.** It was first a prefix the agent chose
+and 8 drawn characters; a prefix could turn false — a file misidentified at
+first, or one that changed role — and, fixed once, could never be corrected. The prefix went, on the user's word, after the roadmap:
+the meaning lives in the name and the description alone, which every command
+shows beside the id and `describe` corrects. The 8 characters were already
+the identity, so every id kept its identity, and a citation written with a
+prefix is still read by them. 31^8 is some 850 billion ids, and uniqueness
+does not rest on it: each new id is checked against every id of the library.
 
 `docs/document.md` is the manual for all of it.

@@ -1,22 +1,22 @@
 # Written by the catalogue, core/catalogue.py: change it through
 # `sync` and `describe`, never by hand.
-id: guide-style-6bhjjn7c
+id: 6bhjjn7c
 name: Guide de style
 description: "La direction artistique commune à tous les PDF, et la manière de s'en écarter."
 items:
 - path: document/assets
-  id: illustrations-pz2usben
+  id: pz2usben
   name: Illustrations du document
   description: Les images et les schémas que le texte du document insère.
   kind: directory
   files: 1
 - path: document/cover.md
-  id: couverture-uk7gtjwr
+  id: uk7gtjwr
   name: Couverture du document
   description: Le Markdown propre à la couverture du document.
   kind: text
 - path: document/index.md
-  id: document-5wtr5ehx
+  id: 5wtr5ehx
   name: Texte du document
   description: "Le texte Markdown du document et sa front matter : ce que la construction lit."
   kind: text

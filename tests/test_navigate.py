@@ -12,8 +12,9 @@ from core import catalogue as cat
 from core import doc
 from core import navigate as nav
 
-GUIDE = "guide-style-6bhjjn7c"          # the fixture's style guide, an entry
-COMPONENT = "composant-yqbta74m"         # the fixture's component, which cites it
+GUIDE = "6bhjjn7c"          # the fixture's style guide, an entry
+COMPONENT = "yqbta74m"      # the fixture's component, whose journal cites the guide —
+                            # as `id:guide-style-6bhjjn7c`, the form ids had before
 
 
 def put(root, rel, content="x"):
@@ -43,12 +44,12 @@ def workshop(lib):
     works = lib / "travaux"
     put(works, "study/NOTES.md", "# Notes\n")
     cat.sync(lib)
-    cat.describe(lib, "home", "Maison", "Ce qui concerne la maison.", "maison")
-    cat.describe(lib, "home/washer", "Lave-linge", "Mon lave-linge, à hublot.", "lave-linge")
+    cat.describe(lib, "home", "Maison", "Ce qui concerne la maison.")
+    cat.describe(lib, "home/washer", "Lave-linge", "Mon lave-linge, à hublot.")
     cat.describe(lib, "home/washer/sources/manuel.pdf", "Manuel du lave-linge",
-                 "Réglages, entretien, codes d'erreur.", "manuel")
-    cat.describe(lib, "home/cafe", "Paquet de café", "« Café » en grains, torréfaction légère.", "cafe")
-    cat.describe(lib, "travaux", "Travaux", "Le chantier de la maison.", "travaux")
+                 "Réglages, entretien, codes d'erreur.")
+    cat.describe(lib, "home/cafe", "Paquet de café", "« Café » en grains, torréfaction légère.")
+    cat.describe(lib, "travaux", "Travaux", "Le chantier de la maison.")
     manual = ident_of(lib, "home/washer/sources/manuel.pdf")
     put(works, "study/discussion/index.md",
         f"# Travaux\n\nLa panne se diagnostique comme le dit [le manuel](id:{manual}).\n")
@@ -84,7 +85,7 @@ def test_find_cafe_finds_a_description_that_writes_cafe_with_its_accent(workshop
     assert len(out) == 1
     kind, ident, *rest = out[0].split("  ")
     assert (kind, rest) == ("entry", ["Paquet de café", "home/cafe"])
-    assert ident.startswith("cafe-")
+    assert cat.ID.fullmatch(ident)
 
 
 def test_find_needs_every_word(workshop):
@@ -94,7 +95,8 @@ def test_find_needs_every_word(workshop):
 
 def test_find_reports_an_item_with_its_kind_and_path(workshop):
     (line,) = nav.find(workshop, "codes d'erreur")
-    assert line.startswith("pdf  manuel-")
+    kind, ident = line.split("  ")[:2]
+    assert kind == "pdf" and cat.ID.fullmatch(ident)
     assert line.endswith("  Manuel du lave-linge  home/washer/sources/manuel.pdf")
 
 
@@ -118,7 +120,7 @@ def test_find_text_searches_the_content_of_text_items(workshop):
 
 def test_find_text_searches_the_text_files_of_a_directory_item(workshop):
     (line,) = nav.find(workshop, "panne se diagnostique", text=True)
-    assert line.startswith("discussion-") and "Discussion journal" in line
+    assert cat.ID.fullmatch(line.split("  ")[0]) and "Discussion journal" in line
     assert "index.md:3: La panne se diagnostique" in line
 
 
@@ -136,8 +138,8 @@ def test_find_on_the_fixture_library(fixture_library):
 
 def test_ls_of_the_root_lists_the_top_topics_with_their_counts(fixture_library):
     assert nav.ls(fixture_library) == [
-        "exemples/  Exemples  exemples-p4a7j3s8  topic, 1 entry",
-        "sample/  Échantillons  echantillons-ynbpytwa  topic, 1 entry"]
+        "exemples/  Exemples  p4a7j3s8  topic, 1 entry",
+        "sample/  Échantillons  ynbpytwa  topic, 1 entry"]
 
 
 def test_ls_of_a_topic_lists_its_entries_and_l_adds_the_descriptions(fixture_library):
@@ -159,7 +161,7 @@ def test_ls_ll_adds_the_kind_size_and_date(fixture_library):
 
 def test_ls_of_an_item_shows_it_and_what_a_directory_holds(fixture_library):
     out = nav.ls(fixture_library, "sample/component/study/discussion")
-    assert out[0].startswith("study/discussion  Journal de discussion  discussion-")
+    assert out[0].startswith("study/discussion  Journal de discussion  wgc32rtt")
     assert any(line.startswith("  topics/brochage.md  20") for line in out)
 
 
@@ -167,10 +169,8 @@ def test_ls_of_a_directory_item_marks_the_files_that_have_an_item_of_their_own(w
     """A file that arrived in a described directory has no item of its own:
     after a sync, the directory is `to review`, and its listing says which."""
     washer = workshop / "home" / "washer"
-    cat.describe(workshop, "home/washer/sources/pannes", "Pannes", "Les pannes du lave-linge.",
-                 "pannes")
-    cat.describe(workshop, "home/washer/sources/pannes/p1.jpg", "Panne K", "La panne couteau.",
-                 "panne-k")
+    cat.describe(workshop, "home/washer/sources/pannes", "Pannes", "Les pannes du lave-linge.")
+    cat.describe(workshop, "home/washer/sources/pannes/p1.jpg", "Panne K", "La panne couteau.")
     put(washer, "sources/pannes/p2.jpg", "jpeg 2")
     cat.sync(workshop, ["home/washer"])
     out = nav.ls(workshop, "home/washer/sources/pannes")
@@ -231,7 +231,7 @@ def test_links_of_an_item_counts_the_citations_of_that_item(workshop):
 def test_links_reports_a_citation_that_leads_nowhere(workshop):
     put(workshop / "travaux", "study/discussion/topics/t.md", "[x](id:gone-abcdefgh)\n")
     out = nav.links(workshop, "travaux")
-    assert "  gone-abcdefgh (no such id) ← study/discussion/topics/t.md:1" in out
+    assert "  abcdefgh (no such id) ← study/discussion/topics/t.md:1" in out
 
 
 # --- path -----------------------------------------------------------------------------
@@ -239,6 +239,9 @@ def test_links_reports_a_citation_that_leads_nowhere(workshop):
 def test_path_resolves_an_id_from_the_repository_root(fixture_library):
     assert nav.path(fixture_library, GUIDE).endswith("library/exemples/guide-de-style")
     assert nav.path(fixture_library, f"id:{GUIDE}") == nav.path(fixture_library, GUIDE)
+    # An id written with the prefix ids once had still leads to the same place.
+    assert nav.path(fixture_library, "guide-style-6bhjjn7c") == nav.path(fixture_library, GUIDE)
+    assert nav.ls(fixture_library, "id:guide-style-6bhjjn7c") == nav.ls(fixture_library, GUIDE)
 
 
 def test_path_refuses_an_unknown_id(fixture_library):
@@ -270,24 +273,24 @@ def grown(tmp_path, entries=500):
     topic = lib / "generated"
     topic.mkdir()
 
-    def named(prefix, name, description, items=None):
-        ident = cat.new_id(prefix, taken)
+    def named(name, description, items=None):
+        ident = cat.new_id(taken)
         taken.add(ident)
         return cat.Manifest(ident, name, description, items)
 
-    cat.write(topic, named("genere", "Généré", "Des entrées de remplissage."))
+    cat.write(topic, named("Généré", "Des entrées de remplissage."))
     for n in range(entries):
         e = topic / f"e{n:03}"
         put(e, "sources/scan.pdf", f"scan {n}")
         put(e, "study/notes.md", f"Remplissage numéro {n}.\n")
         items = [cat.Item("sources/scan.pdf", "pdf", **_named(f"Scan {n}", taken)),
                  cat.Item("study/notes.md", "text", **_named(f"Notes {n}", taken))]
-        cat.write(e, named("entree", f"Entrée {n}", f"Remplissage numéro {n}.", items))
+        cat.write(e, named(f"Entrée {n}", f"Remplissage numéro {n}.", items))
     return lib
 
 
 def _named(name, taken):
-    ident = cat.new_id("item", taken)
+    ident = cat.new_id(taken)
     taken.add(ident)
     return {"id": ident, "name": name, "description": f"{name}, sans intérêt."}
 
@@ -387,9 +390,8 @@ def test_a_removed_id_still_answers_path_and_links(workshop):
 
 
 def test_a_merged_id_leads_to_the_item_it_was_merged_into(workshop):
-    cat.describe(workshop, "home/washer/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
-    photo = cat.describe(workshop, "home/washer/sources/pannes/p1.jpg", "Panne", "Une panne.",
-                         "panne").split()[0]
+    cat.describe(workshop, "home/washer/sources/pannes", "Pannes", "Photos de pannes.")
+    photo = cat.describe(workshop, "home/washer/sources/pannes/p1.jpg", "Panne", "Une panne.").split()[0]
     cat.merge(workshop, [photo])
     assert nav.path(workshop, photo).endswith("home/washer/sources/pannes")
     with pytest.raises(cat.ManifestError, match="retired"):

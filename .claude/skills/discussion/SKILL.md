@@ -124,7 +124,7 @@ One file per session, named by its date; a second session the same day is
 **Material is cited by id, never by path.** Everything a manifest describes —
 a photo in this entry's `sources/`, the user's notes, a document elsewhere in
 the library — is cited by a Markdown link whose target is its id:
-`[The user's notes](id:notes-k7m3p2x9)`. A path breaks at the next
+`[The user's notes](id:k7m3p2x9)`. A path breaks at the next
 rename; an id never changes, so a session written today still leads to the
 same file after any move. Relative links stay for the journal's own pages.
 A file is cited where it served — the topic whose key point or claim rests on

@@ -74,14 +74,14 @@ class Atlas:
         the library is `(None, None)`; a path inside an entry that no item
         names is its entry and the item that covers it."""
         target = (target or "").strip()
-        bare = target.removeprefix("id:")
         full = cat.under(self.library, target)
-        if target.startswith("id:") or (cat.ID.fullmatch(bare) and not full.exists()):
-            if bare in self.retired:
-                raise cat.ManifestError(f"{target}: retired — path {bare} says where it went")
-            if bare not in self.ids:
+        ident = cat.as_id(self.library, target)
+        if ident is not None:
+            if ident in self.retired:
+                raise cat.ManifestError(f"{target}: retired — path {ident} says where it went")
+            if ident not in self.ids:
                 raise cat.ManifestError(f"{target}: no such id")
-            return self.ids[bare]
+            return self.ids[ident]
         if full == self.library:
             return None, None
         if not full.exists() or self.library not in full.parents:
@@ -383,6 +383,7 @@ def path(library: Path, ident: str) -> str:
     """Where an id is, from the repository's root."""
     atlas = Atlas(library)
     bare = ident.strip().removeprefix("id:")
+    bare = cat.canonical(bare) or bare
     seen = set()
     while bare in atlas.retired and bare not in seen:      # merged: follow it
         seen.add(bare)
@@ -416,9 +417,11 @@ def peek(library: Path, target: str, pages: str | None = None,
     page count and the text layer of its first pages, an image's size and the
     date and camera it records, a text's first lines, a directory's files."""
     atlas = Atlas(library)
-    bare = target.strip().removeprefix("id:")
-    if bare in atlas.ids and not cat.under(library, target).exists():
-        node, item = atlas.ids[bare]
+    ident = cat.as_id(library, target)
+    if ident is not None:
+        if ident not in atlas.ids:
+            raise cat.ManifestError(f"{target}: no such id")
+        node, item = atlas.ids[ident]
         full = node.dir / item.path if item else node.dir
     else:
         full = cat._inside(library, target)

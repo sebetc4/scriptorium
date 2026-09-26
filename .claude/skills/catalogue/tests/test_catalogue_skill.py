@@ -94,8 +94,7 @@ def test_one_rulebook_serves_the_skill_and_its_agent():
     for path in (SKILL, AGENT):
         assert "references/describing.md" in text(path), path.name
     rules = text(RULES)
-    for heading in ("Look before you write", "The name", "The description",
-                    "The id's prefix"):
+    for heading in ("Look before you write", "The name", "The description", "The id"):
         assert f"## {heading}" in RULES.read_text(encoding="utf-8"), heading
     assert "Never from the file's name alone" in rules
 

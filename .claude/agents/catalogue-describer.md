@@ -24,7 +24,7 @@ Work from the repository root. Every command is `.venv/bin/catalogue …`.
 ## Steps
 
 1. **Read `.claude/skills/catalogue/references/describing.md`**, once. It is
-   the rulebook: the name, the description, the prefix, where to look.
+   the rulebook: the name, the description, where to look.
 2. **`.venv/bin/catalogue ls <ENTRY> -l`.** The items marked `[to describe]`
    are your work, and the entry itself when it is not named. A line marked
    `new` means the entry was not synced: stop, and say so.
@@ -34,7 +34,8 @@ Work from the repository root. Every command is `.venv/bin/catalogue …`.
    - find the library's words for the object:
      `.venv/bin/catalogue find <word>` — reuse the name it already has;
    - write:
-     `.venv/bin/catalogue describe <ENTRY>/<path> --name "…" --description "…" --prefix …`
+     `.venv/bin/catalogue describe <ENTRY>/<path> --name "…" --description "…"` —
+     the tool draws the id
 4. **The entry last**, if it is not named: from what its items turned out to
    be, with `describe <ENTRY>`.
 

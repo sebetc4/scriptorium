@@ -51,7 +51,7 @@ def snapshot(root):
 # --- the format -------------------------------------------------------------
 
 def test_a_manifest_round_trips_through_its_yaml():
-    m = cat.Manifest(id="lave-linge-abcdefgh", name="Lave-linge", description="Un lave-linge.",
+    m = cat.Manifest(id="abcdefgh", name="Lave-linge", description="Un lave-linge.",
                      items=[cat.Item(path="sources/b.pdf", kind="pdf", sha256="00"),
                             cat.Item(path="sources/a", kind="directory", files=2)])
     text = cat.dump(m)
@@ -63,7 +63,7 @@ def test_a_manifest_round_trips_through_its_yaml():
 
 
 def test_a_topic_manifest_has_no_items_key():
-    text = cat.dump(cat.Manifest(id="maison-abcdefgh", name="Maison", description="d"))
+    text = cat.dump(cat.Manifest(id="abcdefgh", name="Maison", description="d"))
     assert "items" not in text
     assert cat.parse(text).items is None
 
@@ -135,24 +135,44 @@ def test_the_longest_path_covers_a_file():
 
 # --- ids ----------------------------------------------------------------------
 
-def test_an_id_is_the_prefix_and_eight_unambiguous_characters():
+def test_an_id_is_eight_unambiguous_characters_that_say_nothing():
+    """What a file is lives in its name and description, which can be corrected;
+    an id that said it could only turn false, for good."""
     for _ in range(200):
-        i = cat.new_id("manuel", set())
-        assert cat.ID.fullmatch(i) and i.startswith("manuel-")
-        assert not set(i.removeprefix("manuel-")) & set("0o1li")
+        i = cat.new_id(set())
+        assert cat.ID.fullmatch(i) and len(i) == 8
+        assert not set(i) & set("0o1li")
 
 
 def test_an_id_is_drawn_again_until_it_is_free(monkeypatch):
+    """Unique by the check against every id of the library, not by chance."""
     draws = iter("aaaaaaaa" + "bbbbbbbb")
     monkeypatch.setattr(cat.secrets, "choice", lambda _: next(draws))
-    assert cat.new_id("x", {"x-aaaaaaaa"}) == "x-bbbbbbbb"
+    assert cat.new_id({"aaaaaaaa"}) == "bbbbbbbb"
 
 
-@pytest.mark.parametrize("prefix", ["Manuel", "manuel_x", "-a", "a--b", "é", "",
-                                    "a" * 25])
-def test_a_malformed_prefix_is_refused(prefix):
-    with pytest.raises(cat.ManifestError, match="prefix"):
-        cat.new_id(prefix, set())
+@pytest.mark.parametrize("written, ident", [
+    ("k7m3p2x9", "k7m3p2x9"),
+    ("notice-k7m3p2x9", "k7m3p2x9"),                  # written with a prefix, before
+    ("notice-lave-linge-k7m3p2x9", "k7m3p2x9"),
+    ("k7m3p2x", None),                                # too short
+    ("notice-k7m3p2x0", None),                        # a 0 is never drawn
+    ("notice_k7m3p2x9", None),
+    ("", None),
+])
+def test_an_id_written_with_a_prefix_stands_for_its_drawn_characters(written, ident):
+    assert cat.canonical(written) == ident
+
+
+def test_a_manifest_written_with_prefixed_ids_is_read_and_stored_short():
+    text = ("id: lave-linge-abcdefgh\nname: L\ndescription: d\nitems:\n"
+            "- path: sources/a.pdf\n  id: notice-bcdefghj\n  kind: pdf\n"
+            "retired:\n- id: photo-cdefghjk\n  path: sources/p.jpg\n  date: 2026-01-01\n"
+            "  into: notice-bcdefghj\n")
+    m = cat.parse(text)
+    assert (m.id, m.items[0].id) == ("abcdefgh", "bcdefghj")
+    assert (m.retired[0].id, m.retired[0].into) == ("cdefghjk", "bcdefghj")
+    assert "-bcdefghj" not in cat.dump(m) and "-abcdefgh" not in cat.dump(m)
 
 
 # --- sync ---------------------------------------------------------------------
@@ -182,8 +202,8 @@ def test_sync_names_the_anatomys_standard_files(appliance, lib):
     cat.sync(lib)
     got = items(appliance)
     for path in ("document/index.md", "study/NOTES.md"):
-        assert got[path].name == cat.STANDARD["en"][path][1]
-        assert got[path].id.startswith(cat.STANDARD["en"][path][0] + "-")
+        assert got[path].name == cat.STANDARD["en"][path][0]
+        assert cat.ID.fullmatch(got[path].id)
     assert got["study/schema.md"].name is None and got["study/schema.md"].id is None
 
 
@@ -195,7 +215,7 @@ def test_a_library_names_its_standard_files_in_its_own_language(appliance, lib):
     assert cat.language(lib) == "fr"
     cat.sync(lib)
     got = items(appliance)["document/index.md"]
-    assert (got.name, got.id.split("-")[0]) == ("Texte du document", "document")
+    assert got.name == "Texte du document" and cat.ID.fullmatch(got.id)
     put(lib, cat.SETTINGS, "language: xx\n")      # no standard names: English
     assert cat.language(lib) == "en"
     assert lib not in {d for d, _ in cat.nodes(lib)}   # the root stays no node
@@ -216,8 +236,8 @@ def test_sync_a_second_time_changes_nothing(appliance, lib):
 
 def test_sync_never_touches_a_name_or_a_description(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer", "Lave-linge", "Mon lave-linge.", "lave-linge")
-    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
+    cat.describe(lib, "home/appliances/washer", "Lave-linge", "Mon lave-linge.")
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.")
     put(appliance, "sources/new.pdf", "nouveau")
     cat.sync(lib)
     m = cat.read(appliance)
@@ -242,8 +262,7 @@ def test_a_new_file_in_a_covered_directory_is_no_new_item(appliance, lib):
 
 def test_a_renamed_source_keeps_its_id_name_and_description(appliance, lib):
     cat.sync(lib)
-    first = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.",
-                         "manuel").split()[0]
+    first = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.").split()[0]
     (appliance / "sources/manuel.pdf").rename(appliance / "sources/washer manual.pdf")
     report = cat.sync(lib)
     got = items(appliance)
@@ -256,7 +275,7 @@ def test_a_renamed_source_keeps_its_id_name_and_description(appliance, lib):
 
 def test_a_renamed_directory_of_sources_is_followed(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Photos de pannes.")
     (appliance / "sources/pannes").rename(appliance / "sources/failures")
     cat.sync(lib)
     assert items(appliance)["sources/failures"].name == "Pannes"
@@ -266,7 +285,7 @@ def test_a_source_moved_to_another_entry_is_followed(appliance, lib):
     other = lib / "home" / "appliances" / "dryer"
     put(other, "sources/support.jpg", "support")
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer/notice.txt", "Notice", "La notice.", "notice")
+    cat.describe(lib, "home/appliances/washer/notice.txt", "Notice", "La notice.")
     (appliance / "notice.txt").rename(other / "sources" / "notice.txt")
     cat.sync(lib)
     assert "notice.txt" not in items(appliance)
@@ -275,7 +294,7 @@ def test_a_source_moved_to_another_entry_is_followed(appliance, lib):
 
 def test_a_vanished_named_source_is_kept_and_reported(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.")
     (appliance / "sources/manuel.pdf").unlink()
     report = cat.sync(lib)
     assert "sources/manuel.pdf" in items(appliance)
@@ -291,7 +310,7 @@ def test_a_vanished_item_never_named_is_dropped(appliance, lib):
 
 def test_a_described_source_that_changed_is_reported_and_keeps_its_digest(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.")
     described = items(appliance)["sources/manuel.pdf"].sha256
     put(appliance, "sources/manuel.pdf", "%PDF manuel, révision 2")
     report = cat.sync(lib)
@@ -326,10 +345,9 @@ def test_sync_takes_a_node_or_an_item_by_its_id(appliance, lib):
     """Every command takes an id, `sync` too: a session finds its entry with
     `find`, and syncs what `find` gave it."""
     cat.sync(lib)
-    entry = cat.describe(lib, "home/appliances/washer", "Lave-linge", "Un lave-linge.",
-                         "washer").split()[0]
+    entry = cat.describe(lib, "home/appliances/washer", "Lave-linge", "Un lave-linge.").split()[0]
     manual = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel",
-                          "Le manuel.", "manuel").split()[0]
+                          "Le manuel.").split()[0]
     put(appliance, "sources/new.pdf", "nouveau")
     assert "home/appliances/washer — new item: sources/new.pdf" in cat.sync(lib, [entry])
     put(appliance, "sources/other.pdf", "autre")        # an item's id syncs its entry
@@ -337,6 +355,25 @@ def test_sync_takes_a_node_or_an_item_by_its_id(appliance, lib):
         lib, [f"id:{manual}"])
     with pytest.raises(cat.ManifestError, match="no such id"):
         cat.sync(lib, ["gone-abcdefgh"])
+
+
+def test_sync_stores_prefixed_ids_short_and_old_citations_still_lead_there(appliance, lib):
+    """Ids were first written with a prefix. A library written then is migrated by
+    its next sync, and what cites the old form — a session, never rewritten —
+    still leads to the same file."""
+    cat.sync(lib)
+    ident = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel",
+                         "Le manuel.").split()[0]
+    manifest = appliance / cat.MANIFEST
+    manifest.write_text(manifest.read_text(encoding="utf-8").replace(
+        f"id: {ident}", f"id: manuel-{ident}"), encoding="utf-8")
+    put(lib, "travaux/study/discussion/sessions/2026-01-01.md",
+        f"[le manuel](id:manuel-{ident})\n")
+    cat.sync(lib)
+    text = manifest.read_text(encoding="utf-8")
+    assert f"id: {ident}" in text and f"manuel-{ident}" not in text
+    assert ident in cat.cited(lib)                                  # the old citation
+    assert cat.resolve(lib, f"manuel-{ident}")[1].id == ident       # the old id, typed
 
 
 def test_an_unreadable_manifest_is_left_as_it_is(appliance, lib):
@@ -348,21 +385,19 @@ def test_an_unreadable_manifest_is_left_as_it_is(appliance, lib):
 
 # --- describe -----------------------------------------------------------------
 
-def test_a_first_naming_draws_the_id_from_the_prefix(appliance, lib):
+def test_a_first_naming_draws_the_id(appliance, lib):
     cat.sync(lib)
-    line = cat.describe(lib, "home", "Maison", "Ce qui concerne la maison.", "maison")
+    line = cat.describe(lib, "home", "Maison", "Ce qui concerne la maison.")
     m = cat.read(lib / "home")
-    assert m.id.startswith("maison-") and line == f"{m.id} — home"
+    assert cat.ID.fullmatch(m.id) and line == f"{m.id} — home"
     assert (m.name, m.description) == ("Maison", "Ce qui concerne la maison.")
 
 
 @pytest.mark.parametrize("args, what", [
-    (("N", "D", None), "prefix"),
-    (("N", None, "p"), "both the name and the description"),
-    ((None, None, "p"), "nothing to write"),
+    (("N", None), "both the name and the description"),
+    ((None, None), "nothing to write"),
 ])
-def test_a_first_naming_needs_the_name_the_description_and_the_prefix(appliance, lib,
-                                                                      args, what):
+def test_a_first_naming_needs_the_name_and_the_description(appliance, lib, args, what):
     cat.sync(lib)
     with pytest.raises(cat.ManifestError, match=what):
         cat.describe(lib, "home", *args)
@@ -370,14 +405,14 @@ def test_a_first_naming_needs_the_name_the_description_and_the_prefix(appliance,
 
 def test_an_id_never_changes(appliance, lib):
     cat.sync(lib)
-    first = cat.describe(lib, "home", "Maison", "d", "maison").split()[0]
-    again = cat.describe(lib, "home", "Logis", None, "autre").split()[0]
+    first = cat.describe(lib, "home", "Maison", "d").split()[0]
+    again = cat.describe(lib, "home", "Logis", None).split()[0]
     assert again == first and cat.read(lib / "home").name == "Logis"
 
 
 def test_describe_reaches_a_node_by_its_id(appliance, lib):
     cat.sync(lib)
-    first = cat.describe(lib, "home/appliances/washer/study/schema.md", "Schéma", "Relevé.", "schema")
+    first = cat.describe(lib, "home/appliances/washer/study/schema.md", "Schéma", "Relevé.")
     ident = first.split()[0]
     cat.describe(lib, ident, description="Relevé du schéma.")
     cat.describe(lib, f"id:{ident}", name="Schéma relevé")
@@ -387,7 +422,7 @@ def test_describe_reaches_a_node_by_its_id(appliance, lib):
 
 def test_describing_a_file_inside_a_covered_directory_takes_it_out(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne 1", "La première.", "panne")
+    cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne 1", "La première.")
     got = items(appliance)
     assert got["sources/pannes/p1.jpg"].sha256 and got["sources/pannes"]
     assert cat.covering(list(got.values()), "sources/pannes/p1.jpg").name == "Panne 1"
@@ -404,12 +439,12 @@ def test_describing_a_file_inside_a_covered_directory_takes_it_out(appliance, li
 def test_describe_refuses_what_it_cannot_describe(appliance, lib, target, what):
     cat.sync(lib)
     with pytest.raises(cat.ManifestError, match=what):
-        cat.describe(lib, target, "N", "D", "p")
+        cat.describe(lib, target, "N", "D")
 
 
 def test_a_directory_under_a_topic_is_described_as_a_node(appliance, lib):
     cat.sync(lib)
-    line = cat.describe(lib, "home/appliances", "Appareils", "Les appareils.", "appareils")
+    line = cat.describe(lib, "home/appliances", "Appareils", "Les appareils.")
     assert line.endswith("— home/appliances")
 
 
@@ -417,11 +452,14 @@ def test_a_directory_under_a_topic_is_described_as_a_node(appliance, lib):
 
 def test_citations_are_read_from_the_agents_markdown_only(appliance, lib):
     put(appliance, "study/discussion/index.md",
-        "Voir [le manuel](id:manuel-abcdefgh) et [ici](topics/a.md).\n")
-    put(appliance, "sources/copied.md", "[x](id:ignored-abcdefgh)\n")
-    put(appliance, ".work/x.md", "[x](id:ignored-bcdefghj)\n")
+        "Voir [le manuel](id:abcdefgh), [la notice](id:notice-bcdefghj) "
+        "et [ici](topics/a.md).\n")
+    put(appliance, "sources/copied.md", "[x](id:cdefghjk)\n")
+    put(appliance, ".work/x.md", "[x](id:defghjkm)\n")
     found = [(p.relative_to(appliance).as_posix(), n, i) for p, n, i in cat.citations(lib)]
-    assert found == [("study/discussion/index.md", 1, "manuel-abcdefgh")]
+    # A citation written with a prefix, before, stands for its drawn characters.
+    assert found == [("study/discussion/index.md", 1, "abcdefgh"),
+                     ("study/discussion/index.md", 1, "bcdefghj")]
 
 
 # --- the command line -----------------------------------------------------------
@@ -429,9 +467,8 @@ def test_citations_are_read_from_the_agents_markdown_only(appliance, lib):
 def test_the_command_line_syncs_and_describes(appliance, lib, capsys):
     assert cat.main(["sync"]) == 0
     assert "manifest created" in capsys.readouterr().out
-    assert cat.main(["describe", "home", "--name", "Maison", "--description", "d",
-                     "--prefix", "maison"]) == 0
-    assert capsys.readouterr().out.startswith("maison-")
+    assert cat.main(["describe", "home", "--name", "Maison", "--description", "d"]) == 0
+    assert cat.ID.fullmatch(capsys.readouterr().out.split()[0])
 
 
 def test_the_command_line_fails_loudly_on_a_refusal(appliance, lib, capsys):
@@ -442,11 +479,11 @@ def test_the_command_line_fails_loudly_on_a_refusal(appliance, lib, capsys):
 # --- retired ids and the original name ------------------------------------------
 
 def test_retired_ids_and_an_original_name_round_trip():
-    m = cat.Manifest(id="e-abcdefgh", name="E", description="d",
+    m = cat.Manifest(id="abcdefgh", name="E", description="d",
                      items=[cat.Item("sources/b.jpg", "image", original="Sans titre.jpg")],
-                     retired=[cat.Retired("old-bcdefghj", "sources/a.pdf", "2026-09-25", "A"),
-                              cat.Retired("p1-cdefghjk", "sources/p/1.jpg", "2026-09-25",
-                                          into="p-defghjkm")])
+                     retired=[cat.Retired("bcdefghj", "sources/a.pdf", "2026-09-25", "A"),
+                              cat.Retired("cdefghjk", "sources/p/1.jpg", "2026-09-25",
+                                          into="defghjkm")])
     back = cat.parse(cat.dump(m))
     assert back.retired == m.retired          # a bare date comes back as text
     assert back.items[0].original == "Sans titre.jpg"
@@ -468,10 +505,9 @@ def test_a_malformed_retired_record_is_refused(text, what):
 def cited(appliance, lib):
     """The appliance, named, its manual cited by a journal elsewhere in the library."""
     cat.sync(lib)
-    cat.describe(lib, "home/appliances/washer", "Lave-linge", "Mon lave-linge.", "lave-linge")
-    manual = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.",
-                          "manuel").split()[0]
-    cat.describe(lib, "home/appliances/washer/notice.txt", "Notice", "Une notice.", "notice")
+    cat.describe(lib, "home/appliances/washer", "Lave-linge", "Mon lave-linge.")
+    manual = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.").split()[0]
+    cat.describe(lib, "home/appliances/washer/notice.txt", "Notice", "Une notice.")
     put(lib, "travaux/study/discussion/index.md", f"Voir [le manuel](id:{manual}).\n")
     cat.sync(lib)
     return appliance
@@ -486,14 +522,14 @@ def others(root, *but):
 def test_unused_lists_the_sources_nothing_cites_each_with_its_reason(cited, lib):
     out = cat.unused(lib, "home/appliances/washer")
     assert out[0] == "2 of 3 sources of home/appliances/washer neither cited nor derived from:"
-    assert out[1].startswith("notice.txt  Notice  notice-") and out[1].endswith(
+    assert out[1].startswith("notice.txt  Notice  ") and cat.ID.fullmatch(out[1].split()[2])
+    assert out[1].endswith(
         "— cited by nothing; the entry's document may rest on it")
     assert out[2] == "sources/pannes  (to describe)  - — never named, so never cited"
 
 
 def test_unused_counts_a_directory_holding_a_cited_item_as_used(cited, lib):
-    photo = cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.",
-                         "panne").split()[0]
+    photo = cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.").split()[0]
     put(lib, "travaux/study/NOTES.md", f"[p](id:{photo})\n")
     assert not any("sources/pannes" in line for line in cat.unused(lib, "home/appliances/washer"))
 
@@ -552,7 +588,7 @@ def test_remove_refuses_everything_when_one_target_is_refused(cited, lib):
 
 
 def test_remove_refuses_a_directory_holding_an_item_not_named(cited, lib):
-    cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.", "panne")
+    cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.")
     with pytest.raises(cat.ManifestError, match="holds items not named: sources/pannes/p1.jpg"):
         cat.remove(lib, ["home/appliances/washer/sources/pannes"])
     out = cat.remove(lib, ["home/appliances/washer/sources/pannes",
@@ -575,9 +611,8 @@ def test_removing_a_vanished_item_retires_its_id(cited, lib):
 
 
 def test_merge_folds_an_item_back_into_the_directory_above(cited, lib):
-    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.", "pannes")
-    photo = cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.",
-                         "panne").split()[0]
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.")
+    photo = cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.").split()[0]
     folder = items(cited)["sources/pannes"].id
     assert cat.merge(lib, [photo]) == [
         f"home/appliances/washer/sources/pannes/p1.jpg — merged into sources/pannes ({folder})"]
@@ -591,12 +626,12 @@ def test_merge_folds_an_item_back_into_the_directory_above(cited, lib):
 
 
 def test_merge_needs_a_named_item_above_and_a_file_on_the_disk(cited, lib):
-    cat.describe(lib, "home/appliances/washer/sources/pannes/p2.jpg", "Panne 2", "Deux.", "panne")
+    cat.describe(lib, "home/appliances/washer/sources/pannes/p2.jpg", "Panne 2", "Deux.")
     with pytest.raises(cat.ManifestError, match="no named item above it"):
         cat.merge(lib, ["home/appliances/washer/sources/pannes/p2.jpg"])
     with pytest.raises(cat.ManifestError, match="no named item above it"):
         cat.merge(lib, ["home/appliances/washer/notice.txt"])       # nothing above a root file
-    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.")
     (cited / "sources/pannes/p2.jpg").unlink()
     with pytest.raises(cat.ManifestError, match="gone from the disk"):
         cat.merge(lib, ["home/appliances/washer/sources/pannes/p2.jpg"])
@@ -619,7 +654,7 @@ def test_rename_renames_the_file_and_its_item_and_keeps_the_original(cited, lib)
 
 
 def test_rename_inside_a_directory_gives_the_file_its_item(cited, lib):
-    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.")
     cat.rename(lib, "home/appliances/washer/sources/pannes/p1.jpg", "panne-fer.jpg")
     got = items(cited)
     assert got["sources/pannes/panne-fer.jpg"].original == "p1.jpg"
@@ -675,9 +710,8 @@ def test_move_carries_the_items_inside_and_removes_the_directories_left_empty(li
     put(e, "sources/raw/thread.html.gz", "gz 2")
     put(e, "study/NOTES.md", "# Notes")
     cat.sync(lib)
-    cat.describe(lib, "research/castle/sources/raw", "Pages", "Les pages reçues.", "pages")
-    thread = cat.describe(lib, "research/castle/sources/raw/thread.html.gz", "Fil", "Un fil.",
-                          "fil").split()[0]
+    cat.describe(lib, "research/castle/sources/raw", "Pages", "Les pages reçues.")
+    thread = cat.describe(lib, "research/castle/sources/raw/thread.html.gz", "Fil", "Un fil.").split()[0]
     out = cat.move(lib, "research/castle/sources/raw", "study/raw")
     assert out[-1] == "research/castle/sources — left empty, removed"
     assert not (e / "sources").exists()
@@ -690,7 +724,7 @@ def test_move_keeps_a_sources_digest_and_gives_one_to_a_file_moved_into_sources(
     notice = items(cited)["notice.txt"]
     cat.move(lib, "home/appliances/washer/notice.txt", "sources/notice.txt")
     assert items(cited)["sources/notice.txt"].sha256 == notice.sha256
-    cat.describe(lib, "home/appliances/washer/study/schema.md", "Schéma", "Le schéma.", "schema")
+    cat.describe(lib, "home/appliances/washer/study/schema.md", "Schéma", "Le schéma.")
     cat.move(lib, "home/appliances/washer/study/schema.md", "sources/schema.md")
     assert items(cited)["sources/schema.md"].sha256 == cat.digest(cited, "sources/schema.md")
     assert not any("changed" in line for line in cat.sync(lib))
@@ -747,7 +781,7 @@ def test_the_command_line_cleans_up_on_another_library(cited, lib, tmp_path, mon
     lambda lib: cat.rename(lib, "home/appliances/washer/../../../outside.txt", "moved.txt"),
     lambda lib: cat.move(lib, "home/appliances/washer/../../../outside.txt", "study/moved.txt"),
     lambda lib: cat.remove(lib, ["home/appliances/washer/../../../outside.txt"]),
-    lambda lib: cat.describe(lib, "home/../../outside.txt", "N", "D", "p"),
+    lambda lib: cat.describe(lib, "home/../../outside.txt", "N", "D"),
     lambda lib: cat.sync(lib, ["home/../.."]),
 ])
 def test_no_command_follows_a_path_out_of_the_library(cited, lib, call):
@@ -773,8 +807,8 @@ def test_mapped_syncs_a_new_entry_and_lists_what_is_left_to_name(lib):
 def test_mapped_says_when_nothing_is_left(lib):
     e = put(lib, "watch/washer/document/index.md", "---\ntitle: T\n---\n").parent.parent
     cat.sync(lib)
-    cat.describe(lib, "watch", "Veille", "Ce qu'on surveille.", "veille")
-    cat.describe(lib, "watch/washer", "Lave-linge", "Un lave-linge.", "washer")
+    cat.describe(lib, "watch", "Veille", "Ce qu'on surveille.")
+    cat.describe(lib, "watch/washer", "Lave-linge", "Un lave-linge.")
     assert cat.mapped(lib, e) == ["  map: watch/washer synced — to name: nothing"]
 
 

@@ -218,14 +218,22 @@ items:
 
 ### Ids, and how the agent cites
 
-An id is the prefix the agent gives when it names a node, a hyphen, and 8
-characters the tool draws from an alphabet without `0`, `o`, `1`, `l` or `i`:
-`notice-k7m3p2x9`. It is unique in the library, it never changes and is never
-reused, so a session written today still points at the same thing after any
-rename. A node not named yet has no id, and cannot be cited.
+An id is 8 characters the tool draws, when a node is first named, from an
+alphabet without `0`, `o`, `1`, `l` or `i`: `k7m3p2x9`. It is unique in the
+library — the tool checks each new one against all the others, retired ones
+included — it never changes and is never reused, so a session written today
+still points at the same thing after any rename. It says nothing of what it
+names: the name and the description do, and a wrong one is corrected with
+`describe`. A node not named yet has no id, and cannot be cited.
+
+Ids were first written with a prefix the agent chose, `notice-k7m3p2x9`: a
+prefix could say something false, and could never be corrected. Such an id is
+read by its last 8 characters — a citation of it still leads to the same
+place, and a session is never rewritten for it — and the next `sync` stores the
+manifests' ids short.
 
 The agent cites by a Markdown link whose target is an id, in its own files —
-`[Notice du lave-linge K-450](id:notice-k7m3p2x9)`: the text for the reader, the id for
+`[Notice du lave-linge K-450](id:k7m3p2x9)`: the text for the reader, the id for
 the tool. Everything a manifest describes is cited that way, an entry's own
 sources included. **No id goes into `document/`**: those references serve the
 agent, not the reader.
@@ -234,7 +242,7 @@ agent, not the reader.
 
 ```bash
 .venv/bin/python -m core.catalogue sync [<path or id> …]
-.venv/bin/python -m core.catalogue describe <path or id> --name "…" --description "…" [--prefix p]
+.venv/bin/python -m core.catalogue describe <path or id> --name "…" --description "…"
 ```
 
 **`sync`** brings the manifests in step with the disk, for the whole library
@@ -246,8 +254,8 @@ touches a name or a description, and a second run changes nothing. It reads
 your sources only to compute their digests.
 
 **`describe`** names and describes a topic, an entry or an item, reached by
-its path or its id. The first naming gives the name, the description and the
-id's prefix; after that, either one alone. A path inside an entry that no item
+its path or its id. The first naming gives the name and the description, and
+the tool draws the id; after that, either one alone. A path inside an entry that no item
 names becomes an item of its own. Describing a source records its digest as it
 is now: the description was written against that content.
 

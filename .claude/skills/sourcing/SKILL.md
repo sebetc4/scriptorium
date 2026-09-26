@@ -139,7 +139,7 @@ There, the library's map applies:
   described by the `catalogue` skill from what the journal says of it; a batch
   cited only as a whole stays in its directory's item.
 - **`NOTES.md` cites them by id**, never by path — the path may stay as the
-  link's text: [`raw/forum-page.html.gz`](id:forum-page-k7m3p2x9). A
+  link's text: [`raw/forum-page.html.gz`](id:k7m3p2x9). A
   rename or a move no longer breaks the journal, and `links <piece>` says
   which lines of the analysis rest on it.
 

@@ -1,6 +1,6 @@
 # Discussion — composant d'essai
 
-**Document:** [Composant d'essai](id:composant-yqbta74m)
+**Document:** [Composant d'essai](id:yqbta74m)
 **Started:** 2026-01-05
 
 Journal fictif, écrit pour la suite de tests : `make check-library` en suit
