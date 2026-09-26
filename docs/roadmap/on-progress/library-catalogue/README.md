@@ -18,14 +18,14 @@
 Phase 0  The Manifest               🟢 ████████████████████ 100%  (12/12)
 Phase 1  Navigating the Library     🟢 ████████████████████ 100%  (8/8)
 Phase 2  The Catalogue Skill        🟢 ████████████████████ 100%  (8/8)
-Phase 3  The Library Mapped         🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/6)
+Phase 3  The Library Mapped         🟢 ████████████████████ 100%  (6/6)
 Phase 4  The Skills Use the Map     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-TOTAL                                  ██████████████░░░░░░  68%  (28/41)
+TOTAL                                  █████████████████░░░  83%  (34/41)
 ```
 
 **Current Phase:** —
-**Blocked By:** —
-**Next Milestone:** Phase 3 — The Library Mapped
+**Blocked By:** discussion-and-illustration Phase 0 — its baseline notebook session, before `discussion` changes
+**Next Milestone:** Phase 4 — The Skills Use the Map
 
 ---
 
@@ -225,7 +225,7 @@ like the rest of the repository.
 | 0 | [The Manifest](phase-0-manifest.md) | 12 | 🟢 Done |
 | 1 | [Navigating the Library](phase-1-navigation.md) | 8 | 🟢 Done |
 | 2 | [The Catalogue Skill](phase-2-catalogue-skill.md) | 8 | 🟢 Done |
-| 3 | [The Library Mapped](phase-3-library-mapped.md) | 6 | 🔴 Not Started |
+| 3 | [The Library Mapped](phase-3-library-mapped.md) | 6 | 🟢 Done |
 | 4 | [The Skills Use the Map](phase-4-skills-use-the-map.md) | 7 | 🔴 Not Started |
 
 ---
@@ -261,13 +261,28 @@ like the rest of the repository.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/library-catalogue/`
-**Version:** 1.3.0
+**Version:** 1.4.0
 **Created:** 2026-09-25
-**Last Updated:** 2026-09-25
+**Last Updated:** 2026-09-26
 
 ---
 
 ## Changelog
+
+### 1.4.0 (2026-09-26)
+
+Phase 3 closed, 6 of 6 tasks. The user's library is mapped: 29 manifests
+written by `sync`, 9 topics and 23 entries named and described, every item
+described, and `make check-library` without a defect. `make new`, `make
+import` and `make fetch` now sync the entry they create and print what is
+left to name, through `mapped()` in the core, called by the three scripts
+rather than the Makefile. The describing agent, called by name for the first
+time, took 16 images in two calls of two entries (89,254 tokens). The user
+reviewed the tree once; on their word two sources were removed, images and
+PDFs moved into `sources/images/` and `sources/`, and 34 files renamed — file
+names are now English, and conversations pasted from web AIs are named
+`ai-<subject>-<angle>.md`. The catalogue skill and its agent say English for
+a file name. Two constraints and a `**Blocked By:**` were added to Phase 4.
 
 ### 1.3.0 (2026-09-25)
 

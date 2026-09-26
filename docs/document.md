@@ -239,7 +239,9 @@ names becomes an item of its own. Describing a source records its digest as it
 is now: the description was written against that content.
 
 A manifest is written through these two commands only: the guard refuses an
-edit by hand.
+edit by hand. The three commands that create an entry — `make new`, `make
+import`, `make fetch` — run `sync` on it as their last step, and print what is
+left to name there and in the topics above it.
 
 ### Reading the map: `find`, `ls`, `links`, `path`, `peek`
 
@@ -293,7 +295,8 @@ What each command reads, what it writes, and what is left.
 
 Creates `document/index.md` from the preset's seed, and `document/assets/`.
 Nothing else: an empty directory made in advance teaches nothing and invites the
-wrong file.
+wrong file. Then the entry's `manifest.yaml`, and those of the topics above it
+that had none.
 
 ### `make import SRC=x.pdf DOC=topic/slug TO=en`
 
@@ -305,6 +308,7 @@ wrong file.
 | the extraction, intact | `study/extracted.md` |
 | provenance, digest, page counts | `study/meta.json` |
 | every source page as an image | `.work/pages/` |
+| the entry on the map | `manifest.yaml`, and the topics' above it |
 
 The document arrives untranslated, with a comment block at the top of
 `index.md` listing what is left to do.
@@ -318,6 +322,7 @@ The document arrives untranslated, with a comment block at the top of
 | the images, recompressed | `document/assets/` |
 | the extraction, intact | `study/extracted.md` |
 | URL, status, TLS, date, digest | `study/meta.json` |
+| the entry on the map | `manifest.yaml`, and the topics' above it |
 
 ### `make rederive DOC=topic/slug`
 

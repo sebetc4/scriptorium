@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/6)
-**Started:** {{START_DATE}}
-**Completed:** {{COMPLETION_DATE}}
+**Current Status:** 🟢 Done (100% — 6/6)
+**Started:** 2026-09-25
+**Completed:** 2026-09-26
 **Blocked By:** —
 
 ---
@@ -56,16 +56,16 @@ Reorganising the library.
 ## Tasks
 
 ### The rollout
-- [ ] Run `sync` on the user's library: a manifest in every topic and entry, the standard files named
-- [ ] Name and describe every topic and entry, then show the user the tree once (`ls -l` from the root) and apply their corrections
-- [ ] Describe the items of the entries that have a `document/`, from what is already studied
-- [ ] Propose a new file name for each flagrantly generic one (`Sans titre.jpg`, `licensed-image_002_aEns.jpg`…), and rename those the user accepts
+- [x] Run `sync` on the user's library: a manifest in every topic and entry, the standard files named
+- [x] Name and describe every topic and entry, then show the user the tree once (`ls -l` from the root) and apply their corrections
+- [x] Describe the items of the entries that have a `document/`, from what is already studied
+- [x] Propose a new file name for each flagrantly generic one (`Sans titre.jpg`, `licensed-image_002_aEns.jpg`…), and rename those the user accepts
 
 ### Keeping it mapped
-- [ ] Make `make new`, `make fetch` and `make import` sync the entry they create, and list what is left to name
+- [x] Make `make new`, `make fetch` and `make import` sync the entry they create, and list what is left to name
 
 ### Proof
-- [ ] Run `make check-library` on the user's library, and hand its to-do counts to the user
+- [x] Run `make check-library` on the user's library, and hand its to-do counts to the user
 
 ---
 
@@ -103,7 +103,7 @@ of the named tree, and for the rename proposals.
 
 ## Acceptance Criteria
 
-- [ ] `make check-library` reports no defect on the user's library
-- [ ] The user has reviewed the named tree
-- [ ] After `make new`, `make fetch` or `make import`, the new entry has its manifest
-- [ ] `make test` passes
+- [x] `make check-library` reports no defect on the user's library
+- [x] The user has reviewed the named tree
+- [x] After `make new`, `make fetch` or `make import`, the new entry has its manifest
+- [x] `make test` passes

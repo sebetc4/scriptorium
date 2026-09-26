@@ -38,6 +38,7 @@ from PIL import Image
 # ROOT from the core, not from this file's parents: it lives inside a skill.
 from core.doc import (ENTRY, LIBRARY, ROOT, SOURCES, STUDY, doc_dir,
                       find_docs, work_dir)
+from core.catalogue import mapped
 from core.imaging import store
 
 BULLET_RE = re.compile(r"^\s*[•‣▪◦·–—*]\s+")
@@ -617,6 +618,7 @@ def main() -> int:
     if not args.no_page_images:
         print(f"    pages rendered in {rel}/.work/pages/ — look at them before translating")
     print(f"    translate index.md into {args.lang}, then: make build DOC={'/'.join(parts)}")
+    print("\n".join(mapped(LIBRARY, dest)))
     return 0
 
 

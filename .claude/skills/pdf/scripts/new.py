@@ -17,6 +17,7 @@ from pathlib import Path
 import yaml
 
 # From the core, not from this file's parents: it lives inside a skill.
+from core.catalogue import mapped
 from core.doc import DOCUMENT, ENTRY, LIBRARY, ROOT, doc_dir
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "assets" / "templates"
@@ -76,6 +77,7 @@ def main() -> int:
     rel = dest.relative_to(ROOT)
     print(f"✓ {rel}/{DOCUMENT}/{ENTRY}  (preset: {args.preset})")
     print(f"  edit the content, then: make build DOC={'/'.join(parts)}")
+    print("\n".join(mapped(LIBRARY, dest)))
     return 0
 
 

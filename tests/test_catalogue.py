@@ -650,3 +650,31 @@ def test_no_command_follows_a_path_out_of_the_library(cited, lib, call):
     with pytest.raises(cat.ManifestError, match="without `..`"):
         call(lib)
     assert outside.read_text() == "not the library's"
+
+
+# --- mapped: what a command that creates an entry prints ---------------------
+
+def test_mapped_syncs_a_new_entry_and_lists_what_is_left_to_name(lib):
+    e = put(lib, "watch/tc22/sources/manuel.pdf", "%PDF").parent.parent
+    put(e, "document/index.md", "---\ntitle: T\n---\n")
+    lines = cat.mapped(lib, e)
+    for d in (lib / "watch", e):
+        assert (d / cat.MANIFEST).is_file()
+    assert lines[0] == "  map: watch/tc22 synced — to name: watch/tc22, watch"
+    assert "to describe: sources/manuel.pdf" in lines[1]
+    assert lines[-1].endswith(".venv/bin/catalogue ls watch/tc22 -l")
+
+
+def test_mapped_says_when_nothing_is_left(lib):
+    e = put(lib, "watch/tc22/document/index.md", "---\ntitle: T\n---\n").parent.parent
+    cat.sync(lib)
+    cat.describe(lib, "watch", "Veille", "Ce qu'on surveille.", "veille")
+    cat.describe(lib, "watch/tc22", "Station", "Une station.", "tc22")
+    assert cat.mapped(lib, e) == ["  map: watch/tc22 synced — to name: nothing"]
+
+
+def test_mapped_never_fails_the_command_that_created_the_entry(lib):
+    e = put(lib, "watch/tc22/document/index.md", "x").parent.parent
+    put(e, cat.MANIFEST, "items: 3\n")
+    lines = cat.mapped(lib, e)
+    assert len(lines) == 1 and lines[0].startswith("  ! map: watch/tc22 not synced")

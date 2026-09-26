@@ -588,6 +588,28 @@ def sync(library: Path, targets: list[str] | None = None) -> list[str]:
     return report
 
 
+def mapped(library: Path, entry: Path) -> list[str]:
+    """What a command that creates an entry — `make new`, `import`, `fetch` —
+    prints about the map: the entry synced, the manifests of the topics above
+    it created, and what is left to name there, which the catalogue skill
+    turns into names. Never fails the command: the entry exists, and a map
+    left behind is what `make check-library` reports."""
+    w = where(library, entry)
+    try:
+        sync(library, [w])
+        unnamed = [where(library, d) for d in [entry, *entry.parents]
+                   if library in d.parents and not read(d).described]
+        items = [i.path for i in read(entry).items or [] if not i.described]
+    except ManifestError as exc:
+        return [f"  ! map: {w} not synced — {exc}"]
+    lines = [f"  map: {w} synced — to name: {', '.join(unnamed) or 'nothing'}"]
+    if items:
+        lines.append(f"       to describe: {', '.join(items)}")
+    if unnamed or items:
+        lines.append(f"       by the catalogue skill: .venv/bin/catalogue ls {w} -l")
+    return lines
+
+
 # --- describe -----------------------------------------------------------------
 
 def resolve(library: Path, target: str) -> tuple[Path, Item | None, str]:

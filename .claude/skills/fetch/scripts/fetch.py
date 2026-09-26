@@ -37,6 +37,7 @@ from PIL import Image
 from core.doc import (ENTRY, LIBRARY, ROOT, SOURCES, STUDY, doc_dir,
                       find_docs)
 from core import net
+from core.catalogue import mapped
 from core.imaging import store
 
 IMG_RE = re.compile(r'!\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+"([^"]*)")?\s*\)')
@@ -460,6 +461,7 @@ def main(argv: list[str] | None = None) -> int:
     if hint:
         print(f"    ! {hint}")
     print(f"    review index.md, then: make build DOC={'/'.join(parts)}")
+    print("\n".join(mapped(LIBRARY, dest)))
     return 0
 
 

@@ -163,3 +163,14 @@ def test_the_page_language_is_recorded_for_the_translation(web, library):
     assert fetch.main([url, "watch/led", "--lang", "fr"]) == 0
     meta = json.loads((library / "watch" / "led" / "study" / "meta.json").read_text(encoding="utf-8"))
     assert meta["source_language"] == "en"
+
+
+def test_a_capture_is_put_on_the_map(web, library, capsys):
+    """The entry's manifest and its topic's are written, and what is left to
+    name is printed for the catalogue skill."""
+    assert fetch.main([web.add("/led", ARTICLE), "watch/led"]) == 0
+    assert (library / "watch" / "manifest.yaml").is_file()
+    assert (library / "watch" / "led" / "manifest.yaml").is_file()
+    out = capsys.readouterr().out
+    assert "map: watch/led synced — to name: watch/led, watch" in out
+    assert "to describe: sources/page.html.gz" in out

@@ -78,5 +78,9 @@ Rename proposals:
 - <path> → <new-name> — <what the file is>
 ```
 
+A `<new-name>` is lowercase English words joined by hyphens, the extension
+kept — `bulging-electrolytic-capacitors.jpg` — like the rest of the
+repository's tree, although names and descriptions are French.
+
 Leave out a section with nothing in it. No other prose: the descriptions are
 in the manifest, and the conversation reads them there with `ls -l`.

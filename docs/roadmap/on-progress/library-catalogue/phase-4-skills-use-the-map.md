@@ -7,7 +7,7 @@
 **Current Status:** 🔴 Not Started (0% — 0/7)
 **Started:** {{START_DATE}}
 **Completed:** {{COMPLETION_DATE}}
-**Blocked By:** —
+**Blocked By:** discussion-and-illustration Phase 0 — its baseline notebook session, before `discussion` changes
 
 ---
 
@@ -97,6 +97,15 @@ the `discussion` skill. The user's time for the proof session.
   was not needed counts against the proof.
 - The migration of the notebook's journal changes its citations and removes
   one section; it changes nothing the user said, and no claim's status.
+- Phase 3 renamed files the notebook's journal cites by path. Its `index.md`
+  and topic files were repointed, but the session of 2026-09-24 still cites
+  `sources/images/20260924_123413.jpg`, now `led-ring-solder-joints.jpg`; the
+  manifest keeps each first name under `original:`, which is how the
+  migration finds the id of a path that no longer exists.
+- `electribe-2`'s pieces are already items — `sources/threads`, `raw`,
+  `images`, `datasheets`, one item per directory (Phase 3) — while its
+  `study/NOTES.md` cites single files inside them: the `sourcing` task
+  decides whether a piece it cites alone gets its own item.
 
 ---
 

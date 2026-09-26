@@ -164,8 +164,10 @@ because it helps the user when they search outside the manifest.
   `WhatsApp Image 2026-09-21 at 15.57.37.jpeg`, `20260924_123413.jpg`,
   `document(3).pdf`. A short name the user chose — `tc22.pdf` — is theirs.
 - **Proposed as a list**, old name → new name, each drawn from the file's
-  description. The new name is lowercase French words joined by hyphens, the
-  extension kept: `condensateurs-chimiques-gonfles.jpg`.
+  description. The new name is lowercase English words joined by hyphens, like
+  the rest of the repository's tree, the extension kept:
+  `bulging-electrolytic-capacitors.jpg`. Only the file name is English: the
+  manifest's name and description stay in French.
 - **Renamed one `rename` at a time**, only those the user accepts. The
   original name stays in the manifest. `rename` refuses a file a tool derives
   from: `make rederive` finds it by name.
