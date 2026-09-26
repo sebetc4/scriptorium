@@ -11,17 +11,17 @@ import pytest
 
 import fetch
 
-PARAGRAPH = ("A light-emitting diode starts to conduct past its threshold "
-             "voltage, and a few tens of millivolts beyond it are enough to "
-             "triple the current flowing through the junction. ")
+PARAGRAPH = ("A dough starts to rise past a certain warmth, and a few "
+             "degrees beyond it are enough to triple the speed at which the "
+             "yeast works through the whole loaf. ")
 ARTICLE = f"""<!DOCTYPE html>
-<html lang="en"><head><title>Driving an LED</title></head>
+<html lang="en"><head><title>Baking bread</title></head>
 <body>
 <nav><a href="/">Home</a> <a href="/about">About</a></nav>
 <article>
-<h1>Driving an LED</h1>
+<h1>Baking bread</h1>
 <p>{PARAGRAPH * 4}</p>
-<h2>The resistor</h2>
+<h2>The yeast</h2>
 <p>{PARAGRAPH * 4}</p>
 </article>
 </body></html>"""
@@ -40,11 +40,11 @@ def library(tmp_path, monkeypatch):
 
 
 def test_a_page_is_captured_with_its_provenance(web, library):
-    url = web.add("/led", ARTICLE)
-    assert fetch.main([url, "watch/led"]) == 0
+    url = web.add("/bread", ARTICLE)
+    assert fetch.main([url, "watch/bread"]) == 0
 
-    dest = library / "watch" / "led"
-    assert "triple the current" in (dest / "document" / "index.md").read_text(encoding="utf-8")
+    dest = library / "watch" / "bread"
+    assert "triple the speed" in (dest / "document" / "index.md").read_text(encoding="utf-8")
     received = gzip.decompress((dest / "sources" / "page.html.gz").read_bytes())
     assert received == ARTICLE.encode("utf-8")
     meta = json.loads((dest / "study" / "meta.json").read_text(encoding="utf-8"))
@@ -57,38 +57,38 @@ def test_a_page_is_captured_with_its_provenance(web, library):
 
 def test_the_received_page_is_kept_as_received(web, library):
     """Not decoded and re-encoded: a Latin-1 page keeps its own bytes."""
-    latin1 = ARTICLE.replace("Driving", "Pilotage d’une").replace("’", "'").replace(
-        "<title>", "<meta charset='iso-8859-1'><title>").replace("LED</h1>", "LED à éviter</h1>")
+    latin1 = ARTICLE.replace("Baking bread", "Cuisson d’un pain").replace("’", "'").replace(
+        "<title>", "<meta charset='iso-8859-1'><title>").replace("pain</h1>", "pain à éviter</h1>")
     body = latin1.encode("iso-8859-1")
-    url = web.add("/led", body, content_type="text/html; charset=iso-8859-1")
-    assert fetch.main([url, "watch/led"]) == 0
-    dest = library / "watch" / "led"
+    url = web.add("/bread", body, content_type="text/html; charset=iso-8859-1")
+    assert fetch.main([url, "watch/bread"]) == 0
+    dest = library / "watch" / "bread"
     assert gzip.decompress((dest / "sources" / "page.html.gz").read_bytes()) == body
     assert "à éviter" in (dest / "document" / "index.md").read_text(encoding="utf-8")
 
 
 def test_the_probe_line_is_printed(web, library, capsys):
-    url = web.add("/led", ARTICLE)
-    fetch.main([url, "watch/led"])
+    url = web.add("/bread", ARTICLE)
+    fetch.main([url, "watch/bread"])
     assert f"http=200 size={len(ARTICLE.encode())} " in capsys.readouterr().out
 
 
 def test_a_silent_redirect_is_reported_and_recorded(web, library, capsys):
     web.add("/index", ARTICLE)
-    url = web.redirect("/led", "/index")
-    assert fetch.main([url, "watch/led"]) == 0
+    url = web.redirect("/bread", "/index")
+    assert fetch.main([url, "watch/bread"]) == 0
     assert "redirected" in capsys.readouterr().out
-    meta = json.loads((library / "watch" / "led" / "study" / "meta.json")
+    meta = json.loads((library / "watch" / "bread" / "study" / "meta.json")
                       .read_text(encoding="utf-8"))
     assert meta["effective_url"] == web.url("/index")
 
 
 def test_a_pdf_url_answering_html_is_refused(web, library, capsys):
-    url = web.add("/datasheet.pdf", SIGNUP_WALL, content_type="application/pdf")
-    assert fetch.main([url, "watch/datasheet"]) == 1
+    url = web.add("/notice.pdf", SIGNUP_WALL, content_type="application/pdf")
+    assert fetch.main([url, "watch/notice"]) == 1
     err = capsys.readouterr().err
     assert "text/html" in err and ".pdf" in err
-    assert not (library / "watch" / "datasheet").exists()
+    assert not (library / "watch" / "notice").exists()
 
 
 def test_a_real_pdf_is_sent_to_the_import(web, library, capsys):
@@ -118,25 +118,25 @@ def test_an_extraction_with_no_text_writes_nothing(web, library, capsys):
 
 
 def test_an_unverifiable_certificate_is_captured_and_said(tls_web, library, capsys):
-    url = tls_web.add("/led", ARTICLE)
-    assert fetch.main([url, "watch/led"]) == 0
+    url = tls_web.add("/bread", ARTICLE)
+    assert fetch.main([url, "watch/bread"]) == 0
     assert "certificate" in capsys.readouterr().out
-    meta = json.loads((library / "watch" / "led" / "study" / "meta.json")
+    meta = json.loads((library / "watch" / "bread" / "study" / "meta.json")
                       .read_text(encoding="utf-8"))
     assert meta["tls_verified"] is False
 
 
 def test_a_host_filtering_user_agents_is_captured(web, library):
-    url = web.add("/led", ARTICLE, browsers_only=True)
-    assert fetch.main([url, "watch/led"]) == 0
+    url = web.add("/bread", ARTICLE, browsers_only=True)
+    assert fetch.main([url, "watch/bread"]) == 0
 
 
 def test_an_image_answering_html_is_reported_as_such(web, library):
     wall = web.add("/figure.jpg", SIGNUP_WALL, content_type="image/jpeg")
     page = ARTICLE.replace("<h2>", f"<p><img src='{wall}' alt='Figure'></p><h2>")
-    url = web.add("/led", page)
-    assert fetch.main([url, "watch/led"]) == 0
-    meta = json.loads((library / "watch" / "led" / "study" / "meta.json")
+    url = web.add("/bread", page)
+    assert fetch.main([url, "watch/bread"]) == 0
+    meta = json.loads((library / "watch" / "bread" / "study" / "meta.json")
                       .read_text(encoding="utf-8"))
     assert any("text/html" in f for f in meta["image_failures"]), meta["image_failures"]
 
@@ -146,31 +146,31 @@ def test_the_capture_ignores_the_working_directory(web, library, tmp_path):
     lands elsewhere, silently. Everything is resolved from LIBRARY."""
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
-    url = web.add("/led", ARTICLE)
+    url = web.add("/bread", ARTICLE)
     cwd = os.getcwd()
     os.chdir(elsewhere)
     try:
-        assert fetch.main([url, "watch/led"]) == 0
+        assert fetch.main([url, "watch/bread"]) == 0
     finally:
         os.chdir(cwd)
-    assert (library / "watch" / "led" / "document" / "index.md").is_file()
+    assert (library / "watch" / "bread" / "document" / "index.md").is_file()
     assert list(elsewhere.iterdir()) == []
 
 
 def test_the_page_language_is_recorded_for_the_translation(web, library):
     """The language is stated once: `translate` reads it here instead of asking."""
-    url = web.add("/led", ARTICLE.replace('<html lang="en">', "<html>"))
-    assert fetch.main([url, "watch/led", "--lang", "fr"]) == 0
-    meta = json.loads((library / "watch" / "led" / "study" / "meta.json").read_text(encoding="utf-8"))
+    url = web.add("/bread", ARTICLE.replace('<html lang="en">', "<html>"))
+    assert fetch.main([url, "watch/bread", "--lang", "fr"]) == 0
+    meta = json.loads((library / "watch" / "bread" / "study" / "meta.json").read_text(encoding="utf-8"))
     assert meta["source_language"] == "en"
 
 
 def test_a_capture_is_put_on_the_map(web, library, capsys):
     """The entry's manifest and its topic's are written, and what is left to
     name is printed for the catalogue skill."""
-    assert fetch.main([web.add("/led", ARTICLE), "watch/led"]) == 0
+    assert fetch.main([web.add("/bread", ARTICLE), "watch/bread"]) == 0
     assert (library / "watch" / "manifest.yaml").is_file()
-    assert (library / "watch" / "led" / "manifest.yaml").is_file()
+    assert (library / "watch" / "bread" / "manifest.yaml").is_file()
     out = capsys.readouterr().out
-    assert "map: watch/led synced — to name: watch/led, watch" in out
+    assert "map: watch/bread synced — to name: watch/bread, watch" in out
     assert "to describe: sources/page.html.gz" in out

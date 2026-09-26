@@ -128,7 +128,7 @@ def test_a_heading_followed_by_an_image_alone_is_not_stranded(tmp_path):
 
 
 def test_a_large_formula_at_the_foot_of_a_page_is_not_a_heading(tmp_path):
-    # led p.8: a displayed formula, set larger than the text but in its family.
+    # Seen on a document, p.8: a displayed formula, set larger than the text but in its family.
     pdf = make_pdf(tmp_path, cover_and_body(
         f"<p>Intro.</p><div style='height: 216mm'></div>"
         f"<p style='font-size: 14pt; margin: 0'>P = (V − V) × I = R × I</p>"
@@ -158,7 +158,7 @@ def test_an_icon_name_written_as_code_is_not_reported(tmp_path):
 
 # --- What the first sheet-based reviews found, read from the text layer -------
 def test_a_heading_followed_by_a_single_line_at_the_foot_of_a_full_page_is_reported(tmp_path):
-    # esp32 p.5: the heading and one sentence, the section's content on the next page.
+    # Seen on a document, p.5: the heading and one sentence, the section's content on the next page.
     pdf = make_pdf(tmp_path, cover_and_body(
         f"<p>Intro.</p><div style='height: 216mm'></div><h2>Stranded</h2>"
         f"<p style='margin: 0'>Une seule phrase.</p>{PROSE}"),
@@ -168,7 +168,7 @@ def test_a_heading_followed_by_a_single_line_at_the_foot_of_a_full_page_is_repor
 
 
 def test_a_page_holding_a_few_lines_among_full_pages_is_reported(tmp_path):
-    # esp32 p.10: the end of a list, then the next chapter opens on a new page.
+    # Seen on a document, p.10: the end of a list, then the next chapter opens on a new page.
     photo = tmp_path / "photo.png"
     Image.new("RGB", (400, 300), "steelblue").save(photo)
     pdf = make_pdf(tmp_path, cover_and_body(
@@ -190,7 +190,7 @@ def test_a_table_of_contents_page_is_not_near_blank(tmp_path):
 
 
 def test_a_glyph_set_in_a_font_outside_the_art_direction_is_reported(tmp_path):
-    # esp32: "→" and "≥" missing from the brand fonts, set in the fallback.
+    # Seen on a document: "→" and "≥" missing from the brand fonts, set in the fallback.
     pdf = make_pdf(tmp_path, cover_and_body(
         f"<p>Par heure <span style='font-family: Cantarell'>→</span> cinq mois.</p>{PROSE}"),
         css="body { font-family: 'Noto Serif'; }")
@@ -207,15 +207,15 @@ def test_fonts_are_not_checked_without_the_art_direction(tmp_path):
 
 
 def test_a_url_cut_by_hyphenation_is_reported(tmp_path):
-    # esp32 p.31: "peterneu-/feld.wordpress.com" — the printed address is wrong.
+    # Seen on a document, p.31: "jeanmarc-/dupont.example.org" — the printed address is wrong.
     pdf = make_pdf(tmp_path, cover_and_body(
-        "<p style='width: 45mm; text-align: left'>Voir https://peterneu&shy;feld.wordpress.com/esp32</p>"
+        "<p style='width: 45mm; text-align: left'>Voir https://jeanmarc&shy;dupont.example.org/notes</p>"
         + PROSE))
     assert kinds(review.checks(pdf)) == [(2, "url-hyphen")]
 
 
 def test_two_letters_carried_by_hyphenation_are_reported(tmp_path):
-    # esp32 p.20: "réquisition-/né".
+    # Seen on a document, p.20: "réquisition-/né".
     pdf = make_pdf(tmp_path, cover_and_body(
         "<p style='width: 18mm; text-align: left'>réquisition&shy;né</p>" + PROSE))
     assert kinds(review.checks(pdf)) == [(2, "short-hyphen")]
@@ -231,29 +231,29 @@ def test_two_letters_left_before_a_hyphenation_are_not_reported(tmp_path):
 
 def test_a_word_joined_by_a_slash_is_not_an_address(tmp_path):
     pdf = make_pdf(tmp_path, cover_and_body(
-        "<p style='width: 40mm; text-align: left'>carte principale/inter&shy;face</p>" + PROSE))
+        "<p style='width: 40mm; text-align: left'>page principale/inter&shy;face</p>" + PROSE))
     assert "url-hyphen" not in {f.kind for f in review.checks(pdf)}
 
 def test_a_hyphenated_table_cell_continues_in_its_own_column(tmp_path):
-    # instruments-diy p.12: "Réfé-" in one cell, "Ce" opening the next column's line.
+    # Seen on a document, p.12: "Réfé-" in one cell, "Ce" opening the next column's line.
     pdf = make_pdf(tmp_path, cover_and_body(
         f"{PROSE}<table style='width: 70mm'><tr>"
         "<td style='width: 13mm; line-height: 4; vertical-align: top'>Réfé&shy;rence</td>"
-        "<td style='padding-top: 10mm; vertical-align: top'>Ce que tu soudes</td>"
+        "<td style='padding-top: 10mm; vertical-align: top'>Ce que tu ranges</td>"
         f"</tr></table>{PROSE}"))
     assert "short-hyphen" not in {f.kind for f in review.checks(pdf)}
 
 def test_a_justified_line_stretched_far_wider_than_the_page_is_reported(tmp_path):
-    # esp32 p.31: the line before a long unbreakable address spreads across the width.
+    # Seen on a document, p.31: the line before a long unbreakable address spreads across the width.
     pdf = make_pdf(tmp_path, cover_and_body(
-        PROSE + "<p>Analyse de sigmdel en anglais avec <span style='white-space: nowrap'>"
-        "https://sigmdel.ca/michel/ha/esp8266/super_mini_esp32c3_en.html</span> et la suite du texte "
+        PROSE + "<p>Analyse de Dupont en anglais avec <span style='white-space: nowrap'>"
+        "https://docs.example.org/guides/lavage/quick_start_k450_en.html</span> et la suite du texte "
         "qui continue sur la ligne suivante pour que la ligne étirée ne soit pas la dernière.</p>" + PROSE))
     assert kinds(review.checks(pdf)) == [(2, "loose-line")]
 
 
 def test_the_columns_of_a_table_are_not_a_loose_line(tmp_path):
-    rows = "".join(f"<tr><td>Rouge {i}</td><td>620–645</td><td>AlInGaP, GaAsP</td><td>2,0 V</td>"
+    rows = "".join(f"<tr><td>Modèle {i}</td><td>620–645</td><td>Blanc, inox</td><td>2,0 kW</td>"
                    f"<td>1,8–2,2 V</td></tr>" for i in range(8))
     pdf = make_pdf(tmp_path, cover_and_body(
         f"{PROSE}<table style='width: 100%; font-size: 8.4pt'>{rows}</table>{PROSE}"))
@@ -263,23 +263,23 @@ def test_the_columns_of_a_table_are_not_a_loose_line(tmp_path):
 def test_the_labels_of_a_code_block_are_not_a_loose_line(tmp_path):
     pdf = make_pdf(tmp_path, cover_and_body(
         f"{PROSE}<pre style='font-family: monospace'>"
-        "│ J4 │                                   ← pont de bypass\n"
-        "│ J5 │                                   ← pont de bypass\n"
-        "│ J6 │                                   ← pont de bypass</pre>{PROSE}"))
+        "│ A1 │                                   ← voir la note 1\n"
+        "│ A2 │                                   ← voir la note 2\n"
+        "│ A3 │                                   ← voir la note 3</pre>{PROSE}"))
     assert review.checks(pdf) == []
 
 def test_inline_code_between_words_does_not_make_a_line_loose(tmp_path):
-    # sources p.7: "chercher les termes très précis `A`, `B`, `C`, et" — the
+    # Seen on a document, p.7: "chercher les termes très précis `A`, `B`, `C`, et" — the
     # code is left out of the spacing, not the space it takes.
-    codes = ", ".join(f"<code>{c}</code>" for c in ("KLM-3315", "J4", "C24", "DT2", "CPH6302", "power button"))
+    codes = ", ".join(f"<code>{c}</code>" for c in ("XR-3315", "K4", "B24", "P2", "XR6302", "reset button"))
     pdf = make_pdf(tmp_path, cover_and_body(
         f"{PROSE}<p>Termes précis {codes} et quelques autres "
-        f"encore, dans les fils du forum comme dans les fiches des composants.</p>{PROSE}"),
+        f"encore, dans les fils du forum comme dans les notices des appareils.</p>{PROSE}"),
         css="code { font-family: monospace; font-size: 0.86em; padding: 0 0.2em; }")
     assert "loose-line" not in {f.kind for f in review.checks(pdf)}
 
 def test_a_straight_apostrophe_in_the_text_is_reported(tmp_path):
-    # esp32 p.1: the subtitle "ce qu'on achète", untouched by the Markdown's typography.
+    # Seen on a document, p.1: the subtitle "ce qu'on achète", untouched by the Markdown's typography.
     pdf = make_pdf(tmp_path, cover_and_body(f"<p>Ce qu'on achète.</p>{PROSE}"))
     assert kinds(review.checks(pdf)) == [(2, "apostrophe")]
 
@@ -291,7 +291,7 @@ def test_a_straight_apostrophe_in_code_is_not_reported(tmp_path):
 
 
 def test_text_set_below_a_readable_size_is_reported(tmp_path):
-    # esp32 p.22: diagram values at 4 pt.
+    # Seen on a document, p.22: diagram values at 4 pt.
     pdf = make_pdf(tmp_path, cover_and_body(f"{PROSE}<p style='font-size: 4pt'>30+j10 Ω</p>{PROSE}"))
     assert kinds(review.checks(pdf)) == [(2, "tiny-text")]
 
@@ -460,13 +460,13 @@ def test_a_pass_given_no_pages_reads_every_sheet(guide_pdf, fixture_library,
 # --------------------------------------------------------------------------
 COLLISION = """
 <svg viewBox="0 0 200 100" width="160mm" xmlns="http://www.w3.org/2000/svg">
-  <text x="20" y="50" font-size="9">CD4017</text>
+  <text x="20" y="50" font-size="9">XR2000</text>
   <text x="22" y="52" font-size="9">VCC</text>
 </svg>
 """
 APART = """
 <svg viewBox="0 0 200 100" width="160mm" xmlns="http://www.w3.org/2000/svg">
-  <text x="20" y="30" font-size="9">CD4017</text>
+  <text x="20" y="30" font-size="9">XR2000</text>
   <text x="120" y="80" font-size="9">VCC</text>
 </svg>
 """
@@ -476,7 +476,7 @@ def test_two_labels_on_top_of_each_other_are_reported(tmp_path):
     pdf = make_pdf(tmp_path, cover_and_body(COLLISION))
     found = [f for f in review.checks(pdf) if f.kind == "overlapping-text"]
     assert len(found) == 1, [str(f) for f in review.checks(pdf)]
-    assert "CD4017" in str(found[0]) and "VCC" in str(found[0])
+    assert "XR2000" in str(found[0]) and "VCC" in str(found[0])
 
 
 def test_two_labels_apart_are_not_reported(tmp_path):

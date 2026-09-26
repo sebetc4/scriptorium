@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The Wayback Machine through its CDX index: what is archived, and fetching it.
 
-    wayback.py list "korgforums.com/forum/phpBB3/viewtopic.php?t=105619*"
+    wayback.py list "forum.example.org/viewtopic.php?t=12345*"
     wayback.py check URL [URL …]
     wayback.py get URL [URL …] --dir raw/threads [--both]
 

@@ -3,9 +3,9 @@
 
     contact_sheet.py <folder|file.pdf> -o sheet.png [--pages 3-12] [--columns 4]
 
-The best benefit-to-effort ratio of the whole toolkit: fifteen repair photos,
-fifteen teardown photos, nine schematic pages — each time one sheet, one look,
-two images kept. Every thumbnail carries its filename, or its page number.
+The best benefit-to-effort ratio of the whole toolkit: fifteen photos from one
+thread, fifteen from another, nine pages of drawings — each time one sheet,
+one look, two images kept. Every thumbnail carries its filename, or its page number.
 
 Past PER_SHEET thumbnails the sheet is split, `sheet-01.png`, `sheet-02.png`:
 a taller sheet is scaled down to be looked at, and the labels stop being

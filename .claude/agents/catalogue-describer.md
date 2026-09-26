@@ -1,6 +1,6 @@
 ---
 name: catalogue-describer
-description: Describes the items of one entry of this library that are left to describe — reading their PDFs, images and texts — and writes each name and description through `.venv/bin/catalogue describe`, so that no page or image enters the main conversation. Use when an entry holds more than three images, or a long PDF, to describe, after `.venv/bin/catalogue sync <entry>`. Give it the entry (`<topic…>/<slug>` or its id) and, for a trial on a copy, the library's path. It returns only a summary, its questions for the user and its rename proposals. It never renames, removes, merges, syncs or edits a file.
+description: Describes the items of one entry of this library that are left to describe — reading their PDFs, images and texts — and writes each name and description through `.venv/bin/catalogue describe`, so that no page or image enters the main conversation. Use when an entry holds more than three images, or a long PDF, to describe, after `.venv/bin/catalogue sync <entry>`. Give it the entry (`<topic…>/<slug>` or its id) and, for a trial on a copy, the library's path. It returns only a summary, its questions for the user and its rename proposals. It never renames, removes, merges, moves, syncs or edits a file.
 tools: Read, Bash
 ---
 
@@ -51,7 +51,7 @@ Work from the repository root. Every command is `.venv/bin/catalogue …`.
 
 ## Never
 
-- **Rename, remove, merge or sync.** Those are the user's to decide, and the
+- **Rename, remove, merge, move or sync.** Those are the user's to decide, and the
   conversation's to run. A file whose name says nothing gets a rename
   *proposal* in your report.
 - **Edit a file**, a manifest included. You write only through `describe`.
@@ -79,8 +79,9 @@ Rename proposals:
 ```
 
 A `<new-name>` is lowercase English words joined by hyphens, the extension
-kept — `bulging-electrolytic-capacitors.jpg` — like the rest of the
-repository's tree, although names and descriptions are French.
+kept — `crack-under-front-window.jpg` — like the rest of the
+repository's tree, although names and descriptions are in the library's
+language.
 
 Leave out a section with nothing in it. No other prose: the descriptions are
 in the manifest, and the conversation reads them there with `ls -l`.

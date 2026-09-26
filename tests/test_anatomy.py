@@ -69,3 +69,16 @@ def test_the_guard_still_finds_an_investigation_after_the_journal_moved(repo,
         (root / journal).parent.mkdir(parents=True, exist_ok=True)
         (root / journal).write_text("journal", encoding="utf-8")
         assert probe(repo, repo, root / "raw" / "page.html") == 2, journal
+
+
+def test_the_guard_refuses_an_edit_of_the_pieces_an_investigation_keeps_in_study(repo,
+                                                                                tmp_path):
+    # What an investigation found is the agent's, not the user's: it lives in
+    # `study/`, beside its journal (library-catalogue, phase 4) — and stays as
+    # it was received.
+    study = tmp_path / "library" / "t" / "enquete" / doc.STUDY
+    study.mkdir(parents=True)
+    (study / "NOTES.md").write_text("journal", encoding="utf-8")
+    for piece in ("raw/page.html", "documents/notice.pdf", "images/photo.jpg"):
+        assert probe(repo, repo, study / piece) == 2, piece
+    assert probe(repo, repo, study / "NOTES.md") == 0

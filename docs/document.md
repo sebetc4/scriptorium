@@ -62,7 +62,7 @@ document/
 checks for you: a file on the wrong side of it breaks a build, which is visible
 on the next run, while every other misplacement is silent.
 
-The cut is about what a file is *for*, not who made it. A schematic drawn by
+The cut is about what a file is *for*, not who made it. A figure drawn by
 hand over an afternoon sits in `assets/` beside a photograph a script pulled out
 of a PDF, because `index.md` references both and the build embeds both.
 
@@ -77,10 +77,10 @@ of a PDF, because `index.md` references both and the build embeds both.
 task, and no tool changes what is in it.
 
 A tool may *add* to it on your behalf — `make import` copies the PDF you pointed
-at, `make fetch` saves the page as it arrived, a `sourcing` session saves the
-photographs and threads it collected. That is acquisition, and the result is
-material you could have put there yourself. What a tool *computes* from it is a
-different act and goes to `study/`.
+at, `make fetch` saves the page as it arrived. That is acquisition, and the
+result is material you could have put there yourself. What a tool *computes*
+from it is a different act and goes to `study/`. So does what an investigation
+*finds* on its own — pages, threads, documents: you did not give it.
 
 You can empty it, refill it, rename things in it. The one consequence is that
 `make rederive` needs what it was given: with the source gone, `study/` holds
@@ -95,11 +95,13 @@ study/
   extracted.md  the raw extraction of an import or a capture, never edited
   meta.json     provenance: where it came from, when, its digest
   NOTES.md      an investigation's journal
+  raw/, threads/, documents/, images/
+                the pieces the investigation found, kept as received
   discussion/   a discussion's journal: index.md, topics/, sessions/
   translate/    a translation in progress, or one already applied
 ```
 
-Never read by the build, never removed by `make clean`. Two things in it are
+Never read by the build, never removed by `make clean`. Five things in it are
 worth knowing:
 
 **`extracted.md` is a reference, not a draft.** A translation checks against it
@@ -113,6 +115,12 @@ placeholder caption. That is why the file is kept rather than recomputed.
 status, whether a certificate verified: facts about a moment, which nothing
 recomputes.
 
+**An investigation's pieces are its findings, not your sources.** What a
+`sourcing` session collected — pages as received, their transcriptions,
+documents, images — sits beside its `NOTES.md`, which cites each piece by
+id. It is kept as received: the guard refuses an edit in `raw/`,
+`documents/` and `images/` there.
+
 **`discussion/` is the only memory of a conversation.** The `discussion`
 skill writes it while you talk a document through, and a later session resumes
 from it rather than from the conversation, which is gone. It may exist before
@@ -122,6 +130,9 @@ open questions, the outline, and a map of the topics — the only file a resume
 reads; `topics/`, one file per subject, as it stands now; `sessions/`, what
 each session covered and what it replaced, never rewritten. Nothing is lost
 when a point is superseded: it moves to its session, with a link both ways.
+What the discussion read — your notes, a photo, a document elsewhere in the
+library — is cited by id where it served, and `links` on the entry lists what
+it relies on outside it.
 
 **`translate/` is durable, and that is deliberate.** An engine's answers are the
 translation; re-running gives *a* translation, not the one that was under way.
@@ -161,7 +172,7 @@ says what it is, so that finding something never means opening everything.
 `core/catalogue.py` keeps them.
 
 **Two kinds of directory, read from what they hold.** A **topic** holds only
-directories: `electronics`, `electronics/lab`. An **entry** holds one of the
+directories: `home`, `home/appliances`. An **entry** holds one of the
 five roles, or a file: a document, a directory of sources waiting to be
 studied, or a directory holding a single PDF. A directory with no visible file
 anywhere under it is neither, and has no manifest.
@@ -169,17 +180,17 @@ anywhere under it is neither, and has no manifest.
 ```yaml
 # Written by the catalogue, core/catalogue.py: change it through
 # `sync` and `describe`, never by hand.
-id: tc22-a8f2c3d9
-name: Station de soudage TC22
-description: "La station de soudage de l'atelier : son manuel et les photos de ses pannes."
+id: lave-linge-a8f2c3d9
+name: Lave-linge K-450
+description: "Le lave-linge de la maison : sa notice et les photos de sa panne."
 items:
-- path: sources/manuel.pdf
-  id: manuel-k7m3p2x9
-  name: Manuel de la TC22
-  description: "Le manuel du fabricant : réglages, entretien, codes d'erreur."
+- path: sources/notice.pdf
+  id: notice-k7m3p2x9
+  name: Notice du lave-linge K-450
+  description: "La notice du fabricant : installation, programmes, messages d'erreur."
   kind: pdf
   sha256: 9f2c…
-- path: sources/pannes
+- path: sources/panne
   kind: directory
   files: 12
   sha256: 41ab…
@@ -200,19 +211,21 @@ items:
   and `generators/`. A source never changes, so a new digest means something:
   a rename to follow, or a description to review. The agent's files change
   every session, and a digest would say nothing there.
-- **Names and descriptions are in French**, the language of the library, so
-  that a search finds everything with the same words; the keys are English.
+- **Names and descriptions are in the library's language**, so that a search
+  finds everything with the same words; the keys are English. The library
+  says which in `.catalogue.yaml` at its root — `language: fr` — and the tool
+  names the standard files in it; English when it says nothing.
 
 ### Ids, and how the agent cites
 
 An id is the prefix the agent gives when it names a node, a hyphen, and 8
 characters the tool draws from an alphabet without `0`, `o`, `1`, `l` or `i`:
-`manuel-k7m3p2x9`. It is unique in the library, it never changes and is never
+`notice-k7m3p2x9`. It is unique in the library, it never changes and is never
 reused, so a session written today still points at the same thing after any
 rename. A node not named yet has no id, and cannot be cited.
 
 The agent cites by a Markdown link whose target is an id, in its own files —
-`[Manuel de la TC22](id:manuel-k7m3p2x9)`: the text for the reader, the id for
+`[Notice du lave-linge K-450](id:notice-k7m3p2x9)`: the text for the reader, the id for
 the tool. Everything a manifest describes is cited that way, an entry's own
 sources included. **No id goes into `document/`**: those references serve the
 agent, not the reader.
@@ -220,7 +233,7 @@ agent, not the reader.
 ### `sync` and `describe`
 
 ```bash
-.venv/bin/python -m core.catalogue sync [topic/slug …]
+.venv/bin/python -m core.catalogue sync [<path or id> …]
 .venv/bin/python -m core.catalogue describe <path or id> --name "…" --description "…" [--prefix p]
 ```
 
@@ -251,8 +264,8 @@ whatever the size of the library. The agent calls them as
 
 | Command | `make` | Answers |
 |---|---|---|
-| `find <words> [--in <topic or entry>] [--text]` | `make find Q="…" [IN=…] [TEXT=1]` | every node and item whose name or description holds every word, case and accents folded — `etain` finds « étain ». One line each: kind, id, name, where. With `--text`, the lines of the text items (Markdown, extractions, journals, notes) that hold them, each under its item's name. |
-| `ls [<path or id>] [-l \| -ll]` | `make ls [AT=…] [L=1\|2]` | a topic's topics and entries, with their counts; an entry's items; an item, with a directory's files. `-l` adds the descriptions, `-ll` the kind, size and date. Markers say what is `to describe`, `new` (on the disk, no item covers it), `to review` (a described source changed) or `gone`. |
+| `find <words> [--in <topic or entry>] [--text]` | `make find Q="…" [IN=…] [TEXT=1]` | every node and item whose name or description holds every word, case and accents folded — `ete` finds « été ». One line each: kind, id, name, where. With `--text`, the lines of the text items (Markdown, extractions, journals, notes) that hold them, each under its item's name. |
+| `ls [<path or id>] [-l \| -ll]` | `make ls [AT=…] [L=1\|2]` | a topic's topics and entries, with their counts; an entry's items; an item, with a directory's files — each with its date, and the id of the item it has of its own, if any: a file that arrived in a described directory has none. `-l` adds the descriptions, `-ll` the kind, size and date. Markers say what is `to describe`, `new` (on the disk, no item covers it), `to review` (a described source changed) or `gone`. |
 | `links <path or id>` | `make links AT=…` | what an entry or an item cites and what cites it, from the `id:` citations alone, grouped by entry, each with the file and line that cites. |
 | `path <id>` | `make path ID=…` | where an id is, from the repository's root — or, for a retired id, that it was removed, or the item it was merged into. |
 | `peek <path or id> [--pages 2-5]` | — | a first look at a file, cheap enough to take before any image: a PDF's page count and the text layer of its first pages, an image's size and the date and camera it records, a text's first lines, a directory's files. |
@@ -263,9 +276,9 @@ removes it. Nothing is read in advance: each command reads the manifests when
 it runs, so the size of an answer depends on the question, never on the
 library.
 
-### Cleaning up and renaming: `unused`, `remove`, `merge`, `rename`
+### Cleaning up, renaming, moving: `unused`, `remove`, `merge`, `rename`, `move`
 
-Four commands change what the library holds, and the agent runs them only on
+Five commands change what the library holds, and the agent runs them only on
 your word, by the `catalogue` skill's rules: it proposes, you confirm, the
 command does exactly that. They have no `make` target.
 
@@ -275,6 +288,7 @@ command does exactly that. They have no `make` target.
 | `remove <item>… [--used]` | deletes the files of the items named and their lines in the manifest, together | anything not named exactly as an item; an item of `document/`; a directory holding an item not named as well; without `--used`, an item still cited or derived from. One refusal, and nothing is deleted. |
 | `merge <item>…` | folds items back into the named item above them — the inverse of describing a file inside a directory — and leaves the files where they are | an item with no named item above it; a file already gone |
 | `rename <item> <new-name>` | renames one of your files and its item together, in its own directory, keeping its extension; the manifest keeps the original name under `original:` | a directory; the agent's own files; a file a tool derives from, which `make rederive` finds by name |
+| `move <item> <new-path>` | moves one item's file or directory to another path of its entry, across roles too — an investigation's pieces out of `sources/` into `study/` — keeping its id, name and description; the items inside a directory go with it, and a directory left empty is removed | anything not named exactly as an item; a destination that exists, is hidden or leaves the entry; a file a tool derives from |
 
 **An id is never erased.** A removed item's id, and a merged one's, stays in
 the entry's manifest under `retired:`, with the item's name, its path, the
@@ -399,9 +413,9 @@ Anywhere in the library it refuses **`manifest.yaml`**: the catalogue keeps
 its paths, kinds and digests true to the disk, and `sync` and `describe` are
 how it changes.
 
-It also refuses the pieces of an investigation — `raw/`, `datasheets/`,
-`images/` in a document whose `study/NOTES.md` exists — which are kept as they
-were received.
+It also refuses the pieces of an investigation — `raw/`, `documents/`,
+`images/` beside its `NOTES.md`, in `study/` — which are kept as they were
+received.
 
 Outside a document it refuses `brand/tokens.css` and `brand/icons/`, which are
 generated, and the `diagram-design` plugin, which is replaced on update.

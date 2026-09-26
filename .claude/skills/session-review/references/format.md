@@ -108,23 +108,24 @@ explains; the list is what gets counted.
 ## A Complete Review
 
 Written out in full, because a format that cannot be written by hand from its
-own reference is not a format. The figures are the real ones of session
-`4c7bb3d0`, read by `metrics.py`; only `task`, `corrections` and the findings
-are written by hand.
+own reference is not a format. The figures are those a real session gave
+`metrics.py`; the task and the document are fictional, like every example of
+this repository. Only `task`, `corrections` and the findings are written by
+hand.
 
 ```markdown
 ---
 review: 1
 date: 2026-09-17
-session: 4c7bb3d0-7eec-4a1b-9587-e966e5703b8b
+session: 4c7bb3d0-0000-4000-8000-000000000000
 slice:
   from: 2026-09-17T14:17:56Z
   to: 2026-09-17T14:42:54Z
 task: >-
-  Add the new sources and turn the standard guide into a teaching guide —
-  the schematic, how it works, what each component does.
+  Add the new sources and turn the notice into a step-by-step guide — how the
+  machine is installed, what each programme does, what each error means.
 skill: pdf
-document: electronique/apprentissage/round-led-d4017
+document: home/appliances/washer
 outcome: delivered
 corrections: 3
 measured:
@@ -186,7 +187,7 @@ for everything the main context did — a third of the task, spent on looking.
 The second pass bought two real defects for the price of the first.
 
 The eleven images are the second item. Three of them are successive previews
-of the same schematic, each carried for the rest of the conversation …
+of the same diagram, each carried for the rest of the conversation …
 ```
 
 ---

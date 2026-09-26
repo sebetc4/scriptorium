@@ -4,9 +4,11 @@
 
 ## Covered
 
-- <What the session worked on, linking each topic it touched. For a pasted
-  passage: the file, the agent if it can be told, what it covers, and what it
-  refers to but does not contain.>
+- <What the session worked on, linking each topic it touched, and the
+  material it read, by id. Each search of the library: its words, and what it
+  found or that it found nothing. For a pasted passage: the passage by id, the
+  agent if it can be told, what it covers, and what it refers to but does not
+  contain.>
 
 ## Decided
 

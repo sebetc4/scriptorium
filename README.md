@@ -100,8 +100,8 @@ between the title block and the metadata.
 ## Reading on an e-reader
 
 ```bash
-make epub DOC=electronique/components/led
-# -> out/epub/electronique/components/led/led.epub
+make epub DOC=home/washer
+# -> out/epub/home/washer/washer.epub
 ```
 
 The PDF is a fixed artefact; the EPUB reflows, and the reader chooses the text
@@ -124,7 +124,7 @@ show the same image. `make epub` checks every archive it writes.
 ## Reviewing an EPUB
 
 ```bash
-make preview DOC=electronique/components/led   # what does not reflow
+make preview DOC=home/washer   # what does not reflow
 make preview-style                             # the whole style guide
 ```
 

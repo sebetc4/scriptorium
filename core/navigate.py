@@ -303,15 +303,20 @@ def _ls_entry(atlas: Atlas, node: Node, level: int) -> list[str]:
 
 
 def _ls_item(atlas: Atlas, node: Node, item: cat.Item, level: int) -> list[str]:
-    """One item: its line, its description, its entry, and a directory's files."""
+    """One item: its line, its description, its entry, and a directory's files,
+    each with its date and, when an item of its own covers it, that item's id.
+    A file without one is covered by the directory alone: a directory marked
+    `to review` is told apart from the file that arrived in it that way."""
     line = f"{item.path}  {label(item.name)}  {item.id or '-'}{_item_marker(node, item)}"
     lines = [line, f"in {atlas.where(node)}  {label(node.name)}  {node.id or '-'}"]
     if item.description:
         lines.insert(1, item.description)
     full = node.dir / item.path
     if full.is_dir():
-        inside = cat.files_under(full)
-        lines += [f"  {f}" for f in inside]
+        for f in cat.files_under(full):
+            own = cat.covering(node.items, f"{item.path}/{f}")
+            mark = f"  → {own.id or own.path}" if own is not item else ""
+            lines.append(f"  {f}  {_date(full / f)}{mark}")
     return lines
 
 

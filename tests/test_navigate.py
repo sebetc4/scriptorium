@@ -33,25 +33,25 @@ def lib(tmp_path, monkeypatch):
 
 @pytest.fixture
 def workshop(lib):
-    """A station with a described manual, a journal that cites it, and a
-    solder spool described in French with its accents."""
-    station = lib / "lab" / "tc-22"
-    put(station, "sources/manuel.pdf", "%PDF")
-    put(station, "sources/pannes/p1.jpg", "jpeg")
-    spool = lib / "lab" / "bobine"
-    put(spool, "sources/fiche.md", "# Fiche\n\nAlliage Sn60Pb40, soudure à l'étain.\n")
-    notebook = lib / "carnet"
-    put(notebook, "study/NOTES.md", "# Notes\n")
+    """A washer with a described manual, a journal that cites it, and a
+    coffee pack described in French with its accents."""
+    washer = lib / "home" / "washer"
+    put(washer, "sources/manuel.pdf", "%PDF")
+    put(washer, "sources/pannes/p1.jpg", "jpeg")
+    coffee = lib / "home" / "cafe"
+    put(coffee, "sources/fiche.md", "# Fiche\n\nArabica, torréfaction légère, café en grains.\n")
+    works = lib / "travaux"
+    put(works, "study/NOTES.md", "# Notes\n")
     cat.sync(lib)
-    cat.describe(lib, "lab", "Laboratoire", "L'équipement de l'atelier.", "labo")
-    cat.describe(lib, "lab/tc-22", "Station TC22", "Ma station de soudage.", "tc22")
-    cat.describe(lib, "lab/tc-22/sources/manuel.pdf", "Manuel de la TC22",
+    cat.describe(lib, "home", "Maison", "Ce qui concerne la maison.", "maison")
+    cat.describe(lib, "home/washer", "Lave-linge", "Mon lave-linge, à hublot.", "lave-linge")
+    cat.describe(lib, "home/washer/sources/manuel.pdf", "Manuel du lave-linge",
                  "Réglages, entretien, codes d'erreur.", "manuel")
-    cat.describe(lib, "lab/bobine", "Bobine de soudure", "« Étain » 0,8 mm, avec flux.", "bobine")
-    cat.describe(lib, "carnet", "Carnet", "Le carnet d'apprentissage.", "carnet")
-    manual = ident_of(lib, "lab/tc-22/sources/manuel.pdf")
-    put(notebook, "study/discussion/index.md",
-        f"# Carnet\n\nLa panne se règle comme le dit [le manuel](id:{manual}).\n")
+    cat.describe(lib, "home/cafe", "Paquet de café", "« Café » en grains, torréfaction légère.", "cafe")
+    cat.describe(lib, "travaux", "Travaux", "Le chantier de la maison.", "travaux")
+    manual = ident_of(lib, "home/washer/sources/manuel.pdf")
+    put(works, "study/discussion/index.md",
+        f"# Travaux\n\nLa panne se diagnostique comme le dit [le manuel](id:{manual}).\n")
     cat.sync(lib)
     return lib
 
@@ -65,7 +65,7 @@ def ident_of(lib, target):
 # --- folding and bounding -------------------------------------------------------
 
 def test_folding_drops_case_accents_and_curly_apostrophes():
-    assert nav.fold("« Étain » de l’atelier") == "« etain » de l'atelier"
+    assert nav.fold("« Été » à l’ombre") == "« ete » a l'ombre"
 
 
 def test_an_answer_is_bounded_and_says_how_many_more():
@@ -79,29 +79,29 @@ def test_an_answer_is_bounded_and_says_how_many_more():
 
 # --- find ---------------------------------------------------------------------
 
-def test_find_etain_finds_a_description_that_writes_etain_with_its_accent(workshop):
-    out = nav.find(workshop, "etain")
+def test_find_cafe_finds_a_description_that_writes_cafe_with_its_accent(workshop):
+    out = nav.find(workshop, "cafe")
     assert len(out) == 1
     kind, ident, *rest = out[0].split("  ")
-    assert (kind, rest) == ("entry", ["Bobine de soudure", "lab/bobine"])
-    assert ident.startswith("bobine-")
+    assert (kind, rest) == ("entry", ["Paquet de café", "home/cafe"])
+    assert ident.startswith("cafe-")
 
 
 def test_find_needs_every_word(workshop):
     assert len(nav.find(workshop, "manuel reglages")) == 1
-    assert nav.find(workshop, "manuel bobine") == ["nothing matches “manuel bobine”"]
+    assert nav.find(workshop, "manuel cafe") == ["nothing matches “manuel cafe”"]
 
 
 def test_find_reports_an_item_with_its_kind_and_path(workshop):
     (line,) = nav.find(workshop, "codes d'erreur")
     assert line.startswith("pdf  manuel-")
-    assert line.endswith("  Manuel de la TC22  lab/tc-22/sources/manuel.pdf")
+    assert line.endswith("  Manuel du lave-linge  home/washer/sources/manuel.pdf")
 
 
 def test_find_in_a_topic_or_an_entry_only(workshop):
-    assert len(nav.find(workshop, "carnet")) == 1
-    assert nav.find(workshop, "carnet", within="lab")[0].startswith("nothing matches")
-    assert len(nav.find(workshop, "soudage", within=ident_of(workshop, "lab"))) == 1
+    assert len(nav.find(workshop, "travaux")) == 1
+    assert nav.find(workshop, "travaux", within="home")[0].startswith("nothing matches")
+    assert len(nav.find(workshop, "hublot", within=ident_of(workshop, "home"))) == 1
 
 
 def test_find_never_lists_what_is_not_named(workshop):
@@ -110,21 +110,21 @@ def test_find_never_lists_what_is_not_named(workshop):
 
 
 def test_find_text_searches_the_content_of_text_items(workshop):
-    out = nav.find(workshop, "sn60pb40", text=True)
+    out = nav.find(workshop, "arabica", text=True)
     assert len(out) == 1
     assert "sources/fiche.md" in out[0] and out[0].endswith(
-        "3: Alliage Sn60Pb40, soudure à l'étain.")
+        "3: Arabica, torréfaction légère, café en grains.")
 
 
 def test_find_text_searches_the_text_files_of_a_directory_item(workshop):
-    (line,) = nav.find(workshop, "panne se regle", text=True)
-    assert line.startswith("discussion-") and "Journal de discussion" in line
-    assert "index.md:3: La panne se règle" in line
+    (line,) = nav.find(workshop, "panne se diagnostique", text=True)
+    assert line.startswith("discussion-") and "Discussion journal" in line
+    assert "index.md:3: La panne se diagnostique" in line
 
 
 def test_find_text_reads_no_file_the_manifest_does_not_know(workshop):
-    put(workshop / "carnet", "study/new.md", "Sn60Pb40 again")   # not synced
-    assert len(nav.find(workshop, "sn60pb40", text=True)) == 1
+    put(workshop / "travaux", "study/new.md", "Arabica again")   # not synced
+    assert len(nav.find(workshop, "arabica", text=True)) == 1
 
 
 def test_find_on_the_fixture_library(fixture_library):
@@ -160,25 +160,43 @@ def test_ls_ll_adds_the_kind_size_and_date(fixture_library):
 def test_ls_of_an_item_shows_it_and_what_a_directory_holds(fixture_library):
     out = nav.ls(fixture_library, "sample/component/study/discussion")
     assert out[0].startswith("study/discussion  Journal de discussion  discussion-")
-    assert "  topics/brochage.md" in out
+    assert any(line.startswith("  topics/brochage.md  20") for line in out)
+
+
+def test_ls_of_a_directory_item_marks_the_files_that_have_an_item_of_their_own(workshop):
+    """A file that arrived in a described directory has no item of its own:
+    after a sync, the directory is `to review`, and its listing says which."""
+    washer = workshop / "home" / "washer"
+    cat.describe(workshop, "home/washer/sources/pannes", "Pannes", "Les pannes du lave-linge.",
+                 "pannes")
+    cat.describe(workshop, "home/washer/sources/pannes/p1.jpg", "Panne K", "La panne couteau.",
+                 "panne-k")
+    put(washer, "sources/pannes/p2.jpg", "jpeg 2")
+    cat.sync(workshop, ["home/washer"])
+    out = nav.ls(workshop, "home/washer/sources/pannes")
+    assert out[0].endswith("[to review]")
+    p1 = next(line for line in out if line.startswith("  p1.jpg  "))
+    p2 = next(line for line in out if line.startswith("  p2.jpg  "))
+    assert p1.endswith(f"  → {ident_of(workshop, 'home/washer/sources/pannes/p1.jpg')}")
+    assert "→" not in p2
 
 
 def test_ls_marks_what_is_to_describe_new_to_review_and_gone(workshop):
-    station = workshop / "lab" / "tc-22"
-    put(station, "sources/new.pdf", "new")                      # not synced: new
-    put(station, "sources/manuel.pdf", "%PDF revised")          # described: to review
-    out = nav.ls(workshop, "lab/tc-22")
+    washer = workshop / "home" / "washer"
+    put(washer, "sources/new.pdf", "new")                      # not synced: new
+    put(washer, "sources/manuel.pdf", "%PDF revised")          # described: to review
+    out = nav.ls(workshop, "home/washer")
     assert any(line.startswith("sources/manuel.pdf") and line.endswith("[to review]")
                for line in out)
     assert any(line.startswith("sources/pannes") and "[to describe]" in line for line in out)
     assert "sources/new.pdf  (new, no item covers it)" in out
-    (station / "sources/manuel.pdf").unlink()
-    assert any(line.endswith("[gone]") for line in nav.ls(workshop, "lab/tc-22"))
+    (washer / "sources/manuel.pdf").unlink()
+    assert any(line.endswith("[gone]") for line in nav.ls(workshop, "home/washer"))
 
 
 def test_ls_of_a_topic_adds_up_the_markers_below(workshop):
-    put(workshop / "lab" / "tc-22", "sources/new.pdf", "new")
-    line = next(l for l in nav.ls(workshop, "lab") if l.startswith("tc-22/"))
+    put(workshop / "home" / "washer", "sources/new.pdf", "new")
+    line = next(l for l in nav.ls(workshop, "home") if l.startswith("washer/"))
     assert line.endswith("entry, 2 items  [1 to describe, 1 new]")
 
 
@@ -203,16 +221,16 @@ def test_links_of_an_entry_lists_what_it_cites_and_what_cites_it(fixture_library
 
 
 def test_links_of_an_item_counts_the_citations_of_that_item(workshop):
-    manual = ident_of(workshop, "lab/tc-22/sources/manuel.pdf")
+    manual = ident_of(workshop, "home/washer/sources/manuel.pdf")
     out = nav.links(workshop, manual)
-    assert out[1:] == ["cited by:", f" carnet  Carnet  {ident_of(workshop, 'carnet')}",
-                       "  Manuel de la TC22 ← study/discussion/index.md:3"]
-    assert nav.links(workshop, "lab/tc-22")[1:] == out[1:]    # the entry holds it
+    assert out[1:] == ["cited by:", f" travaux  Travaux  {ident_of(workshop, 'travaux')}",
+                       "  Manuel du lave-linge ← study/discussion/index.md:3"]
+    assert nav.links(workshop, "home/washer")[1:] == out[1:]    # the entry holds it
 
 
 def test_links_reports_a_citation_that_leads_nowhere(workshop):
-    put(workshop / "carnet", "study/discussion/topics/t.md", "[x](id:gone-abcdefgh)\n")
-    out = nav.links(workshop, "carnet")
+    put(workshop / "travaux", "study/discussion/topics/t.md", "[x](id:gone-abcdefgh)\n")
+    out = nav.links(workshop, "travaux")
     assert "  gone-abcdefgh (no such id) ← study/discussion/topics/t.md:1" in out
 
 
@@ -320,32 +338,32 @@ def a_pdf(path, pages):
 
 
 def test_peek_reads_the_text_layer_of_a_pdfs_first_pages(lib):
-    a_pdf(lib / "lab" / "fer" / "sources" / "manuel.pdf",
-          ["Station TC22\nManuel", None, "Codes d'erreur"])
-    out = nav.peek(lib, "lab/fer/sources/manuel.pdf")
+    a_pdf(lib / "home" / "four" / "sources" / "manuel.pdf",
+          ["Four FX-60\nManuel", None, "Codes d'erreur"])
+    out = nav.peek(lib, "home/four/sources/manuel.pdf")
     assert out[0].startswith("pdf, 3 pages, ")
-    assert out[1:] == ["— p.1 —", "Station TC22", "Manuel",
+    assert out[1:] == ["— p.1 —", "Four FX-60", "Manuel",
                        "— p.2: no text layer — read it as an image —"]
-    assert nav.peek(lib, "lab/fer/sources/manuel.pdf", pages="3")[1:] == [
+    assert nav.peek(lib, "home/four/sources/manuel.pdf", pages="3")[1:] == [
         "— p.3 —", "Codes d'erreur"]
 
 
 def test_peek_gives_an_images_size_without_showing_it(lib):
     from PIL import Image
-    p = lib / "lab" / "fer" / "sources" / "photo.png"
+    p = lib / "home" / "four" / "sources" / "photo.png"
     p.parent.mkdir(parents=True)
     Image.new("RGB", (40, 30)).save(p)
-    out = nav.peek(lib, "lab/fer/sources/photo.png")
+    out = nav.peek(lib, "home/four/sources/photo.png")
     assert out[0].startswith("image, 40×30 px, ")
     assert out[1] == "read it to see what it shows"
 
 
 def test_peek_reads_a_text_and_lists_a_directory_by_path_or_id(workshop):
-    assert nav.peek(workshop, "lab/bobine/sources/fiche.md")[1:] == [
-        "# Fiche", "", "Alliage Sn60Pb40, soudure à l'étain."]
-    out = nav.peek(workshop, "lab/tc-22/sources/pannes")
+    assert nav.peek(workshop, "home/cafe/sources/fiche.md")[1:] == [
+        "# Fiche", "", "Arabica, torréfaction légère, café en grains."]
+    out = nav.peek(workshop, "home/washer/sources/pannes")
     assert out[0].startswith("directory, 1 file, ") and out[1].startswith("  p1.jpg  image  ")
-    manual = ident_of(workshop, "lab/tc-22/sources/manuel.pdf")     # "%PDF": no real PDF
+    manual = ident_of(workshop, "home/washer/sources/manuel.pdf")     # "%PDF": no real PDF
     (line,) = nav.peek(workshop, manual)
     assert line.startswith("pdf, 4 B, not readable: ")
 
@@ -359,20 +377,20 @@ def test_peek_is_bounded(lib):
 # --- retired ids ------------------------------------------------------------------------
 
 def test_a_removed_id_still_answers_path_and_links(workshop):
-    manual = ident_of(workshop, "lab/tc-22/sources/manuel.pdf")
+    manual = ident_of(workshop, "home/washer/sources/manuel.pdf")
     cat.remove(workshop, [manual], used=True)
     assert nav.path(workshop, manual).startswith("removed on ")
-    assert nav.path(workshop, manual).endswith("lab/tc-22/sources/manuel.pdf")
-    out = nav.links(workshop, "carnet")
-    assert any(f"Manuel de la TC22  {manual} (removed " in line for line in out)
-    assert nav.links(workshop, "lab/tc-22")[-1].startswith("  Manuel de la TC22 ← ")
+    assert nav.path(workshop, manual).endswith("home/washer/sources/manuel.pdf")
+    out = nav.links(workshop, "travaux")
+    assert any(f"Manuel du lave-linge  {manual} (removed " in line for line in out)
+    assert nav.links(workshop, "home/washer")[-1].startswith("  Manuel du lave-linge ← ")
 
 
 def test_a_merged_id_leads_to_the_item_it_was_merged_into(workshop):
-    cat.describe(workshop, "lab/tc-22/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
-    photo = cat.describe(workshop, "lab/tc-22/sources/pannes/p1.jpg", "Panne", "Une panne.",
+    cat.describe(workshop, "home/washer/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
+    photo = cat.describe(workshop, "home/washer/sources/pannes/p1.jpg", "Panne", "Une panne.",
                          "panne").split()[0]
     cat.merge(workshop, [photo])
-    assert nav.path(workshop, photo).endswith("lab/tc-22/sources/pannes")
+    assert nav.path(workshop, photo).endswith("home/washer/sources/pannes")
     with pytest.raises(cat.ManifestError, match="retired"):
         nav.ls(workshop, photo)

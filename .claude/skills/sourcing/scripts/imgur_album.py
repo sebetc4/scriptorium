@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """An Imgur album in full through the API, and a page's Imgur images as originals.
 
-    imgur_album.py zEsqp                         # list
-    imgur_album.py https://imgur.com/a/zEsqp --download raw/mcv
-    imgur_album.py --scan raw/t94641-full.html   # a page's images, with context
+    imgur_album.py Xy7Kq2                        # list
+    imgur_album.py https://imgur.com/a/Xy7Kq2 --download raw/album
+    imgur_album.py --scan raw/t12345-full.html   # a page's images, with context
 
 An album page is assembled in JavaScript: its static HTML is 7 kB and cites one
 image. The public API returns the whole list — 7 kB of HTML became fifteen
-full-resolution images, without which the repair gallery was lost.
+full-resolution images, without which the gallery was lost.
 
 The `client_id` is the public Imgur web client's. It can stop working at any
 moment; when Imgur refuses it, the tool says so rather than crashing.
@@ -19,8 +19,8 @@ moment; when Imgur refuses it, the tool says so rather than crashing.
 id that happens to end in `h` is left alone.
 
 `--scan` lists the Imgur images a saved page cites, as originals, each with the
-text just before it — the caption, almost written. That is how every teardown
-photo was matched to the chip it shows without opening twelve images.
+text just before it — the caption, almost written. That is how every photo of
+a thread was matched to what it shows without opening twelve images.
 """
 from __future__ import annotations
 

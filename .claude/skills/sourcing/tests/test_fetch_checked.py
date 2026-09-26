@@ -6,12 +6,12 @@ WALL = b"<!DOCTYPE html><html><body><h1>Create an account to download</h1></body
 
 
 def test_the_chain_stops_at_the_first_real_pdf(web, tmp_path, capsys):
-    """The Sanyo datasheet took four attempts: 403, HTML in 200, then a mirror."""
-    urls = [web.add("/aggregator/cph6302.pdf", WALL, status=403),
-            web.add("/mouser/CPH6302.pdf", WALL, content_type="application/pdf"),
-            web.add("/obscure-mirror/CPH6302.pdf", PDF, content_type="application/pdf"),
+    """A maker's document took four attempts: 403, HTML in 200, then a mirror."""
+    urls = [web.add("/aggregator/xr6302.pdf", WALL, status=403),
+            web.add("/shop/XR6302.pdf", WALL, content_type="application/pdf"),
+            web.add("/obscure-mirror/XR6302.pdf", PDF, content_type="application/pdf"),
             web.add("/never-asked.pdf", PDF, content_type="application/pdf")]
-    out = tmp_path / "cph6302.pdf"
+    out = tmp_path / "xr6302.pdf"
     assert fetch_checked.main([*urls, "-o", str(out)]) == 0
     assert out.read_bytes() == PDF
     printed = capsys.readouterr().out
@@ -59,5 +59,5 @@ def test_probe_prints_one_line_per_url_and_writes_nothing(web, tmp_path, capsys)
 def test_the_output_is_printed_as_an_absolute_path(web, tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     url = web.add("/m.pdf", PDF)
-    assert fetch_checked.main([url, "-o", "datasheets/m.pdf"]) == 0
-    assert str(tmp_path / "datasheets" / "m.pdf") in capsys.readouterr().out
+    assert fetch_checked.main([url, "-o", "documents/m.pdf"]) == 0
+    assert str(tmp_path / "documents" / "m.pdf") in capsys.readouterr().out

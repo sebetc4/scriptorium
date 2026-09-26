@@ -51,6 +51,7 @@ and prints at most 20 lines (`--limit N` for more). A target is a path under
 | `remove <item>… [--used]` | deletes the files of the items named and their lines, retiring their ids | files, a manifest |
 | `merge <item>…` | folds items back into the named item above them, files untouched | a manifest |
 | `rename <item> <new-name>` | renames one source file and its item, keeping the original name | a file, a manifest |
+| `move <item> <new-path>` | moves one item's file or directory within its entry, across roles too, keeping its id, name and description | files, a manifest |
 
 ## What this skill refuses
 
@@ -64,8 +65,9 @@ and prints at most 20 lines (`--limit N` for more). A target is a path under
 - **Describing a file from its name.** A name like `Sans titre.jpg` says
   nothing, and one like `manuel.pdf` may lie. A description is written after
   looking inside.
-- **Removing or renaming without the user's word.** The commands act on what
-  their command line names; this skill names only what the user confirmed.
+- **Removing, renaming or moving without the user's word.** The commands act
+  on what their command line names; this skill names only what the user
+  confirmed.
 
 ## Naming and describing
 
@@ -76,7 +78,7 @@ and the id's prefix, and where to look inside each kind of file. The
 main conversation and one given by the agent follow the same rules.
 
 **Describe with the library's words.** Before naming an object, `find` it: if
-the library already calls it *TC22*, it is *TC22* here too, not *TC-22*. A
+the library already writes *K-450*, it is *K-450* here too, not *K450*. A
 search depends on the words being the same everywhere.
 
 **The order**: the items first, then the entry, then the topic. An entry is
@@ -162,15 +164,27 @@ because it helps the user when they search outside the manifest.
 
 - **Generic**: `Sans titre.jpg`, `IMG_1234.jpg`, `licensed-image_002_aEns.jpg`,
   `WhatsApp Image 2026-09-21 at 15.57.37.jpeg`, `20260924_123413.jpg`,
-  `document(3).pdf`. A short name the user chose — `tc22.pdf` — is theirs.
+  `document(3).pdf`. A short name the user chose — `k450.pdf` — is theirs.
 - **Proposed as a list**, old name → new name, each drawn from the file's
   description. The new name is lowercase English words joined by hyphens, like
   the rest of the repository's tree, the extension kept:
-  `bulging-electrolytic-capacitors.jpg`. Only the file name is English: the
-  manifest's name and description stay in French.
+  `crack-under-front-window.jpg`. Only the file name is English: the
+  manifest's name and description stay in the library's language.
 - **Renamed one `rename` at a time**, only those the user accepts. The
   original name stays in the manifest. `rename` refuses a file a tool derives
   from: `make rederive` finds it by name.
+
+## Moving, on the user's word
+
+`sync` follows a source the user moved by its digest. `move` is for what it
+cannot follow: an item that changes role. It serves the anatomy — an
+investigation's pieces taken out of `sources/` into `study/`, notes the user
+gave taken out of `document/` into `sources/` — never the agent's taste in
+names. The id, the name and the description go with the file, and so do the
+items inside a moved directory; a directory left empty is removed. Proposed,
+then done on the user's word, like a rename. Then re-read the descriptions
+of the directories the move took a file out of or put one into: `ls` marks
+them `to review`.
 
 ## After the disk changed
 

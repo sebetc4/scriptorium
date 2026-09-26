@@ -84,7 +84,7 @@ def crop(img: Image.Image, region: Region, width: int | None = None) -> Image.Im
     pixels: a detail is aimed at without knowing the image's dimensions, and the
     same fractions aim at the same place on a thumbnail and on the original.
 
-    The enlargement is LANCZOS. On silkscreen text half a millimetre high, the
+    The enlargement is LANCZOS. On printed text half a millimetre high, the
     difference from the default resampling decides between readable and not.
     """
     x0, y0, x1, y1 = region

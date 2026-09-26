@@ -78,7 +78,22 @@ def test_the_substance_lives_in_the_topics_and_not_in_the_index():
     index = _headings("index.md")
     for section in ("Key points", "Claims", "Replaced"):
         assert section not in index, section
-    assert "Topics" in index and "Material" in index
+    assert "Topics" in index
+
+
+def test_no_section_lists_the_material_the_map_describes():
+    """The manifest describes the files and the topics cite them: a list kept by
+    hand beside them is a second place for the same fact."""
+    for template in LAYERS.values():
+        assert "Material" not in _headings(template), template
+    assert "**Material**" not in _layer("`index.md`")
+
+
+def test_material_is_cited_by_id_and_the_index_cites_its_entry(skill_text):
+    assert "Material is cited by id, never by path" in skill_text
+    assert "](id:" in skill_text
+    header = (ASSETS / "index.md").read_text(encoding="utf-8").split("## ", 1)[0]
+    assert re.search(r"^\*\*Document:\*\* \[.+\]\(id:.+\)$", header, re.M), header
 
 
 def test_the_journal_keeps_the_substance_and_the_rejected_options():
@@ -132,6 +147,57 @@ def test_the_resume_migrates_a_single_file_journal_only_once_the_user_agrees():
     resuming = " ".join(_section(SKILL.read_text(encoding="utf-8"), "Resuming").split())
     assert "`study/discussion.md`" in resuming
     assert "once the user agrees" in resuming
+
+
+def test_the_resume_reads_the_map_of_its_entry_and_never_lists_the_file_system():
+    """What is new comes from `sync` and `ls`, what the journal relies on
+    elsewhere from `links`: a few lines each, instead of any source."""
+    resuming = " ".join(_section(SKILL.read_text(encoding="utf-8"), "Resuming").split())
+    for step in ("Find it through the map", "catalogue sync <entry>`, then",
+                 "catalogue ls <entry>`", "catalogue links <entry>`",
+                 "ask about it rather than opening it unasked"):
+        assert step in resuming, step
+    assert "find library -path" not in SKILL.read_text(encoding="utf-8")
+
+
+def test_the_resume_migrates_a_journal_that_cites_by_path():
+    resuming = " ".join(_section(SKILL.read_text(encoding="utf-8"), "Resuming").split())
+    assert "A journal that cites by path" in resuming
+    assert "`original:`" in resuming
+
+
+def test_the_library_is_searched_when_the_answer_depends_on_it_and_not_by_default():
+    """The gain of the map is lost if searching becomes a reflex that fills the
+    context: the rule names when to search, how little to read, and what stops
+    the same search from running again."""
+    library = " ".join(_section(SKILL.read_text(encoding="utf-8"), "The library").split())
+    for rule in ("Answer from what the agent knows.** That is the default",
+                 "a search that was not needed is a cost",
+                 "Search only when the agent's knowledge cannot give the answer",
+                 "The question is about the user's own case, not the subject in general",
+                 "A claim the document will state as established needs its source",
+                 "looked for once, when the claim is written down",
+                 "A guard against searching again", "The journal first",
+                 "One search per subject", "A search is written down",
+                 "Nothing here depends on what a library holds",
+                 "Search the map, never the file system",
+                 "Read only what the search points at, and only the part needed",
+                 "At the opening, the entry's map"):
+        assert rule in library, rule
+    for command in ("find", "links", "ls", "peek", "sync"):
+        assert f"`{command} " in library or f"catalogue {command} " in library, command
+
+
+def test_the_journal_names_the_user_without_a_gendered_pronoun(skill_text):
+    assert "never by a gendered pronoun" in skill_text
+    assert "without a subject" in skill_text              # how, in French
+
+
+def test_a_photograph_is_read_by_cropping_it():
+    brings = " ".join(_section(SKILL.read_text(encoding="utf-8"), "What the user brings").split())
+    assert "read for detail by cropping it" in brings
+    tool = re.search(r"\.claude/skills/(\S+/scripts/crop\.py)", brings).group(1)
+    assert (SKILL_DIR.parent / tool).is_file(), tool
 
 
 def test_the_description_carries_a_phrase_no_other_skill_does(repo):

@@ -48,7 +48,7 @@ def render_page(source: Path | bytes, index: int, *, width_px: int | None = None
                 scale: float | None = None) -> Image.Image:
     """One page alone, zero-based.
 
-    For reading a detail: a schematic at `scale=6` is some 7000 px wide, and
+    For reading a detail: a drawing at `scale=6` is some 7000 px wide, and
     rendering every page of a manual at that scale to keep one would be waste.
     """
     if (width_px is None) == (scale is None):
@@ -65,8 +65,8 @@ def render_page(source: Path | bytes, index: int, *, width_px: int | None = None
 def text(source: Path | bytes) -> list[str]:
     """Each page's text layer, in page order.
 
-    An empty string is a page with **no text layer** — a scan, or a schematic
-    drawn as vectors. It is not a page with nothing on it: a tool that only
+    An empty string is a page with **no text layer** — a scan, or a drawing
+    made of vectors. It is not a page with nothing on it: a tool that only
     extracts text would conclude "nothing in this PDF" exactly where the
     essential is. Render it instead.
     """

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """HTML → readable text, trying a Discourse forum's JSON first.
 
-    html2text.py raw/t105619-print.html
+    html2text.py raw/t12345-print.html
     html2text.py https://forum.example.com/t/some-thread/1499
-    html2text.py raw/t105619-print.html.gz -o threads/t105619.md \\
+    html2text.py raw/t12345-print.html.gz -o threads/t12345.md \\
         --url <original URL> --archive <archive URL> --conditions "…"
 
 The most used tool of the investigation, about ten times, and the shortest.

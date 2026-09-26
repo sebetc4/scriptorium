@@ -14,7 +14,7 @@ itself. A manifest is written by this module only: the PreToolUse guard
 refuses an edit by hand.
 
 What an agent cites, it cites by id, in a Markdown link of its own files:
-`[Manuel de la TC22](id:manuel-a8f2c3d9)`. An id never changes and is never
+`[Notice du lave-linge](id:notice-a8f2c3d9)`. An id never changes and is never
 reused, so a session written today still points at the same thing tomorrow.
 
 In the core rather than in a skill: `make` and several skills read the map
@@ -69,40 +69,77 @@ KINDS = {
 }
 
 # The anatomy's standard files, named by the tool rather than the agent: their
-# role says what they are. Keyed by path inside the entry → prefix, name,
-# description. In French, the language of the library.
+# role says what they are. Keyed by the library's language, then by path inside
+# the entry → prefix, name, description. A library says its language in
+# `.catalogue.yaml` at its root (`language()`); English when it says nothing.
+SETTINGS = ".catalogue.yaml"
 STANDARD = {
-    "document/index.md": (
-        "document", "Texte du document",
-        "Le texte Markdown du document et sa front matter : ce que la construction lit."),
-    "document/cover.md": (
-        "couverture", "Couverture du document",
-        "Le Markdown propre à la couverture du document."),
-    "document/theme.css": (
-        "theme", "Style propre au document",
-        "Les écarts de ce document à la direction artistique commune."),
-    "document/assets": (
-        "illustrations", "Illustrations du document",
-        "Les images et les schémas que le texte du document insère."),
-    "study/extracted.md": (
-        "extraction", "Texte extrait des sources",
-        "L'extraction brute d'un import ou d'une capture, jamais retouchée : la "
-        "référence contre laquelle le document est vérifié."),
-    "study/meta.json": (
-        "provenance", "Provenance de l'extraction",
-        "D'où vient la source, quand et comment elle a été acquise, et son empreinte."),
-    "study/NOTES.md": (
-        "enquete", "Journal d'enquête",
-        "Le journal d'une investigation : questions, pistes, pièces consultées, conclusions."),
-    "study/discussion": (
-        "discussion", "Journal de discussion",
-        "Le journal de la discussion avec l'utilisateur : index, sujets et séances."),
-    "study/translate": (
-        "traduction", "Espace de traduction",
-        "Une traduction en cours ou déjà appliquée : segments, réponses du moteur, relecture."),
-    "glossary.yaml": (
-        "glossaire", "Glossaire de traduction",
-        "Les termes et la traduction retenue pour chacun, que la traduction respecte."),
+    "en": {
+        "document/index.md": (
+            "document", "Document text",
+            "The document's Markdown text and its front matter: what the build reads."),
+        "document/cover.md": (
+            "cover", "Document cover",
+            "The Markdown of the document's cover."),
+        "document/theme.css": (
+            "theme", "The document's own style",
+            "This document's departures from the shared art direction."),
+        "document/assets": (
+            "illustrations", "Document illustrations",
+            "The images and the diagrams the document's text inserts."),
+        "study/extracted.md": (
+            "extraction", "Text extracted from the sources",
+            "The raw extraction of an import or a capture, never edited: the "
+            "reference the document is checked against."),
+        "study/meta.json": (
+            "provenance", "Provenance of the extraction",
+            "Where the source came from, when and how it was acquired, and its digest."),
+        "study/NOTES.md": (
+            "investigation", "Investigation journal",
+            "The journal of an investigation: questions, leads, pieces consulted, conclusions."),
+        "study/discussion": (
+            "discussion", "Discussion journal",
+            "The journal of the discussion with the user: index, topics and sessions."),
+        "study/translate": (
+            "translation", "Translation workspace",
+            "A translation in progress or already applied: segments, engine answers, review."),
+        "glossary.yaml": (
+            "glossary", "Translation glossary",
+            "The terms and the translation chosen for each, which the translation respects."),
+    },
+    "fr": {
+        "document/index.md": (
+            "document", "Texte du document",
+            "Le texte Markdown du document et sa front matter : ce que la construction lit."),
+        "document/cover.md": (
+            "couverture", "Couverture du document",
+            "Le Markdown propre à la couverture du document."),
+        "document/theme.css": (
+            "theme", "Style propre au document",
+            "Les écarts de ce document à la direction artistique commune."),
+        "document/assets": (
+            "illustrations", "Illustrations du document",
+            "Les images et les schémas que le texte du document insère."),
+        "study/extracted.md": (
+            "extraction", "Texte extrait des sources",
+            "L'extraction brute d'un import ou d'une capture, jamais retouchée : la "
+            "référence contre laquelle le document est vérifié."),
+        "study/meta.json": (
+            "provenance", "Provenance de l'extraction",
+            "D'où vient la source, quand et comment elle a été acquise, et son empreinte."),
+        "study/NOTES.md": (
+            "enquete", "Journal d'enquête",
+            "Le journal d'une investigation : questions, pistes, pièces consultées, conclusions."),
+        "study/discussion": (
+            "discussion", "Journal de discussion",
+            "Le journal de la discussion avec l'utilisateur : index, sujets et séances."),
+        "study/translate": (
+            "traduction", "Espace de traduction",
+            "Une traduction en cours ou déjà appliquée : segments, réponses du moteur, relecture."),
+        "glossary.yaml": (
+            "glossaire", "Glossaire de traduction",
+            "Les termes et la traduction retenue pour chacun, que la traduction respecte."),
+    },
 }
 
 # libyaml's loader when PyYAML was built with it: every command of the map
@@ -371,7 +408,7 @@ def read(d: Path) -> Manifest:
 
 
 class _Dumper(yaml.SafeDumper):
-    """Double quotes where YAML needs quotes: French text is full of apostrophes,
+    """Double quotes where YAML needs quotes: prose is full of apostrophes,
     which single quotes would double."""
 
 
@@ -452,11 +489,27 @@ def citations(library: Path) -> list[tuple[Path, int, str]]:
 
 # --- sync ---------------------------------------------------------------------
 
-def _standard(item: Item, taken: set[str]) -> None:
+def language(library: Path) -> str:
+    """The language a library's names and descriptions are written in, as its
+    `.catalogue.yaml` says (`language: fr`): the standard files are named in
+    it. English when the library says nothing, or names a language the tool
+    has no standard names for — the agent renames those through `describe`."""
+    p = library / SETTINGS
+    if not p.is_file():
+        return "en"
+    try:
+        data = yaml.load(p.read_text(encoding="utf-8"), Loader=LOADER)
+    except yaml.YAMLError as exc:
+        raise ManifestError(f"{SETTINGS} unreadable: {exc}") from None
+    lang = data.get("language") if isinstance(data, dict) else None
+    return lang if lang in STANDARD else "en"
+
+
+def _standard(item: Item, taken: set[str], names: dict) -> None:
     """Name an unnamed item that is one of the anatomy's standard files."""
-    if item.name or item.path not in STANDARD:
+    if item.name or item.path not in names:
         return
-    prefix, item.name, item.description = STANDARD[item.path]
+    prefix, item.name, item.description = names[item.path]
     if not item.id:
         item.id = new_id(prefix, taken)
         taken.add(item.id)
@@ -476,8 +529,12 @@ def _scope(library: Path, targets: list[str] | None) -> list[tuple[Path, str]]:
         return nodes(library)
     seen: dict[Path, str] = {}
     for t in targets:
-        # A path inside an entry is an item, not a node: sync the entry.
-        d = node_of(library, _inside(library, t))
+        # An id, as every other command takes one: the node that holds it. A
+        # path inside an entry is an item, not a node: sync the entry.
+        if t.strip().startswith("id:") or (ID.fullmatch(t.strip()) and not under(library, t).exists()):
+            d = resolve(library, t)[0]
+        else:
+            d = node_of(library, _inside(library, t))
         for up in reversed(d.relative_to(library).parents[:-1]):
             seen.setdefault(library / up, "topic")
         for n, k in nodes(library, d):
@@ -493,6 +550,7 @@ def sync(library: Path, targets: list[str] | None = None) -> list[str]:
     touches a name or a description the agent wrote."""
     report: list[str] = []
     taken = set(ids(library))
+    names = STANDARD[language(library)]
     cache: dict[Path, str] = {}
     scope = _scope(library, targets)
     manifests: dict[Path, Manifest] = {}
@@ -578,7 +636,7 @@ def sync(library: Path, targets: list[str] | None = None) -> list[str]:
                 m.items.append(_new_item(d, path, cache))
                 report.append(f"{w} — new item: {path}")
         for item in m.items:
-            _standard(item, taken)
+            _standard(item, taken, names)
 
     written = sum(write(d, m) for d, m in manifests.items())
     to_name = sum(not m.described for m in manifests.values())
@@ -719,7 +777,7 @@ def describe(library: Path, target: str, name: str | None = None,
     return f"{node.id} — {shown}"
 
 
-# --- cleaning up: unused, remove, merge, rename ---------------------------------
+# --- cleaning up: unused, remove, merge, rename, move ---------------------------
 # Each acts on the user's word only, and only on what its command line names:
 # the `catalogue` skill proposes, the user confirms, the command does that.
 
@@ -953,6 +1011,62 @@ def rename(library: Path, target: str, new_name: str) -> list[str]:
     return [f"{w} → {new}{kept}"]
 
 
+def move(library: Path, target: str, dest: str) -> list[str]:
+    """Move one item — a file or a directory — to another path of its entry,
+    its id, name and description going with it. `sync` follows a moved source
+    by its digest; this follows any item, across roles too: an investigation's
+    pieces taken out of `sources/` into `study/`, notes the user gave put back
+    into `sources/`. The items inside a moved directory go with it, and the
+    directories it leaves empty are removed. A source keeps the digest it was
+    described against; an agent's file carries none."""
+    d, _, path = resolve(library, target)
+    w = where(library, d)
+    m = read(d)
+    item = next((i for i in m.items or [] if path and i.path == path), None)
+    if item is None:
+        raise ManifestError(f"{target}: not an item — move acts on items only, each "
+                            "named by its path or its id")
+    full = d / path
+    if not full.exists():
+        raise ManifestError(f"{w}/{path} is gone from the disk: sync follows a moved "
+                            "source, remove retires the rest")
+    new = dest.strip().strip("/")
+    parts = Path(new).parts
+    if (not new or Path(new).is_absolute() or ".." in parts
+            or any(p.startswith(".") for p in parts) or parts[-1] == MANIFEST):
+        raise ManifestError(f"{dest!r}: a path inside the entry, neither hidden nor "
+                            "with `..`")
+    if new == path or new.startswith(path + "/"):
+        raise ManifestError(f"{w}/{new} is inside the item it would move")
+    to = d / new
+    if to.exists():
+        raise ManifestError(f"{w}/{new} already exists")
+    taken = [p for p in derived(d) if p == path or p.startswith(path + "/")]
+    if taken:
+        raise ManifestError(f"{w}/{taken[0]}: a tool derives from it and finds it by "
+                            "name — moving it would break `make rederive`")
+    moving = [i for i in m.items if i.path == path or i.path.startswith(path + "/")]
+    to.parent.mkdir(parents=True, exist_ok=True)
+    full.rename(to)
+    lines = []
+    for i in sorted(moving, key=lambda i: i.path):
+        old, i.path = i.path, new + i.path[len(path):]
+        i.kind = kind_of(d / i.path)
+        i.files = len(files_under(d, i.path)) if (d / i.path).is_dir() else None
+        if not is_source(i.path):
+            i.sha256 = None
+        elif not is_source(old) or not i.sha256:
+            i.sha256 = digest(d, i.path)
+        lines.append(f"{w}/{old} → {i.path}" + (f" — {i.id} kept" if i.id else ""))
+    write(d, m)
+    left = full.parent
+    while left != d and not any(left.iterdir()):
+        left.rmdir()
+        lines.append(f"{w}/{left.relative_to(d).as_posix()} — left empty, removed")
+        left = left.parent
+    return lines
+
+
 def parser() -> argparse.ArgumentParser:
     """The entry point's command line: every command of the map, read or kept."""
     ap = argparse.ArgumentParser(prog="catalogue",
@@ -1001,6 +1115,10 @@ def parser() -> argparse.ArgumentParser:
     rn = sub.add_parser("rename", help="rename a source file and its item together")
     rn.add_argument("target", help="the file, by its path or its item's id")
     rn.add_argument("new_name", metavar="new-name", help="a file name, with the same extension")
+    mv = sub.add_parser("move", help="move an item's file or directory within its entry, "
+                                     "keeping its id")
+    mv.add_argument("target", help="the item, by its path or its id")
+    mv.add_argument("dest", metavar="new-path", help="its new path, inside the entry: study/raw")
     return ap
 
 
@@ -1038,6 +1156,8 @@ def main(argv: list[str] | None = None) -> int:
             lines = remove(library, args.targets, args.used)
         elif args.command == "merge":
             lines = merge(library, args.targets)
+        elif args.command == "move":
+            lines = move(library, args.target, args.dest)
         else:
             lines = rename(library, args.target, args.new_name)
     except ManifestError as exc:

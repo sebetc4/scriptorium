@@ -1,13 +1,13 @@
 ---
 review: 1
 date: 2026-09-17
-session: 4c7bb3d0-7eec-4a1b-9587-e966e5703b8b
+session: 4c7bb3d0-0000-4000-8000-000000000000
 slice:
   from: 2026-09-17T09:12:41Z
   to: 2026-09-17T12:29:03Z
 task: Turn the standard guide into a teaching guide.
 skill: pdf
-document: electronique/apprentissage/round-led-d4017
+document: home/appliances/washer
 outcome: delivered
 corrections: 3
 measured:

@@ -1,6 +1,6 @@
 # Discussion — composant d'essai
 
-**Document:** `sample/component/`
+**Document:** [Composant d'essai](id:composant-yqbta74m)
 **Started:** 2026-01-05
 
 Journal fictif, écrit pour la suite de tests : `make check-library` en suit
@@ -38,10 +38,6 @@ tension de repos montrer sur la courbe ?
 1. **Principe**
 2. **Brochage**
 3. **Courbe**
-
-## Material
-
-- `sources/notes.md` — les notes de l'utilisateur ; ont nourri le brochage.
 
 ## Sessions
 

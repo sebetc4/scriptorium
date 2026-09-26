@@ -24,12 +24,12 @@ Condensed: the point reached, not the attempts before it.>
 ### An agent's account
 
 <Each claim the document may state, with whose account it is: this agent, or
-the pasted file it came from.>
+the pasted passage it came from, cited by id — [<its name>](id:<its id>).>
 
 ### Established
 
-<Each claim with what establishes it: a sourcing journal, a datasheet, a
-measurement the user made.>
+<Each claim with what establishes it, cited by id: a sourcing journal, a
+primary source, a measurement the user made.>
 
 ## Replaced
 

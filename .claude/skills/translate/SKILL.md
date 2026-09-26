@@ -162,11 +162,11 @@ does not belong inside `document/`; the anatomy has no settled place for it yet
 
 ```yaml
 terms:                      # source term → the translation to use
-  running light: chenillard
-  forward voltage: tension directe
+  spin cycle: essorage
+  rinse aid: produit de rinçage
 keep:                       # never translated, matched case-sensitively
-  - CD4017
-  - Electribe
+  - K-450
+  - AquaPro
 ```
 
 It is document substance, versioned with the document. Each request receives

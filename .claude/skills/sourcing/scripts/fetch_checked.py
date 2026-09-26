@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Download a file only if it is the file: probe, check the bytes, try mirrors.
 
-    fetch_checked.py URL [URL …] -o datasheets/cph6302.pdf
+    fetch_checked.py URL [URL …] -o documents/notice.pdf
     fetch_checked.py URL [URL …] -o file.bin --expect application/pdf
     fetch_checked.py --probe URL [URL …]
 
 Several `.pdf` URLs answered HTTP 200 with HTML — a signup wall, an error page,
 a redirect page. A script that trusts the status and the extension archives
-error pages believing it archives datasheets. So every response is probed and
+error pages believing it archives documents. So every response is probed and
 its type read from the bytes (core/net.py), and the URLs are tried in order
-until one serves the expected type: the Sanyo datasheet took four attempts,
+until one serves the expected type: one maker's document took four attempts,
 five aggregators answered 403, and an obscure mirror served it. The chain stops
 at the first real hit; the URLs after it are never requested.
 

@@ -404,8 +404,8 @@ def _overlapping_text(p: _Page) -> list[Finding]:
     """Text printed on top of other text.
 
     A hand-drawn figure places its labels at fixed coordinates, and two of them
-    can land on each other: the schematic of `round-led-d4017` had three such
-    collisions, each found by an eye, three steps and eleven images later. The
+    can land on each other: one hand-drawn figure had three such collisions,
+    each found by an eye, three steps and eleven images later. The
     text layer knows where every box is, so this costs no image at all.
 
     Spans sharing a baseline are consecutive text on one line — they touch, and

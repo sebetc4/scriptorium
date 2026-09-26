@@ -23,48 +23,54 @@ never replaces opening it.
 
 **Where to look inside:**
 
-- **A PDF**: the title page, the table of contents, the first headings, the
-  title block of a schematic (its name, its revision, its date), the maker's
-  name and the model on the cover.
-- **An image**: every text it shows — a label, a silkscreen, a model number, a
-  screen, a handwritten note — and what is photographed: the part, the board,
-  the tool, the defect.
+- **A PDF**: the title page, the table of contents, the first headings, a
+  title block or a colophon (its name, its revision, its date), the author's
+  or the maker's name on the cover.
+- **An image**: every text it shows — a label, a sign, a caption, a screen, a
+  handwritten note — and what is photographed: the object, the place, the
+  scene, the detail that made someone take it.
 - **A text or a conversation**: its title and its first lines; for a
   conversation pasted from another agent, the question it answers.
 - **A directory**: what its files have in common, and the one that stands out.
 
 ## The name
 
-- **In French, and it says what the thing is**: *Manuel de la station de
-  soudage TC22*, *Photos des soudures froides de la carte d'alimentation*,
-  *Schéma de l'amplificateur, révision B*.
-- **Two to eight words.** No extension, no *fichier*, no *document*, no *PDF*.
-  No date, unless the date is what tells it from its neighbours.
+- **In the library's language, and it says what the thing is.** The tool
+  names the standard files in the language `library/.catalogue.yaml`
+  declares; the examples here come from a library in French: *Notice du
+  lave-linge K-450*, *Photos de la façade avant les travaux*, *Plan du
+  rez-de-chaussée, version B*.
+- **Two to eight words.** No extension, and no word for *file*, *document* or
+  *PDF*. No date, unless the date is what tells it from its neighbours.
 - **The library's words.** `.venv/bin/catalogue find` the object before naming it, and reuse what
-  the library already calls it: *TC22* everywhere, not *TC-22* here and
-  *tc 22* there.
+  the library already calls it: *K-450* everywhere, not *K450* here and
+  *k 450* there.
 - **An entry is named after its subject**, from what its items turned out to
-  be: *Station de soudage TC22*, not *tc-22*.
-- **A topic is named after its field**: *Outils de l'atelier*.
+  be: *Rénovation de la cuisine*, not *cuisine-2026*.
+- **A topic is named after its field**: *Maison et travaux*.
 
 ## The description
 
-- **In French, one to three sentences.**
-- **The words someone would search for**: the object and its model, the part
-  numbers, the maker when the file shows it, the technique, the symptom, the
-  kind of material — manuel, schéma, fiche technique, photo, facture,
-  conversation, notes.
-- **Where to look inside, when the file is long**: *p. 4-6 : réglage de la
-  température ; p. 12 : codes d'erreur.*
+- **In the library's language, one to three sentences.**
+- **The words someone would search for**: the object, the place or the people
+  it concerns, a model or a reference, the author or the maker when the file
+  shows it, the subject, the kind of material — notice, plan, lettre, photo,
+  facture, conversation, notes.
+- **Where to look inside, when the file is long**: *p. 4-6 : installation ;
+  p. 12 : messages d'erreur.*
+- **The pages a text search cannot see.** `peek` reports the pages of a PDF
+  with no text layer; the description says which they are and what they
+  hold — *p. 3-15 : images sans texte, photos et schéma* — since a search of
+  the text finds nothing there.
 - **For a directory**: what its files show together, and which one shows what
   when they are few.
 - **What is read, never what is guessed.** A value, a model, a name is copied
   exactly as the file writes it. A doubt is written as one — *probablement
-  un condensateur de découplage* — and becomes a question for the user.
+  la façade nord* — and becomes a question for the user.
 - **Not the format or the size**: the tool knows them.
 - **A topic's description says what belongs in it**, not what it holds now:
-  *L'équipement de l'atelier : outils, instruments de mesure, consommables et
-  leurs documentations.*
+  *La maison : les travaux, les équipements, les contrats et leurs
+  documents.*
 
 ## The id's prefix
 
@@ -72,17 +78,20 @@ The tool draws 8 characters and adds them; the prefix is yours, given once, at
 the first naming, and it never changes.
 
 - **One to three short words**, lowercase ASCII, joined by hyphens, accents
-  dropped: `manuel-tc22`, `photos-pannes`, `schema-ampli`, `etain`.
+  dropped: `notice-k450`, `photos-facade`, `plan-rdc`, `devis`.
 - **What the thing is**, so that a citation reads well:
-  `[le manuel](id:manuel-tc22-a8f2c3d9)`.
+  `[la notice](id:notice-k450-a8f2c3d9)`.
 
 ## Examples
 
+Fictional, like every example of this repository: the rules are the same
+whatever a library holds.
+
 | Looked at | Name | Description |
 |---|---|---|
-| `sources/manuel.pdf`, 24 pages; p.1 reads *TC22 Soldering Station — User Manual* | Manuel de la station de soudage TC22 | Le manuel du fabricant, en anglais : mise en service, réglage de la température (p. 6-8), entretien de la panne (p. 10), codes d'erreur (p. 14). |
-| `sources/Sans titre.jpg`, a photo of a board, two capacitors with bulging tops | Condensateurs gonflés sur la carte d'alimentation | Photo de deux condensateurs chimiques au sommet bombé, près du pont redresseur de la carte d'alimentation. Valeurs illisibles sur la photo. |
-| `sources/facture.pdf`, 1 page, an invoice listing replacement soldering tips | Facture des pannes de rechange | Facture d'un lot de pannes de rechange pour la station TC22 : références, quantités et prix. |
+| `sources/notice.pdf`, 24 pages; p.1 reads *K-450 Washing Machine — User Manual* | Notice du lave-linge K-450 | La notice du fabricant, en anglais : installation (p. 6-8), programmes (p. 10), messages d'erreur (p. 14). |
+| `sources/Sans titre.jpg`, a photo of a rendered wall, a crack running down from a window's corner | Fissure sous la fenêtre de la façade | Photo d'une fissure qui part de l'angle bas d'une fenêtre, sur un mur enduit. Sa largeur ne se lit pas sur la photo. |
+| `sources/facture.pdf`, 1 page, an invoice for two replacement filters | Facture des filtres de rechange | Facture de deux filtres de rechange pour le lave-linge K-450 : références, quantités et prix. |
 
 And what not to write:
 
@@ -90,5 +99,5 @@ And what not to write:
 |---|---|
 | *Photo* | says nothing a search could use |
 | *Fichier PDF de 3 Mo* | the tool knows the format and the size |
-| *Manuel de la Hakko FX-888* for a manual whose cover names no maker | a guess, written as a fact |
+| *Notice du lave-linge Bosch* for a manual whose cover names no maker | a guess, written as a fact |
 | a paragraph retelling the manual | a description decides whether to open the file; it does not replace it |

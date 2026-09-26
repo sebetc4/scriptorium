@@ -1,7 +1,7 @@
 """core/pdfpage.py: one page rendered, and each page's text layer read.
 
 The fixture PDF is built by WeasyPrint: page 1 carries text, page 2 carries
-only an image — which is what a scanned schematic looks like to a reader of
+only an image — which is what a scanned drawing looks like to a reader of
 text layers.
 """
 import io
@@ -18,7 +18,7 @@ def pdf(tmp_path_factory):
     d = tmp_path_factory.mktemp("pdf")
     Image.new("RGB", (300, 200), "gray").save(d / "scan.png")
     html = ("<style>@page{size:A5;margin:10mm}</style>"
-            "<p>Power section: F1 CPH6302, IC20 S-8520.</p>"
+            "<p>Section 4: models XR6302 and K-8520.</p>"
             "<p style='break-before:page'><img src='scan.png' style='width:100mm'></p>")
     path = d / "manual.pdf"
     HTML(string=html, base_url=str(d) + "/").write_pdf(path)
@@ -28,7 +28,7 @@ def pdf(tmp_path_factory):
 def test_text_gives_one_string_per_page(pdf):
     pages = pdfpage.text(pdf)
     assert len(pages) == 2
-    assert "CPH6302" in pages[0]
+    assert "XR6302" in pages[0]
 
 
 def test_a_page_with_no_text_layer_reads_as_empty(pdf):

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Rebuild a dead forum's title → topic id table from its archived listings.
 
-    forum_index.py "korgforums.com/forum/phpBB3/viewforum.php?f=48" --grep guts
-    forum_index.py "korgforums.com/forum/phpBB3/viewforum.php?f=48" -o topics.tsv --dir raw/f48
+    forum_index.py "forum.example.org/viewforum.php?f=48" --grep manual
+    forum_index.py "forum.example.org/viewforum.php?f=48" -o topics.tsv --dir raw/f48
 
 **phpBB message permalinks (`p=`) are almost never archived; topic pages (`t=`)
 almost always are.** Secondary sources — articles, conversations, quotes — only
@@ -11,8 +11,8 @@ with zero captures, and the forum being dead there was no redirect to follow.
 
 What unblocked it: list every archived capture of the sub-forum's listing pages,
 fetch them, and read the (topic id, title) pairs out of them. The title is then
-looked up in the table, and the `t=` comes with it — `t=94641`, "Guts of a
-Virgin". Then wayback.py fetches the thread.
+looked up in the table, and the `t=` comes with it — `t=12345`, the thread
+sought. Then wayback.py fetches the thread.
 
 The listing's query parameters are matched exactly: `f=48` is not `f=480`.
 Topics are read with the phpBB `topictitle` pattern first, then a generic one

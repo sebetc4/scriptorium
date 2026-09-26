@@ -4,14 +4,14 @@ import xml.etree.ElementTree as ET
 
 import epub
 
-FM = {"title": "Les LED", "lang": "fr", "date": "2026-09-10", "slug": "led"}
-CHAPS = [("Principle", '<h1 id="a">Principle</h1><h2 id="a1">Junction</h2><p>x</p>'),
-         ("Wiring", '<h1 id="b">Wiring</h1><p>y</p>')]
+FM = {"title": "Le pain", "lang": "fr", "date": "2026-09-10", "slug": "pain"}
+CHAPS = [("Principle", '<h1 id="a">Principle</h1><h2 id="a1">Proofing</h2><p>x</p>'),
+         ("Baking", '<h1 id="b">Baking</h1><p>y</p>')]
 
 
 def test_the_uid_is_deterministic():
-    assert epub.doc_uid("electronique/components/led") \
-        == epub.doc_uid("electronique/components/led")
+    assert epub.doc_uid("home/appliances/washer") \
+        == epub.doc_uid("home/appliances/washer")
 
 
 def test_two_documents_have_distinct_uids():
@@ -36,8 +36,8 @@ def test_the_table_of_contents_carries_both_levels():
     nav = epub.nav_xhtml(FM, CHAPS, level=1)
     ET.fromstring(nav)
     assert 'epub:type="toc"' in nav
-    assert "Principle" in nav and "Wiring" in nav
-    assert "Junction" in nav                    # level 2
+    assert "Principle" in nav and "Baking" in nav
+    assert "Proofing" in nav                    # level 2
     assert "text/ch01.xhtml#a1" in nav
 
     # A document opening on ## (four in the library, title in the front

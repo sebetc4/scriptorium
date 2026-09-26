@@ -19,13 +19,13 @@ Phase 0  The Manifest               🟢 █████████████
 Phase 1  Navigating the Library     🟢 ████████████████████ 100%  (8/8)
 Phase 2  The Catalogue Skill        🟢 ████████████████████ 100%  (8/8)
 Phase 3  The Library Mapped         🟢 ████████████████████ 100%  (6/6)
-Phase 4  The Skills Use the Map     🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
-TOTAL                                  █████████████████░░░  83%  (34/41)
+Phase 4  The Skills Use the Map     🟢 ████████████████████ 100%  (7/7)
+TOTAL                                  ████████████████████ 100%  (41/41)
 ```
 
 **Current Phase:** —
-**Blocked By:** discussion-and-illustration Phase 0 — its baseline notebook session, before `discussion` changes
-**Next Milestone:** Phase 4 — The Skills Use the Map
+**Blocked By:** —
+**Next Milestone:** —
 
 ---
 
@@ -226,7 +226,7 @@ like the rest of the repository.
 | 1 | [Navigating the Library](phase-1-navigation.md) | 8 | 🟢 Done |
 | 2 | [The Catalogue Skill](phase-2-catalogue-skill.md) | 8 | 🟢 Done |
 | 3 | [The Library Mapped](phase-3-library-mapped.md) | 6 | 🟢 Done |
-| 4 | [The Skills Use the Map](phase-4-skills-use-the-map.md) | 7 | 🔴 Not Started |
+| 4 | [The Skills Use the Map](phase-4-skills-use-the-map.md) | 7 | 🟢 Done |
 
 ---
 
@@ -261,13 +261,31 @@ like the rest of the repository.
 
 **Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/on-progress/library-catalogue/`
-**Version:** 1.4.0
+**Version:** 1.5.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-26
 
 ---
 
 ## Changelog
+
+### 1.5.0 (2026-09-26)
+
+Phase 4 closed, 7 of 7 tasks. `discussion` answers from its own knowledge by
+default and searches the library only for the user's own case or a claim's
+source, with a guard against searching again; it cites by id, resumes from
+`sync`, `ls` and `links`, and its **Material** section is gone, the notebook's
+journal migrated. `sourcing` keeps an investigation's findings in `study/`,
+in `documents/` rather than `datasheets/`, and cites them by id; `pdf` and
+`fetch` look through the map. The catalogue gained `move`, `sync` by id, a
+listing that tells a new file in a described directory, and standard names
+in the library's own language. On the user's word, nothing in the
+repository is written around one library any more: 36 files rewritten, the
+rule added to `CLAUDE.md`. The proof session found the user's kits through
+the map and answered from its own knowledge where the map added nothing:
+52,119 fresh tokens and 22 turns against the baseline's 102,719 and 50, on
+another subject. The discussion-and-illustration roadmap's Phase 1 is
+unblocked.
 
 ### 1.4.0 (2026-09-26)
 

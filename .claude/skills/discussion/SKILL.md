@@ -73,15 +73,16 @@ what was superseded, and no resume reads it.
 | **Open questions** | the open ones only, each naming its topic | an answered question leaves: its answer goes to the topic, and the session's **Answered** records it |
 | **To establish** | checkboxes, each a claim handed to `sourcing`, naming its topic | leaves once found: the result goes under **Established** in the topic |
 | **Outline** | the document's plan, once the user has agreed it | revised with the user |
-| **Material** | every file received — in `sources/`, or notes the user left elsewhere — one line each: what it is, which topics it fed | a line added per file |
 | **Sessions** | one line per session, linked to its file | appended |
+
+Its header cites its entry by id, like any other material (below).
 
 ### `topics/<subject>.md` — from `assets/topic.md`
 
-A topic is a subject the document will give a part or an entry to: a piece of
-equipment, a technique, a project, a question the user keeps coming back to.
-It is created at the first point that belongs to it. Everything the user said
-that is not about the whole document goes in a topic — their equipment
+A topic is a subject the document will give a part or an entry to: an object,
+a technique, a project, a question the user keeps coming back to. It is
+created at the first point that belongs to it. Everything the user said that
+is not about the whole document goes in a topic — what they have or did
 included, when the document describes it.
 
 | Section | Holds | How it changes |
@@ -120,12 +121,24 @@ One file per session, named by its date; a second session the same day is
 - **Every link resolves.** `make check-library` checks each link of `index.md`
   and of the topics, and reports a journal still in one file.
 
+**Material is cited by id, never by path.** Everything a manifest describes —
+a photo in this entry's `sources/`, the user's notes, a document elsewhere in
+the library — is cited by a Markdown link whose target is its id:
+`[The user's notes](id:notes-k7m3p2x9)`. A path breaks at the next
+rename; an id never changes, so a session written today still leads to the
+same file after any move. Relative links stay for the journal's own pages.
+A file is cited where it served — the topic whose key point or claim rests on
+it, the session that read it — and nowhere lists the material: the entry's
+manifest describes its own files, and `links` on the entry gathers what the
+journal cites outside it. A file not described yet has no id; it is described
+first (*What the user brings*).
+
 **Three statuses, never mixed.** *Said by the user* lives in its own sections:
-the user is the only source for their goal, their reader and their bench. *An
-agent's account* is what this agent or the agent of a pasted passage asserted
+the user is the only source for their goal, their reader and their own case.
+*An agent's account* is what this agent or the agent of a pasted passage asserted
 — useful, unverified, and marked with whose account it is. *Established* points
-at what establishes it: a `sourcing` journal, a datasheet, a measurement the
-user made.
+at what establishes it: a `sourcing` journal, a primary source, a measurement
+or a record the user made.
 
 **A claim goes in when the document is likely to state it** — a value, a date,
 a mechanism, a recommendation. Not every sentence of the exchange: the journal
@@ -151,7 +164,75 @@ superseded to the session's **Replaced**.
 
 **Its headings stay as the templates have them; its content is in the
 language of the discussion.** A topic's file name is short, lowercase, ASCII,
-words joined by hyphens.
+words joined by hyphens. **The user is named "the user" — *l'utilisateur* in
+French — never by a gendered pronoun**, even where an earlier page used one:
+a resume copies what it reads. In French, write the user's lines without a
+subject — « Veut… », « Hésite entre… » — or with *l'utilisateur* repeated, and
+check every *il*, *qu'il* and *lui* that stands for them before writing a
+page.
+
+## The library
+
+The library is mapped: a `manifest.yaml` in every directory names and
+describes what it holds, and `.venv/bin/catalogue` answers from it in 20 lines
+at most. The discussion reads the map; naming and describing a file is keeping
+it, the `catalogue` skill. Every command named below — `find`, `ls`, `links`,
+`peek`, `sync` — is `.venv/bin/catalogue <command>`: `ls` is the map's, not the
+shell's. Each takes an entry or an item by its path or by its id.
+
+Nothing here depends on what a library holds or on how it is arranged: its
+topics, its entries and the kinds of its files are the user's, and the map is
+how a session learns them.
+
+**Answer from what the agent knows.** That is the default. A general
+explanation — how something works, what a term means, why a method is used —
+comes from the agent's knowledge and is recorded as its account, even when the
+library may hold something on the subject. Searching to find out whether it
+does is the reflex this rule forbids: a search that was not needed is a cost,
+not diligence.
+
+**Search only when the agent's knowledge cannot give the answer:**
+
+- **The question is about the user's own case, not the subject in
+  general** — something they have, did, wrote or kept. What is particular to
+  them is in their files, if anywhere.
+- **A claim the document will state as established needs its source** —
+  looked for once, when the claim is written down, not at each question that
+  touches it. Found, it is cited as what establishes the claim; not found,
+  the claim goes under **To establish**.
+
+**A guard against searching again:**
+
+- **The journal first.** What it already cites — in its topics, and what
+  `links` on the entry gathers — is known: it is read when the discussion
+  needs its detail, never looked for.
+- **One search per subject.** A `find`, and a second only if the first missed
+  the library's words. Then stop: answer from the agent's knowledge, marked as
+  its account, or ask the user, who knows what their library holds.
+- **A search is written down.** Its words, and what it found or that it found
+  nothing, go in the session's **Covered**: no session searches the same
+  thing again.
+
+**Search the map, never the file system.** `.venv/bin/catalogue find <words>`,
+with the words the library uses for the thing, gives every entry and item whose
+name or description holds them; `--in <topic or entry>` narrows it, `--text`
+searches the lines of the text items. `links <entry or id>` gives what an entry
+cites and what cites it; `ls <entry> -l` its items, described. Listing
+directories, globbing, `find library` are what the map replaced.
+
+**Read only what the search points at, and only the part needed.** A PDF:
+`peek <id> --pages 3-4` gives the text layer of the pages that hold the answer.
+A document: the section that explains it, found by its heading. An image: the
+crops that settle the question (*What the user brings*). The rest stays
+unread until the discussion needs it.
+
+**At the opening, the entry's map.** A discussion about an entry that exists —
+material the user gathered, a document to revise — starts with `sync <entry>`,
+`ls <entry> -l` and `links <entry>`: what it holds, and what the library
+already relates to it. A new subject starts with `ls` on the topics, whose
+descriptions say what belongs in each, to place its entry; once the journal
+is created there, `sync` the entry, and name it by the `catalogue` skill as soon
+as its subject is clear — until then, the index's header gives its path.
 
 ## Resuming
 
@@ -161,10 +242,23 @@ keeps a resume cheap — a file of a few thousand tokens against a conversation
 of several hundred thousand — and it is why the index must be enough to say
 where the discussion stands.
 
-Find it with `find library -path '*/study/discussion/index.md'`, or by the
-subject the user names. Then open by stating where it stands, in the index's
-terms, and the next open question. Never ask again what **What the user
-said** already answers.
+Find it through the map: `.venv/bin/catalogue find <the subject's words>`
+gives its entry, `find journal discussion` every discussion's journal. Then
+two answers of a few lines each, read instead of any source:
+
+- **What is new: `.venv/bin/catalogue sync <entry>`, then
+  `.venv/bin/catalogue ls <entry>`.** An item marked
+  `to describe` is a file that arrived since; a directory marked `to review`
+  holds one — `ls` on that item lists its files with their dates, each one
+  that has an item of its own followed by its id; `gone` is a file that left.
+  Say so, and ask about it rather than opening it unasked — a resume that
+  reads every source again has lost what the journal saved.
+- **What the journal relies on outside its entry:
+  `.venv/bin/catalogue links <entry>`**, grouped
+  by entry, each with the page that cites it — and what else cites this entry.
+
+Then open by stating where it stands, in the index's terms, and the next open
+question. Never ask again what **What the user said** already answers.
 
 **Load a topic when the discussion returns to it**, through its link in the
 map, and not before. Every topic is read at the handover to `pdf`, since the
@@ -176,10 +270,6 @@ line to its session, or search the directory with `grep -r`. If it is nowhere,
 ask, and write the answer down before going on: the gap is the journal's
 defect, and it is repaired where it was found.
 
-List `sources/` and compare it with **Material**. A file the index does not
-name is new material: say so, and ask about it rather than opening it unasked —
-a resume that reads every source again has lost what the journal saved.
-
 **A journal found as a single file**, `study/discussion.md`, predates this
 layout. Say so, and propose moving it into the three layers; do it once the
 user agrees. What frames the whole document goes to the index. Each subject
@@ -187,19 +277,29 @@ becomes a topic, with its key points, its claims, and what the user said about
 it. The answered questions and the dated session lines go to `sessions/`,
 under the dates they carry. Then remove the old file.
 
+**A journal that cites by path**, or keeps a **Material** section, predates
+the map. Say so, and migrate it once the user agrees: each path to material
+becomes a link to its id — a file renamed since is found by the name its item
+keeps under `original:` — and each line of **Material** goes to the topic it
+fed, or to what the user said about it, before the section goes. The sessions
+get their citations converted and nothing else: that one change is what keeps
+them from ever needing another. A path that is the subject of a decision — a
+directory's name, where a file stays — is left as the decision wrote it.
+
 ## Passages pasted from other conversations
 
 The user copies them by hand: a shared Gemini or ChatGPT link renders only in
 a browser running JavaScript, and what reaches the repository is text.
 
 1. **Leave the passage intact** in `sources/`. It is what was received.
-2. **Record it** in **Material**, and in the session's **Covered**: the file,
-   which agent if it can be told, what it covers.
+2. **Describe it, and record it.** `sync` the entry; the passage is named and
+   described by the `catalogue` skill — which agent, if it can be told, and
+   what it covers. The session's **Covered** cites it by id.
 3. **Take out the claims the document may rest on** into the topics they
-   belong to, as an agent's account, citing the file. Drop the offers and the
-   courtesy — *"Je te propose…"*, *"Voulez-vous que…"*. A plan the agent
-   proposed is a candidate for the outline, marked as the agent's proposal:
-   the user has not agreed to it.
+   belong to, as an agent's account, citing the passage by id. Drop the offers
+   and the courtesy — *"Je te propose…"*, *"Voulez-vous que…"*. A plan the
+   agent proposed is a candidate for the outline, marked as the agent's
+   proposal: the user has not agreed to it.
 4. **Two passages that agree do not establish a claim** — often they are two
    agents' answers to the same question, and agreement between them proves
    little. Two that disagree make an open question, or a claim to establish.
@@ -212,12 +312,19 @@ a browser running JavaScript, and what reaches the repository is text.
 
 - **Notes the user wrote** are what the user said. Their points go under
   **What the user said** — in the index when they frame the document, in a
-  topic otherwise — in their words, citing the file. A question in them goes
-  under **Open questions**.
-- **A photo, a measurement, a part they own** is received material, and
-  belongs in `sources/`. What the agent reads in a photo — a joint that looks
-  cold, a bridge between two pads — is an agent's account until the user
-  confirms it or it is measured.
+  topic otherwise — in their words, citing the file by id. A question in them
+  goes under **Open questions**.
+- **A photo, a scan, a recording, a measurement** is received material, and
+  belongs in `sources/`. `sync` the entry, and have the new file described by
+  the `catalogue` skill before citing it: what the agent reads in it is what
+  its description is written from. What the agent reads in it is an agent's
+  account until the user confirms it or it is checked.
+- **A photograph is read for detail by cropping it.** The whole, scaled down
+  to be shown, settles the orientation and nothing finer. Crop the regions
+  that matter at full resolution — `sourcing`'s `crop.py` does it in one
+  command, the region in fractions of the image:
+  `.venv/bin/python .claude/skills/sourcing/scripts/crop.py <photo> --region 0.2,0.3,0.5,0.6 -o <file>.png`
+  — and read the crops.
 - **A file the user left outside the document's layout** — notes beside the
   `sources/` directory, or one level up in the topic — is theirs. Read it,
   never move it: `library/` is user content. Say where it would belong, and
@@ -226,14 +333,16 @@ a browser running JavaScript, and what reaches the repository is text.
 ## Handing over
 
 - **To `sourcing`**, when a claim the document will state as fact is a number,
-  a date, a named part or a point two accounts disagree on. It goes under
-  **To establish**; the investigation's result comes back to the topic's
-  **Claims** as established, pointing at its `NOTES.md`.
+  a date, a name or a point two accounts disagree on, and the library
+  does not already hold what establishes it. It goes under **To establish**;
+  the investigation's result comes back to the topic's **Claims** as
+  established, citing its `NOTES.md` by id.
 - **To `pdf`**, once the user has agreed the outline. The document is written
   from the outline and the topics — their key points and their claims — never
   from a transcript. A claim still unverified is either established first or
   written as what it is — an order of magnitude, a typical value, an
-  attribution — never as a fact the document vouches for.
+  attribution — never as a fact the document vouches for. No id goes into
+  `document/`: the document names what it draws on in its own words.
 
 The journal outlives the handover: when the document is revised, the
 discussion resumes from it.

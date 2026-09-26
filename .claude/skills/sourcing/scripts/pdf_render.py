@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Render one PDF page at high resolution, and crop it to read a detail.
 
-    pdf_render.py manual.pdf 4 --scale 6 --region 0.34,0.48,0.72,0.80 -o f1.png
+    pdf_render.py manual.pdf 4 --scale 6 --region 0.34,0.48,0.72,0.80 -o detail.png
 
 The procedure is two steps: find the page at `scale=2` (contact_sheet.py on the
-PDF), then read it at `scale=6` with a crop. At 6, an A3 schematic is some
-7000 × 5000 px, and component values and designators become readable — that is
-what read `F1 / CPH6302`, `IC20 / S-8520` and the S/G/D pinout.
+PDF), then read it at `scale=6` with a crop. At 6, an A3 drawing is some
+7000 × 5000 px, and its smallest labels and values become readable.
 
 Pages count from 1, as a reader of the document counts them. The rendering is
 core/pdfpage.render_page; the crop is core/imaging.crop.

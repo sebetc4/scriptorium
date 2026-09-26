@@ -4,16 +4,16 @@
     crop.py photo.jpg --region 0.05,0.15,0.62,0.85 --width 1500 -o detail.png
     crop.py a.jpg --compare b.png --region 0.05,0.50,0.24,0.78 --width 760 -o cmp.png
 
-Reading a PCB's silkscreen, a hand-drawn schematic, one line of a parts list.
+Reading a label's small print, a hand-drawn diagram, one line of a list.
 The region is in fractions of the image, never pixels, so a detail is aimed at
 without knowing the image's size. The enlargement is LANCZOS: on 0.5 mm text it
-decides between readable and not. That is what read `DT2`, `DT37`, `C188` on
-the photos and settled three contradictory designations in the written sources.
+decides between readable and not. That is what read three small markings on
+the photos, and settled three contradictory readings in the written sources.
 
 `--compare` crops the same region of a second photo, normalises both to the
-same width, and lays them side by side. Two photos of the same board area, by
-two people, on two machines: the silkscreen settles what the forums disagree
-on. Without the common width the comparison is skewed by scale, so it is
+same width, and lays them side by side. Two photos of the same detail, by two
+people, of two objects: what they show settles what the written sources
+disagree on. Without the common width the comparison is skewed by scale, so it is
 required.
 
 The crop itself is core/imaging.crop.

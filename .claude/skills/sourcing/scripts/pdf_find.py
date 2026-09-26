@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """Which pages carry a term — and which pages have no text layer to search.
 
-    pdf_find.py CPH6302 manuals/*.pdf
-    pdf_find.py CPH6302 manuals/
+    pdf_find.py XR200 manuals/*.pdf
+    pdf_find.py XR200 manuals/
 
-Four service manuals, 79 pages, one second: the part was on pages 22, 12, 12
-and 23/26. The match ignores case and spacing inside the term, because the
-manuals wrote both `CPH6302` and `CPH 6302`.
+Four manuals, 79 pages, one second: the term was on pages 22, 12, 12 and
+23/26. The match ignores case and spacing inside the term, because the
+manuals wrote both `XR200` and `XR 200`.
 
-**Pages with no text layer are reported on every run.** A scanned schematic
+**Pages with no text layer are reported on every run.** A scanned drawing
 yields zero characters: a search that only reads text concludes "not in this
 PDF" exactly where the answer is. Those pages are to be looked at — a contact
 sheet (contact_sheet.py), then pdf_render.py.
 
-Text extraction locates a page; it does not read a table. Datasheet tables come
+Text extraction locates a page; it does not read a table. Tables of values come
 out with their columns interleaved — render the page and read the image.
 """
 from __future__ import annotations

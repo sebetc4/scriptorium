@@ -129,7 +129,7 @@ core/
   pdfpage.py    render every page or one · each page's text layer, empty when there is none
   net.py        probe · MIME verification · browser UA · relaxed TLS
   catalogue.py  the manifests · ids · sync · describe · the `id:` citations ·
-                unused · remove · merge · rename
+                unused · remove · merge · rename · move
   navigate.py   find · ls · links · path · peek — the map, read in 20 lines at most
   library.py    make check-library
 ```
@@ -252,7 +252,7 @@ Read to be rebuilt — text extracted, images carried over, pages rendered as a
 proofreading aid, then translated and given the repository's art direction —
 that is `pdf`. Read to be known — locate a term across a manual, detect the
 pages with no text layer, render a page at high resolution and crop it to read
-a silkscreen — that is `sourcing`.
+a detail — that is `sourcing`.
 
 The shared machinery is the same in both cases, which is exactly why it belongs
 to the core (§2) rather than to either skill. Each skill owns its intent;
@@ -299,7 +299,7 @@ And what each refuses, which is the part a reader actually needs:
 | Skill | Refuses to |
 |---|---|
 | `fetch` | follow a link — one URL, one document; translate; reproduce the site's layout; assemble several pages |
-| `sourcing` | write a document — an `index.md` — anywhere; present a search-engine excerpt as a primary source. *Its pieces may live in the `sources/` of the document the investigation feeds, as the Electribe 2 investigation's did (corrected by Phase 6).* |
+| `sourcing` | write a document — an `index.md` — anywhere; present a search-engine excerpt as a primary source; put what it found in `sources/`. *Its pieces live in the `study/` of the document the investigation feeds, beside its `NOTES.md`: the agent found them, the user did not give them (library-catalogue, phase 4, on the user's word). Phase 6 of the repo-overhaul roadmap had read `sources/` off an investigation that predated the anatomy; its pieces were moved to `study/`.* |
 | `discussion` | write `index.md`; establish a fact itself; infer what the user said from a pasted answer; keep a transcript; edit `sources/` |
 | `pdf` | produce reflowable output; review an EPUB page by page; translate |
 | `epub` | write or build the paginated document; be reviewed screen by screen |
@@ -313,10 +313,10 @@ description must carry one discriminating phrase that no other carries:
 
 | Skill | What triggers it | What must *not* trigger it |
 |---|---|---|
-| `pdf` | write / build / review / fix a document; a preset; the art direction; import a PDF **into the library** | an EPUB; a PDF read as evidence; a subject still being talked through |
+| `pdf` | write / build / review / fix a document; a preset; the art direction; import a PDF **into the library** | an EPUB; a PDF read as evidence; a subject still being talked through; a `manifest`, `id` or `citation` defect |
 | `epub` | EPUB; e-reader; e-ink; reflow; contact sheet; style proof | authoring; page-by-page review |
 | `fetch` | a URL to turn **into a document** | several sources; an investigation; a PDF, even behind a URL |
-| `sourcing` | investigate; establish; cross-check; archived page; read a schematic | capturing one page; producing a document |
+| `sourcing` | investigate; establish; cross-check; archived page; read a drawing | capturing one page; producing a document |
 | `discussion` | talk a subject through **before its document exists**; resume that discussion; passages pasted out of other agents' conversations | an exchange about the repository itself; establishing a fact; writing `index.md` |
 | `translate` | translate an `index.md`; a document in the wrong language | importing; capturing |
 | `session-review` | a task **once it is finished**, when a review is asked for | a task in progress; reviewing a built PDF or code |
@@ -342,8 +342,8 @@ is a `trigger` finding against the description at fault.
 phrase, absent from every other description, and the neighbours it must
 name. A skill added without a row fails it. Its first rows came from the
 overlaps met in real sessions (*suite-and-review, phase 2*):
-- `discussion`'s opening request, "talk about my solder joints to make a
-  document of them", also reads as `pdf`'s "create a document";
+- `discussion`'s opening request, "let's talk about my X to make a document
+  of it", also reads as `pdf`'s "create a document";
 - a repair that `make check-library` reported was done without `pdf`, whose
   description had no verb for fixing;
 - a PDF behind a URL loads `fetch`, which then refuses it.
@@ -749,7 +749,7 @@ It is the only boundary the machine checks for you: a file on the wrong side of
 it breaks a build, which is visible on the next run. Every other misplacement is
 silent, and a silent convention is the one that decays.
 
-Note what the cut is not. It is not authorship: a schematic drawn by hand over
+Note what the cut is not. It is not authorship: a figure drawn by hand over
 an afternoon lives in `document/assets/` beside a photograph extracted from a
 PDF by a script, because the document references both and the build embeds both.
 It is not cost either: an expensive file and a cheap one sit together if they
@@ -762,7 +762,8 @@ not.**
 library/<topic…>/<slug>/
   document/     index.md, cover.md, assets/
   sources/      what was received
-  study/        extracted text, provenance, the investigation and discussion journals
+  study/        extracted text, provenance, the investigation and discussion journals,
+                the pieces an investigation found
   generators/   the code that draws an asset
   .work/        review sheets, EPUB proofs, page renders
   manifest.yaml what each of the above is (see *The manifest*, below)
@@ -793,7 +794,7 @@ repository.
 
 **`study/`** is what the agent learned from the sources and must keep: the text
 extracted from an imported PDF, the provenance of a capture, the journal an
-investigation wrote. The build never reads it, and `make clean` never touches
+investigation wrote and the pieces it found. The build never reads it, and `make clean` never touches
 it.
 
 **`generators/`** is code that produces something in `document/assets/`. It is
@@ -819,6 +820,12 @@ The line does not exist in the code today. `ingest.py` and `fetch.py` each do
 both, into the same directory, which is why `sources/` became a place where a
 user cannot tell what they put there from what a script left behind.
 
+An investigation's findings are neither acquired nor derived. The agent chose
+them, not the user:
+a page, a thread, a document found along the way is kept as received, but in
+`study/`, beside the journal that cites it — `sources/` holds what the user
+gave or pointed at. *Library-catalogue, phase 4, on the user's word.*
+
 ### Durable, disposable
 
 A file is **disposable** when a command can make it again *and* nothing is lost
@@ -830,6 +837,7 @@ the interesting cases.
 | `extracted.md` | `study/` | Regenerable from `sources/`, but its worth is that it does not change: a translation reads it to check that nothing was invented. Durable by choice. |
 | `meta.json` | `study/` | A URL, a date, a digest. Nothing recomputes when a page was fetched. Durable by necessity. |
 | `NOTES.md` | `study/` | An investigation's journal. Written, neither received nor derived, and no command makes it again. |
+| an investigation's pieces | `study/` | Found by the agent, kept as received: a page taken down since is fetched again from nowhere. Durable by necessity — and not the user's, so not in `sources/`. |
 | `discussion/` | `study/` | A discussion's journal: an index, its topics, the sessions' archive. Written, neither received nor derived — and the conversation it records is gone once the session ends, so it is the only copy of what the user said. |
 | `figures.py` | `generators/` | Code. Deleting it loses the ability to redraw what it drew. |
 | a hand-drawn SVG | `document/assets/` | Expensive, durable, agent-made — and the document references it, so the cut sends it with the document. |

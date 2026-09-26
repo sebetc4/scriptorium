@@ -9,16 +9,16 @@ THREAD = b"""<html><head><style>p { color: red }</style>
 <!-- the forum's banner -->
 <div class="post">First message<br>second line</div>
 <div class="post"><p>Reply one</p><p>Reply &amp; two &lt;b&gt;</p></div>
-<table><tr><td>DT37</td><td>C188</td></tr></table>
+<table><tr><td>A37</td><td>B188</td></tr></table>
 </body></html>"""
 
 DISCOURSE = {
-    "title": "Korg Electribe 2 sampler won't power on",
+    "title": "The machine won't start",
     "post_stream": {"posts": [
-        {"username": "mcv", "created_at": "2019-03-02T10:11:12Z",
-         "cooked": "<p>Check <b>DT2</b> first.</p>"},
-        {"username": "auxren", "created_at": "2019-03-04T08:00:00Z",
-         "cooked": "<p>It was the FET &amp; the fuse.</p>"},
+        {"username": "member42", "created_at": "2019-03-02T10:11:12Z",
+         "cooked": "<p>Check <b>the fuse</b> first.</p>"},
+        {"username": "member7", "created_at": "2019-03-04T08:00:00Z",
+         "cooked": "<p>It was the pump &amp; the fuse.</p>"},
     ]},
 }
 
@@ -61,19 +61,19 @@ def test_a_gzipped_piece_is_read_as_it_is_archived(tmp_path, capsys):
 
 def test_a_discourse_url_goes_through_its_json_first(web, capsys):
     """The HTML pages of the same site answered 403; the .json did not."""
-    web.add("/t/e2-wont-power-on/1499", "<p>Forbidden</p>", status=403)
-    web.add("/t/e2-wont-power-on/1499.json", json.dumps(DISCOURSE),
+    web.add("/t/wont-start/1499", "<p>Forbidden</p>", status=403)
+    web.add("/t/wont-start/1499.json", json.dumps(DISCOURSE),
             content_type="application/json")
-    assert html2text.main([web.url("/t/e2-wont-power-on/1499")]) == 0
+    assert html2text.main([web.url("/t/wont-start/1499")]) == 0
     out = capsys.readouterr().out
-    assert "mcv" in out and "2019-03-02" in out and "Check DT2 first." in out
-    assert "It was the FET & the fuse." in out
+    assert "member42" in out and "2019-03-02" in out and "Check the fuse first." in out
+    assert "It was the pump & the fuse." in out
 
 
 def test_a_discourse_json_file_is_read_as_posts(tmp_path, capsys):
     (tmp_path / "thread.json").write_text(json.dumps(DISCOURSE))
     assert html2text.main([str(tmp_path / "thread.json")]) == 0
-    assert "auxren" in capsys.readouterr().out
+    assert "member7" in capsys.readouterr().out
 
 
 def test_a_plain_url_is_stripped(web, capsys):
@@ -83,14 +83,14 @@ def test_a_plain_url_is_stripped(web, capsys):
 
 def test_the_transcription_carries_its_provenance_header(tmp_path):
     (tmp_path / "t.html").write_bytes(THREAD)
-    out = tmp_path / "threads" / "t105619.md"
+    out = tmp_path / "threads" / "t12345.md"
     assert html2text.main([str(tmp_path / "t.html"), "-o", str(out),
-                           "--url", "https://www.korgforums.com/viewtopic.php?t=105619",
+                           "--url", "https://www.forum.example.org/viewtopic.php?t=12345",
                            "--archive", "https://web.archive.org/web/20251115085815/x",
                            "--conditions", "the forum answered HTTP 500 on every page"]) == 0
     text = out.read_text(encoding="utf-8")
     head = text.split("---")[1]
-    assert "url: https://www.korgforums.com/viewtopic.php?t=105619" in head
+    assert "url: https://www.forum.example.org/viewtopic.php?t=12345" in head
     assert "archive: https://web.archive.org/web/20251115085815/x" in head
     assert "retrieved:" in head
     assert "the forum answered HTTP 500" in head

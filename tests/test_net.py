@@ -1,6 +1,6 @@
 """core/net.py: retrieval that fails out loud.
 
-Each test is one of the silent failures the Electribe 2 investigation hit, made
+Each test is one of the silent failures a real investigation hit, made
 reproducible on a local server.
 """
 import socket
@@ -60,7 +60,7 @@ def test_sniff_reads_the_bytes_not_the_name(body, mime):
 
 def test_a_pdf_url_answering_html_is_the_sniffed_type(web):
     """HTTP 200, a `.pdf` name, a PDF content type — and a signup wall."""
-    url = web.add("/datasheet.pdf", HTML, content_type="application/pdf")
+    url = web.add("/notice.pdf", HTML, content_type="application/pdf")
     response = net.get(url)
     assert response.status == 200
     assert response.mime == "text/html"

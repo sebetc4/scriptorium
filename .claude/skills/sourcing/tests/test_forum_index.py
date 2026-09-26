@@ -11,7 +11,7 @@ import pytest
 import forum_index
 import wayback
 
-LISTING = "korgforums.com/forum/phpBB3/viewforum.php?f=48"
+LISTING = "forum.example.org/phpBB3/viewforum.php?f=48"
 
 
 def phpbb_listing(topics):
@@ -25,12 +25,12 @@ def forum(web, monkeypatch):
     monkeypatch.setattr(wayback, "CDX", web.url("/cdx"))
     monkeypatch.setattr(wayback, "ARCHIVE", web.url("/web"))
     captures = {
-        "http://www.korgforums.com/forum/phpBB3/viewforum.php?f=48": ("20150101000000",
-            phpbb_listing([(94641, "Guts of a Virgin"), (105619, "Electribe 2/Sampler service manual")])),
-        "http://www.korgforums.com/forum/phpBB3/viewforum.php?f=48&start=50": ("20160101000000",
-            phpbb_listing([(94641, "Guts of a Virgin"), (117977, "E2 won&#39;t power on")])),
+        "http://www.forum.example.org/phpBB3/viewforum.php?f=48": ("20150101000000",
+            phpbb_listing([(23456, "Taking the case apart"), (12345, "Service manual, anyone?")])),
+        "http://www.forum.example.org/phpBB3/viewforum.php?f=48&start=50": ("20160101000000",
+            phpbb_listing([(23456, "Taking the case apart"), (34567, "It won&#39;t start")])),
         # another sub-forum sharing the prefix — f=480 must not be taken for f=48
-        "http://www.korgforums.com/forum/phpBB3/viewforum.php?f=480": ("20150101000000",
+        "http://www.forum.example.org/phpBB3/viewforum.php?f=480": ("20150101000000",
             phpbb_listing([(1, "Unrelated")])),
     }
 
@@ -58,9 +58,9 @@ def test_the_index_maps_every_title_to_its_topic_id(forum, tmp_path, capsys):
     out = tmp_path / "topics.tsv"
     assert forum_index.main([LISTING, "-o", str(out)]) == 0
     rows = dict(line.split("\t") for line in out.read_text().splitlines())
-    assert rows == {"94641": "Guts of a Virgin",
-                    "105619": "Electribe 2/Sampler service manual",
-                    "117977": "E2 won't power on"}
+    assert rows == {"23456": "Taking the case apart",
+                    "12345": "Service manual, anyone?",
+                    "34567": "It won't start"}
 
 
 def test_a_neighbouring_forum_id_is_not_taken_for_the_one_asked(forum, tmp_path):
@@ -70,14 +70,14 @@ def test_a_neighbouring_forum_id_is_not_taken_for_the_one_asked(forum, tmp_path)
 
 
 def test_grep_prints_only_the_matching_titles(forum, capsys):
-    assert forum_index.main([LISTING, "--grep", "guts"]) == 0
+    assert forum_index.main([LISTING, "--grep", "case"]) == 0
     out = capsys.readouterr().out
-    assert "94641\tGuts of a Virgin" in out
-    assert "105619" not in out
+    assert "23456\tTaking the case apart" in out
+    assert "12345" not in out
 
 
 def test_a_grep_matching_nothing_fails_loudly(forum, capsys):
-    assert forum_index.main([LISTING, "--grep", "microkorg"]) == 1
+    assert forum_index.main([LISTING, "--grep", "dishwasher"]) == 1
     assert "no title matches" in capsys.readouterr().err
 
 

@@ -36,11 +36,11 @@ def test_new_maps_the_entry_it_creates(library, tmp_path, monkeypatch, capsys):
 def test_import_maps_the_entry_it_creates(library, tmp_path, monkeypatch, capsys):
     pdf = tmp_path / "manuel.pdf"
     with pymupdf.open() as d:
-        d.new_page().insert_text((72, 72), "Station TC22 — manuel")
+        d.new_page().insert_text((72, 72), "Lave-linge K-450 — notice")
         d.save(pdf)
-    monkeypatch.setattr(sys, "argv", ["ingest.py", str(pdf), "watch/tc22",
+    monkeypatch.setattr(sys, "argv", ["ingest.py", str(pdf), "watch/washer",
                                       "--lang", "fr", "--no-page-images"])
     assert ingest.main() == 0
-    assert (library / "watch" / "tc22" / cat.MANIFEST).is_file()
+    assert (library / "watch" / "washer" / cat.MANIFEST).is_file()
     out = capsys.readouterr().out
-    assert "map: watch/tc22 synced" in out and "to describe: sources/manuel.pdf" in out
+    assert "map: watch/washer synced" in out and "to describe: sources/manuel.pdf" in out

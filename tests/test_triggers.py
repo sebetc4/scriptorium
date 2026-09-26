@@ -31,9 +31,11 @@ DISCRIMINATORS = {
 # The neighbours each description must name, from the overlaps met in real
 # sessions (suite-and-review, phase 2): `discussion`'s opening request also
 # reads as "create a document"; a PDF behind a URL loads `fetch`, which then
-# refuses it; a review of a task is not a review of a PDF.
+# refuses it; a review of a task is not a review of a PDF. `pdf` claims the
+# repairs `make check-library` reports, except the map's, which are `catalogue`'s
+# (library-catalogue, phase 4).
 NEIGHBOURS = {
-    "pdf": {"epub", "sourcing", "translate", "fetch", "discussion"},
+    "pdf": {"epub", "sourcing", "translate", "fetch", "discussion", "catalogue"},
     "epub": {"pdf"},
     "fetch": {"sourcing", "translate", "pdf"},
     "sourcing": {"fetch", "pdf"},

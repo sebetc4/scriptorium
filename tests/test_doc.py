@@ -126,10 +126,10 @@ def test_the_slug_is_the_root_directory(library):
 
 
 def test_the_default_title_comes_from_the_root_directory(library):
-    root = make_doc(library, "topic/round-led", body="---\npreset: report\n---\n\nX\n")
+    root = make_doc(library, "topic/bread-guide", body="---\npreset: report\n---\n\nX\n")
     fm, _ = doc.load_doc(root)
-    assert fm["title"] == "Round led"
-    assert fm["slug"] == "round-led"
+    assert fm["title"] == "Bread guide"
+    assert fm["slug"] == "bread-guide"
 
 
 def test_the_output_path_carries_no_document_segment(library):

@@ -2,34 +2,34 @@
 import qc
 import zones
 
-SOURCE = f"""## Choosing the resistor
+SOURCE = f"""## Choosing the yeast
 
-With a 5 V supply and a forward voltage of 2.1 V, a 20 mA LED needs 145 Ω.
+With 500 g of flour and a proofing time of 1.5 h, a PanPro loaf needs 145 g of starter.
 
-- Use a 1/4 W {zones.token(1)} resistor.
-- Check the anode.
+- Use 1/4 of a {zones.token(1)} sachet.
+- Check the oven.
 
 | Part | Value |
 {zones.token(2)}
-| R1 | 150 Ω |
+| S1 | 150 g |
 """
 
-GOOD = f"""## Choisir la résistance
+GOOD = f"""## Choisir la levure
 
-Avec une alimentation de 5 V et une tension directe de 2,1 V, une LED de 20 mA demande 145 Ω.
+Avec 500 g de farine et une levée de 1,5 h, un pain PanPro demande 145 g de levain.
 
-- Utiliser une résistance {zones.token(1)} de 1/4 W.
-- Vérifier l'anode.
+- Utiliser 1/4 d'un sachet {zones.token(1)}.
+- Vérifier le four.
 
 | Pièce | Valeur |
 {zones.token(2)}
-| R1 | 150 Ω |
+| S1 | 150 g |
 """
 
 
 def check(target, source=SOURCE, **kw):
-    kw.setdefault("glossary", {"resistor": "résistance"})
-    kw.setdefault("keep", ("LED",))
+    kw.setdefault("glossary", {"yeast": "levure"})
+    kw.setdefault("keep", ("PanPro",))
     return qc.check_chunk(0, source, target, "en", "fr", **kw)
 
 
@@ -42,15 +42,15 @@ def test_a_faithful_translation_passes():
 
 
 def test_a_decimal_comma_is_the_same_number():
-    assert qc.numbers("2.1 V and 1 000 Ω") == qc.numbers("2,1 V et 1 000 Ω")
+    assert qc.numbers("1.5 h and 1 000 g") == qc.numbers("1,5 h et 1 000 g")
 
 
 def test_a_lost_number_is_an_error():
-    assert any("145" in m for m in messages(check(GOOD.replace("145 Ω", "cent quarante-cinq Ω"))))
+    assert any("145" in m for m in messages(check(GOOD.replace("145 g", "cent quarante-cinq g"))))
 
 
 def test_a_changed_number_is_an_error():
-    assert any("150" in m for m in messages(check(GOOD.replace("150 Ω", "510 Ω"))))
+    assert any("150" in m for m in messages(check(GOOD.replace("150 g", "510 g"))))
 
 
 def test_placeholders_are_not_counted_as_numbers():
@@ -62,22 +62,22 @@ def test_a_chunk_returned_unchanged_is_an_error():
 
 
 def test_a_glossary_term_not_used_is_an_error():
-    bad = GOOD.replace("résistance", "resistor")
-    assert any("résistance" in m for m in messages(check(bad)))
+    bad = GOOD.replace("levure", "yeast")
+    assert any("levure" in m for m in messages(check(bad)))
 
 
 def test_a_term_to_keep_that_was_translated_is_an_error():
-    bad = GOOD.replace("LED", "DEL")
-    assert any("LED" in m for m in messages(check(bad)))
+    bad = GOOD.replace("PanPro", "Pan Pro")
+    assert any("PanPro" in m for m in messages(check(bad)))
 
 
 def test_a_lost_heading_is_an_error():
-    bad = GOOD.replace("## Choisir la résistance", "Choisir la résistance")
+    bad = GOOD.replace("## Choisir la levure", "Choisir la levure")
     assert any("heading" in m for m in messages(check(bad)))
 
 
 def test_a_lost_list_item_is_an_error():
-    bad = GOOD.replace("- Vérifier l'anode.\n", "")
+    bad = GOOD.replace("- Vérifier le four.\n", "")
     assert any("list" in m for m in messages(check(bad)))
 
 
@@ -100,7 +100,7 @@ def test_a_suspicious_length_is_a_warning_not_an_error():
 
 
 def test_the_cross_check_flags_the_chunks_where_two_engines_disagree():
-    other = GOOD.replace("145 Ω", "154 Ω")
+    other = GOOD.replace("145 g", "154 g")
     findings = qc.cross_check({0: SOURCE, 1: SOURCE}, {0: GOOD, 1: GOOD}, {0: other, 1: GOOD},
                               names=("agent", "local"))
     assert [f.chunk for f in findings] == [0]

@@ -1,6 +1,6 @@
 ---
 name: pdf
-description: Write, build and review a paginated PDF document of this library from Markdown, with the repository's shared art direction — presets, front matter, cover, icons, diagrams — and rebuild an external PDF as such a document. Use when asked to write, create, update, fix or rebuild a document here — a repair that a check such as `make check-library` reports included — to create a new document under library/, to change the art direction, to add a diagram or an icon to a document, to import a PDF into the library, or to merge, split or extract pages from a built PDF. Not for the EPUB output (the `epub` skill), for a PDF read as evidence in an investigation (`sourcing`), for translating a document (`translate`), for capturing a web page (`fetch`), or for a subject the user still wants to talk through (`discussion`).
+description: Write, build and review a paginated PDF document of this library from Markdown, with the repository's shared art direction — presets, front matter, cover, icons, diagrams — and rebuild an external PDF as such a document. Use when asked to write, create, update, fix or rebuild a document here — a repair that a check such as `make check-library` reports included, except a `manifest`, `id` or `citation` defect, which is the `catalogue` skill's — to create a new document under library/, to change the art direction, to add a diagram or an icon to a document, to import a PDF into the library, or to merge, split or extract pages from a built PDF. Not for the EPUB output (the `epub` skill), for a PDF read as evidence in an investigation (`sourcing`), for translating a document (`translate`), for capturing a web page (`fetch`), or for a subject the user still wants to talk through (`discussion`).
 ---
 
 # PDF documents of the library
@@ -20,11 +20,11 @@ the repository root: `build.py`, `new.py`, `ingest.py`, `review.py`.
 | Write, build or review a document here | **this one** |
 | Rebuild an external PDF as a document here | **this one**, *Importing an external PDF* |
 | Merge, split, extract text or images from a built PDF | **this one**, `references/manipulation.md` |
-| A diagram, schematic or chart to insert | `diagram-design` |
+| A diagram or a chart to insert | `diagram-design` |
 | The EPUB of a document, and its review | `epub` |
 | Translate a document already in the library | `translate` |
 | Capture one web page as a document | `fetch` |
-| Read a PDF as evidence — find a term, read a schematic | `sourcing` |
+| Read a PDF as evidence — find a term, read a drawing | `sourcing` |
 
 The boundary with `sourcing`, since both open PDFs: **does the operation end in
 a document under `library/`? Then it is this skill.** If the PDF stays a
@@ -82,17 +82,48 @@ make new DOC=<topic>/<slug> PRESET=<preset> TITLE="Title"
 ```
 
 `<topic>` is a free directory under `library/`, at whatever depth
-(`finance/2026/report-q3`). Intermediate directories are created as needed;
-there is no register to update. A directory becomes a document as soon as it
-holds a `document/index.md` — a document is five directories and the build
-reads one of them. `docs/document.md` is the manual: what each one holds, and
-what every command puts where.
+(`finance/2026/report-q3`). Intermediate directories are created as needed.
+A directory becomes a document as soon as it holds a `document/index.md` — a
+document is five directories and the build reads one of them.
+`docs/document.md` is the manual: what each one holds, and what every command
+puts where.
+
+The library's map says where it goes: `.venv/bin/catalogue ls <topic>` lists a
+topic's entries, and each topic's description says what belongs in it.
+`make new` ends by syncing the new entry and printing what is left to name
+there — the entry, a new topic above it — which the `catalogue` skill names.
 
 The seeds are in this skill's `assets/templates/`, one `index.md` per preset:
 creating a document is this skill's job alone, and nothing reads a seed after.
 
 Presets: `report` (default — cover, table of contents, H1 = chapter), `onepager`
 (one to four pages, dense, two columns), `letter`, `slides` (landscape deck).
+
+## What the library already holds
+
+A document here rarely starts from nothing: the library may already hold its
+sources, a discussion's journal or an investigation on its subject, or another
+document it should agree with. **Before writing, look through the map**, never
+by listing directories:
+
+- `.venv/bin/catalogue find <the subject's words>` gives the entries and items
+  whose name or description holds them; `--text` searches the lines of the
+  text items — journals, extractions, notes.
+- `links <entry>` gives what the entry's journals cite elsewhere in the
+  library, and what cites the entry.
+
+Read only what the search points at, and only the part the document needs:
+`peek <id> --pages 3-4` for a PDF's text layer, the topic of a journal that
+covers the section being written.
+
+**No id goes into `document/`.** An `id:` link is the agent's citation, in its
+own files — a journal, `NOTES.md`. The document names what it draws on in its
+own words, for its reader; `make check-library` reports an `id:` link in
+`document/` as a `citation` defect.
+
+**The map's defects are the `catalogue` skill's.** Of what `make
+check-library` reports, a `manifest`, `id` or `citation` defect goes to it;
+the rest — the anatomy, what the build would refuse — is this skill's.
 
 ## Writing the content
 
@@ -159,7 +190,7 @@ Two traps, both seen:
   `source:` front matter and in `study/meta.json`, where it stays traceable.
   Put it on the cover only if the user asks — which happens, for a contractual
   or regulatory piece.
-- **The `meta:` columns are a cover footer, not a datasheet.** Three or four at
+- **The `meta:` columns are a cover footer, not a spec sheet.** Three or four at
   most, and only what identifies the document for its reader.
 
 ```markdown
@@ -360,7 +391,7 @@ The import produces an ordinary document of the library — not a special format
 `make build` then applies the art direction to it, as to any other document.
 
 This is reading a PDF **to rebuild it**. Reading one to know what it says — a
-term across a manual, a page with no text layer, a schematic to crop — ends in
+term across a manual, a page with no text layer, a drawing to crop — ends in
 knowledge rather than a document, and is the `sourcing` skill.
 
 **Ask for the target language first** (see *What to ask*). Then:

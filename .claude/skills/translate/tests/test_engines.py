@@ -7,10 +7,10 @@ import zones
 
 def request(**over):
     fields = dict(index=2, total=5, source_lang="en", target_lang="fr",
-                  text=f"The anode is the long leg of {zones.token(7)}.\n",
-                  context_before="## Polarity", previous_translation="## Polarité",
-                  headings=("Wiring", "Polarity"), glossary={"anode": "anode"},
-                  keep=("LED",))
+                  text=f"The stone must be hot for {zones.token(7)}.\n",
+                  context_before="## Heat", previous_translation="## Chaleur",
+                  headings=("Baking", "Heat"), glossary={"yeast": "levure"},
+                  keep=("PanPro",))
     fields.update(over)
     return engines.Request(**fields)
 
@@ -28,18 +28,18 @@ def test_the_request_tells_the_agent_everything_a_chunk_cannot_carry(tmp_path):
     with pytest.raises(engines.Pending) as raised:
         engine.translate(request())
     text = raised.value.request_path.read_text(encoding="utf-8")
-    for expected in ("en → fr", "3 of 5", "Wiring › Polarity", "## Polarity",
-                     "## Polarité", "anode → anode", "LED",
+    for expected in ("en → fr", "3 of 5", "Baking › Heat", "## Heat",
+                     "## Chaleur", "yeast → levure", "PanPro",
                      str(engine.answer_path(2)), zones.token(7),
-                     "The anode is the long leg of"):
+                     "The stone must be hot for"):
         assert expected in text, expected
 
 
 def test_the_agent_engine_returns_the_answer_it_finds(tmp_path):
     engine = engines.AgentEngine(tmp_path)
     engine.answer_path(2).parent.mkdir(parents=True)
-    engine.answer_path(2).write_text("L'anode est la patte longue.\n", encoding="utf-8")
-    assert engine.translate(request()) == "L'anode est la patte longue.\n"
+    engine.answer_path(2).write_text("La pierre doit être chaude.\n", encoding="utf-8")
+    assert engine.translate(request()) == "La pierre doit être chaude.\n"
 
 
 def test_the_local_engine_is_a_seam_that_says_where_it_will_come_from(tmp_path):

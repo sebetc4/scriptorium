@@ -2,7 +2,7 @@
 
 An engine that receives a sentence alone translates it without knowing what
 "it" refers to, which term the previous paragraph settled, or that the section
-is about a resistor rather than a resistance. So the body is cut at block
+is about a river bank rather than a savings bank. So the body is cut at block
 boundaries, never inside one — a paragraph, a list, a table, a fenced code
 block, an admonition with its indented body — packed up to a budget, preferably
 starting at a heading. Each chunk carries:

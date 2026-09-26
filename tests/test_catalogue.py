@@ -25,9 +25,9 @@ def lib(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def station(lib):
+def appliance(lib):
     """An entry with every kind of child: roles, a root file, a stray directory."""
-    e = lib / "lab" / "tools" / "tc-22"
+    e = lib / "home" / "appliances" / "washer"
     put(e, "sources/manuel.pdf", "%PDF manuel")
     put(e, "sources/pannes/p1.jpg", "jpeg 1")
     put(e, "sources/pannes/p2.jpg", "jpeg 2")
@@ -51,7 +51,7 @@ def snapshot(root):
 # --- the format -------------------------------------------------------------
 
 def test_a_manifest_round_trips_through_its_yaml():
-    m = cat.Manifest(id="tc22-abcdefgh", name="Station", description="Une station.",
+    m = cat.Manifest(id="lave-linge-abcdefgh", name="Lave-linge", description="Un lave-linge.",
                      items=[cat.Item(path="sources/b.pdf", kind="pdf", sha256="00"),
                             cat.Item(path="sources/a", kind="directory", files=2)])
     text = cat.dump(m)
@@ -63,7 +63,7 @@ def test_a_manifest_round_trips_through_its_yaml():
 
 
 def test_a_topic_manifest_has_no_items_key():
-    text = cat.dump(cat.Manifest(id="labo-abcdefgh", name="Labo", description="d"))
+    text = cat.dump(cat.Manifest(id="maison-abcdefgh", name="Maison", description="d"))
     assert "items" not in text
     assert cat.parse(text).items is None
 
@@ -107,19 +107,19 @@ def test_a_topic_with_its_manifest_is_still_a_topic(lib):
     assert dict((cat.where(lib, d), k) for d, k in cat.nodes(lib))["a"] == "topic"
 
 
-def test_the_inside_of_an_entry_is_never_a_node(lib, station):
+def test_the_inside_of_an_entry_is_never_a_node(lib, appliance):
     assert [cat.where(lib, d) for d, _ in cat.nodes(lib)] == [
-        "lab", "lab/tools", "lab/tools/tc-22"]
+        "home", "home/appliances", "home/appliances/washer"]
 
 
-def test_default_items_are_the_role_children_and_the_root_files(station):
-    assert cat.default_paths(station) == [
+def test_default_items_are_the_role_children_and_the_root_files(appliance):
+    assert cat.default_paths(appliance) == [
         "document/assets", "document/index.md", "notice.txt",
         "sources/manuel.pdf", "sources/pannes", "study/NOTES.md", "study/schema.md"]
 
 
 def test_a_directory_outside_the_roles_is_an_item_of_its_own(lib):
-    e = lib / "components" / "capacitor"
+    e = lib / "home" / "kitchen"
     put(e, "images/a.jpg")
     put(e, "sources/b.pdf")
     assert cat.default_paths(e) == ["images", "sources/b.pdf"]
@@ -148,7 +148,7 @@ def test_an_id_is_drawn_again_until_it_is_free(monkeypatch):
     assert cat.new_id("x", {"x-aaaaaaaa"}) == "x-bbbbbbbb"
 
 
-@pytest.mark.parametrize("prefix", ["Manuel", "manuel_tc", "-a", "a--b", "é", "",
+@pytest.mark.parametrize("prefix", ["Manuel", "manuel_x", "-a", "a--b", "é", "",
                                     "a" * 25])
 def test_a_malformed_prefix_is_refused(prefix):
     with pytest.raises(cat.ManifestError, match="prefix"):
@@ -157,17 +157,17 @@ def test_a_malformed_prefix_is_refused(prefix):
 
 # --- sync ---------------------------------------------------------------------
 
-def test_sync_gives_every_directory_a_manifest(lib, station):
+def test_sync_gives_every_directory_a_manifest(lib, appliance):
     cat.sync(lib)
-    for d in (lib / "lab", lib / "lab" / "tools", station):
+    for d in (lib / "home", lib / "home" / "appliances", appliance):
         assert (d / cat.MANIFEST).is_file()
-    assert cat.read(lib / "lab").items is None
-    assert not (station / "sources" / cat.MANIFEST).exists()
+    assert cat.read(lib / "home").items is None
+    assert not (appliance / "sources" / cat.MANIFEST).exists()
 
 
-def test_sync_lists_the_default_items_with_what_the_tool_knows(station, lib):
+def test_sync_lists_the_default_items_with_what_the_tool_knows(appliance, lib):
     cat.sync(lib)
-    got = items(station)
+    got = items(appliance)
     assert set(got) == {"document/index.md", "notice.txt", "sources/manuel.pdf",
                         "sources/pannes", "study/NOTES.md", "study/schema.md"}
     assert got["sources/pannes"].kind == "directory" and got["sources/pannes"].files == 2
@@ -178,21 +178,35 @@ def test_sync_lists_the_default_items_with_what_the_tool_knows(station, lib):
     assert got["study/schema.md"].sha256 is None
 
 
-def test_sync_names_the_anatomys_standard_files(station, lib):
+def test_sync_names_the_anatomys_standard_files(appliance, lib):
     cat.sync(lib)
-    got = items(station)
+    got = items(appliance)
     for path in ("document/index.md", "study/NOTES.md"):
-        assert got[path].name == cat.STANDARD[path][1]
-        assert got[path].id.startswith(cat.STANDARD[path][0] + "-")
+        assert got[path].name == cat.STANDARD["en"][path][1]
+        assert got[path].id.startswith(cat.STANDARD["en"][path][0] + "-")
     assert got["study/schema.md"].name is None and got["study/schema.md"].id is None
 
 
-def test_an_empty_directory_needs_no_item(station, lib):
+def test_a_library_names_its_standard_files_in_its_own_language(appliance, lib):
+    """The repository serves a library in any language: the tool names the
+    anatomy's files in the one the library declares, English by default."""
+    assert cat.language(lib) == "en"
+    put(lib, cat.SETTINGS, "language: fr\n")
+    assert cat.language(lib) == "fr"
     cat.sync(lib)
-    assert "document/assets" not in items(station)        # only a .gitkeep
+    got = items(appliance)["document/index.md"]
+    assert (got.name, got.id.split("-")[0]) == ("Texte du document", "document")
+    put(lib, cat.SETTINGS, "language: xx\n")      # no standard names: English
+    assert cat.language(lib) == "en"
+    assert lib not in {d for d, _ in cat.nodes(lib)}   # the root stays no node
 
 
-def test_sync_a_second_time_changes_nothing(station, lib):
+def test_an_empty_directory_needs_no_item(appliance, lib):
+    cat.sync(lib)
+    assert "document/assets" not in items(appliance)        # only a .gitkeep
+
+
+def test_sync_a_second_time_changes_nothing(appliance, lib):
     cat.sync(lib)
     before = snapshot(lib)
     report = cat.sync(lib)
@@ -200,129 +214,146 @@ def test_sync_a_second_time_changes_nothing(station, lib):
     assert report[-1].startswith("0 manifests written")
 
 
-def test_sync_never_touches_a_name_or_a_description(station, lib):
+def test_sync_never_touches_a_name_or_a_description(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22", "Station TC22", "Ma station.", "tc22")
-    cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
-    put(station, "sources/new.pdf", "nouveau")
+    cat.describe(lib, "home/appliances/washer", "Lave-linge", "Mon lave-linge.", "lave-linge")
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
+    put(appliance, "sources/new.pdf", "nouveau")
     cat.sync(lib)
-    m = cat.read(station)
-    assert (m.name, m.description) == ("Station TC22", "Ma station.")
-    assert items(station)["sources/manuel.pdf"].name == "Manuel"
-    assert "sources/new.pdf" in items(station)
+    m = cat.read(appliance)
+    assert (m.name, m.description) == ("Lave-linge", "Mon lave-linge.")
+    assert items(appliance)["sources/manuel.pdf"].name == "Manuel"
+    assert "sources/new.pdf" in items(appliance)
 
 
-def test_sync_never_writes_into_the_users_sources(station, lib):
-    before = snapshot(station / doc.SOURCES)
+def test_sync_never_writes_into_the_users_sources(appliance, lib):
+    before = snapshot(appliance / doc.SOURCES)
     cat.sync(lib)
-    assert snapshot(station / doc.SOURCES) == before
+    assert snapshot(appliance / doc.SOURCES) == before
 
 
-def test_a_new_file_in_a_covered_directory_is_no_new_item(station, lib):
+def test_a_new_file_in_a_covered_directory_is_no_new_item(appliance, lib):
     cat.sync(lib)
-    put(station, "sources/pannes/p3.jpg", "jpeg 3")
+    put(appliance, "sources/pannes/p3.jpg", "jpeg 3")
     cat.sync(lib)
-    assert items(station)["sources/pannes"].files == 3
-    assert "sources/pannes/p3.jpg" not in items(station)
+    assert items(appliance)["sources/pannes"].files == 3
+    assert "sources/pannes/p3.jpg" not in items(appliance)
 
 
-def test_a_renamed_source_keeps_its_id_name_and_description(station, lib):
+def test_a_renamed_source_keeps_its_id_name_and_description(appliance, lib):
     cat.sync(lib)
-    first = cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", "Manuel", "Le manuel.",
+    first = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.",
                          "manuel").split()[0]
-    (station / "sources/manuel.pdf").rename(station / "sources/TC22 manual.pdf")
+    (appliance / "sources/manuel.pdf").rename(appliance / "sources/washer manual.pdf")
     report = cat.sync(lib)
-    got = items(station)
+    got = items(appliance)
     assert "sources/manuel.pdf" not in got
-    moved = got["sources/TC22 manual.pdf"]
+    moved = got["sources/washer manual.pdf"]
     assert (moved.id, moved.name, moved.description) == (first, "Manuel", "Le manuel.")
-    assert any("followed: lab/tools/tc-22/sources/manuel.pdf → sources/TC22 manual.pdf"
+    assert any("followed: home/appliances/washer/sources/manuel.pdf → sources/washer manual.pdf"
                in line for line in report)
 
 
-def test_a_renamed_directory_of_sources_is_followed(station, lib):
+def test_a_renamed_directory_of_sources_is_followed(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
-    (station / "sources/pannes").rename(station / "sources/failures")
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Photos de pannes.", "pannes")
+    (appliance / "sources/pannes").rename(appliance / "sources/failures")
     cat.sync(lib)
-    assert items(station)["sources/failures"].name == "Pannes"
+    assert items(appliance)["sources/failures"].name == "Pannes"
 
 
-def test_a_source_moved_to_another_entry_is_followed(station, lib):
-    other = lib / "lab" / "tools" / "support"
+def test_a_source_moved_to_another_entry_is_followed(appliance, lib):
+    other = lib / "home" / "appliances" / "dryer"
     put(other, "sources/support.jpg", "support")
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22/notice.txt", "Notice", "La notice.", "notice")
-    (station / "notice.txt").rename(other / "sources" / "notice.txt")
+    cat.describe(lib, "home/appliances/washer/notice.txt", "Notice", "La notice.", "notice")
+    (appliance / "notice.txt").rename(other / "sources" / "notice.txt")
     cat.sync(lib)
-    assert "notice.txt" not in items(station)
+    assert "notice.txt" not in items(appliance)
     assert items(other)["sources/notice.txt"].name == "Notice"
 
 
-def test_a_vanished_named_source_is_kept_and_reported(station, lib):
+def test_a_vanished_named_source_is_kept_and_reported(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
-    (station / "sources/manuel.pdf").unlink()
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
+    (appliance / "sources/manuel.pdf").unlink()
     report = cat.sync(lib)
-    assert "sources/manuel.pdf" in items(station)
-    assert "lab/tools/tc-22 — vanished: sources/manuel.pdf" in report
+    assert "sources/manuel.pdf" in items(appliance)
+    assert "home/appliances/washer — vanished: sources/manuel.pdf" in report
 
 
-def test_a_vanished_item_never_named_is_dropped(station, lib):
+def test_a_vanished_item_never_named_is_dropped(appliance, lib):
     cat.sync(lib)
-    (station / "study/schema.md").unlink()
+    (appliance / "study/schema.md").unlink()
     cat.sync(lib)
-    assert "study/schema.md" not in items(station)
+    assert "study/schema.md" not in items(appliance)
 
 
-def test_a_described_source_that_changed_is_reported_and_keeps_its_digest(station, lib):
+def test_a_described_source_that_changed_is_reported_and_keeps_its_digest(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
-    described = items(station)["sources/manuel.pdf"].sha256
-    put(station, "sources/manuel.pdf", "%PDF manuel, révision 2")
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.", "manuel")
+    described = items(appliance)["sources/manuel.pdf"].sha256
+    put(appliance, "sources/manuel.pdf", "%PDF manuel, révision 2")
     report = cat.sync(lib)
-    assert "lab/tools/tc-22 — changed since described: sources/manuel.pdf" in report
-    assert items(station)["sources/manuel.pdf"].sha256 == described
-    cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", description="Révisé.")
-    assert items(station)["sources/manuel.pdf"].sha256 != described
+    assert "home/appliances/washer — changed since described: sources/manuel.pdf" in report
+    assert items(appliance)["sources/manuel.pdf"].sha256 == described
+    cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", description="Révisé.")
+    assert items(appliance)["sources/manuel.pdf"].sha256 != described
 
 
-def test_an_undescribed_source_follows_its_content(station, lib):
+def test_an_undescribed_source_follows_its_content(appliance, lib):
     cat.sync(lib)
-    put(station, "sources/manuel.pdf", "%PDF autre")
+    put(appliance, "sources/manuel.pdf", "%PDF autre")
     report = cat.sync(lib)
     assert not any("changed" in line for line in report)
-    assert items(station)["sources/manuel.pdf"].sha256 == cat.file_digest(
-        station / "sources/manuel.pdf")
+    assert items(appliance)["sources/manuel.pdf"].sha256 == cat.file_digest(
+        appliance / "sources/manuel.pdf")
 
 
-def test_sync_of_one_entry_writes_it_and_the_topics_above_only(station, lib):
+def test_sync_of_one_entry_writes_it_and_the_topics_above_only(appliance, lib):
     put(lib, "other/entry/sources/x.pdf")
-    cat.sync(lib, ["lab/tools/tc-22"])
-    assert (station / cat.MANIFEST).is_file() and (lib / "lab" / cat.MANIFEST).is_file()
+    cat.sync(lib, ["home/appliances/washer"])
+    assert (appliance / cat.MANIFEST).is_file() and (lib / "home" / cat.MANIFEST).is_file()
     assert not (lib / "other" / cat.MANIFEST).exists()
 
 
-def test_sync_of_a_path_inside_an_entry_syncs_the_entry(station, lib):
-    cat.sync(lib, ["library/lab/tools/tc-22/sources/pannes"])
-    assert (station / cat.MANIFEST).is_file()
+def test_sync_of_a_path_inside_an_entry_syncs_the_entry(appliance, lib):
+    cat.sync(lib, ["library/home/appliances/washer/sources/pannes"])
+    assert (appliance / cat.MANIFEST).is_file()
 
 
-def test_an_unreadable_manifest_is_left_as_it_is(station, lib):
-    put(station, cat.MANIFEST, "items: 3\n")
+def test_sync_takes_a_node_or_an_item_by_its_id(appliance, lib):
+    """Every command takes an id, `sync` too: a session finds its entry with
+    `find`, and syncs what `find` gave it."""
+    cat.sync(lib)
+    entry = cat.describe(lib, "home/appliances/washer", "Lave-linge", "Un lave-linge.",
+                         "washer").split()[0]
+    manual = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel",
+                          "Le manuel.", "manuel").split()[0]
+    put(appliance, "sources/new.pdf", "nouveau")
+    assert "home/appliances/washer — new item: sources/new.pdf" in cat.sync(lib, [entry])
+    put(appliance, "sources/other.pdf", "autre")        # an item's id syncs its entry
+    assert "home/appliances/washer — new item: sources/other.pdf" in cat.sync(
+        lib, [f"id:{manual}"])
+    with pytest.raises(cat.ManifestError, match="no such id"):
+        cat.sync(lib, ["gone-abcdefgh"])
+
+
+def test_an_unreadable_manifest_is_left_as_it_is(appliance, lib):
+    put(appliance, cat.MANIFEST, "items: 3\n")
     report = cat.sync(lib)
-    assert (station / cat.MANIFEST).read_text() == "items: 3\n"
+    assert (appliance / cat.MANIFEST).read_text() == "items: 3\n"
     assert any("unreadable manifest" in line for line in report)
 
 
 # --- describe -----------------------------------------------------------------
 
-def test_a_first_naming_draws_the_id_from_the_prefix(station, lib):
+def test_a_first_naming_draws_the_id_from_the_prefix(appliance, lib):
     cat.sync(lib)
-    line = cat.describe(lib, "lab", "Laboratoire", "L'équipement de l'atelier.", "labo")
-    m = cat.read(lib / "lab")
-    assert m.id.startswith("labo-") and line == f"{m.id} — lab"
-    assert (m.name, m.description) == ("Laboratoire", "L'équipement de l'atelier.")
+    line = cat.describe(lib, "home", "Maison", "Ce qui concerne la maison.", "maison")
+    m = cat.read(lib / "home")
+    assert m.id.startswith("maison-") and line == f"{m.id} — home"
+    assert (m.name, m.description) == ("Maison", "Ce qui concerne la maison.")
 
 
 @pytest.mark.parametrize("args, what", [
@@ -330,34 +361,34 @@ def test_a_first_naming_draws_the_id_from_the_prefix(station, lib):
     (("N", None, "p"), "both the name and the description"),
     ((None, None, "p"), "nothing to write"),
 ])
-def test_a_first_naming_needs_the_name_the_description_and_the_prefix(station, lib,
+def test_a_first_naming_needs_the_name_the_description_and_the_prefix(appliance, lib,
                                                                       args, what):
     cat.sync(lib)
     with pytest.raises(cat.ManifestError, match=what):
-        cat.describe(lib, "lab", *args)
+        cat.describe(lib, "home", *args)
 
 
-def test_an_id_never_changes(station, lib):
+def test_an_id_never_changes(appliance, lib):
     cat.sync(lib)
-    first = cat.describe(lib, "lab", "Labo", "d", "labo").split()[0]
-    again = cat.describe(lib, "lab", "Laboratoire", None, "autre").split()[0]
-    assert again == first and cat.read(lib / "lab").name == "Laboratoire"
+    first = cat.describe(lib, "home", "Maison", "d", "maison").split()[0]
+    again = cat.describe(lib, "home", "Logis", None, "autre").split()[0]
+    assert again == first and cat.read(lib / "home").name == "Logis"
 
 
-def test_describe_reaches_a_node_by_its_id(station, lib):
+def test_describe_reaches_a_node_by_its_id(appliance, lib):
     cat.sync(lib)
-    first = cat.describe(lib, "lab/tools/tc-22/study/schema.md", "Schéma", "Relevé.", "schema")
+    first = cat.describe(lib, "home/appliances/washer/study/schema.md", "Schéma", "Relevé.", "schema")
     ident = first.split()[0]
     cat.describe(lib, ident, description="Relevé du schéma.")
     cat.describe(lib, f"id:{ident}", name="Schéma relevé")
-    got = items(station)["study/schema.md"]
+    got = items(appliance)["study/schema.md"]
     assert (got.name, got.description) == ("Schéma relevé", "Relevé du schéma.")
 
 
-def test_describing_a_file_inside_a_covered_directory_takes_it_out(station, lib):
+def test_describing_a_file_inside_a_covered_directory_takes_it_out(appliance, lib):
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne 1", "La première.", "panne")
-    got = items(station)
+    cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne 1", "La première.", "panne")
+    got = items(appliance)
     assert got["sources/pannes/p1.jpg"].sha256 and got["sources/pannes"]
     assert cat.covering(list(got.values()), "sources/pannes/p1.jpg").name == "Panne 1"
     before = snapshot(lib)
@@ -366,45 +397,45 @@ def test_describing_a_file_inside_a_covered_directory_takes_it_out(station, lib)
 
 
 @pytest.mark.parametrize("target, what", [
-    ("lab/tools/tc-22/.work/review/sheet.png", "hidden"),
-    ("lab/nowhere", "nothing there"),
+    ("home/appliances/washer/.work/review/sheet.png", "hidden"),
+    ("home/nowhere", "nothing there"),
     ("id:gone-abcdefgh", "no such id"),
 ])
-def test_describe_refuses_what_it_cannot_describe(station, lib, target, what):
+def test_describe_refuses_what_it_cannot_describe(appliance, lib, target, what):
     cat.sync(lib)
     with pytest.raises(cat.ManifestError, match=what):
         cat.describe(lib, target, "N", "D", "p")
 
 
-def test_a_directory_under_a_topic_is_described_as_a_node(station, lib):
+def test_a_directory_under_a_topic_is_described_as_a_node(appliance, lib):
     cat.sync(lib)
-    line = cat.describe(lib, "lab/tools", "Outils", "Les outils.", "outils")
-    assert line.endswith("— lab/tools")
+    line = cat.describe(lib, "home/appliances", "Appareils", "Les appareils.", "appareils")
+    assert line.endswith("— home/appliances")
 
 
 # --- citations ------------------------------------------------------------------
 
-def test_citations_are_read_from_the_agents_markdown_only(station, lib):
-    put(station, "study/discussion/index.md",
+def test_citations_are_read_from_the_agents_markdown_only(appliance, lib):
+    put(appliance, "study/discussion/index.md",
         "Voir [le manuel](id:manuel-abcdefgh) et [ici](topics/a.md).\n")
-    put(station, "sources/copied.md", "[x](id:ignored-abcdefgh)\n")
-    put(station, ".work/x.md", "[x](id:ignored-bcdefghj)\n")
-    found = [(p.relative_to(station).as_posix(), n, i) for p, n, i in cat.citations(lib)]
+    put(appliance, "sources/copied.md", "[x](id:ignored-abcdefgh)\n")
+    put(appliance, ".work/x.md", "[x](id:ignored-bcdefghj)\n")
+    found = [(p.relative_to(appliance).as_posix(), n, i) for p, n, i in cat.citations(lib)]
     assert found == [("study/discussion/index.md", 1, "manuel-abcdefgh")]
 
 
 # --- the command line -----------------------------------------------------------
 
-def test_the_command_line_syncs_and_describes(station, lib, capsys):
+def test_the_command_line_syncs_and_describes(appliance, lib, capsys):
     assert cat.main(["sync"]) == 0
     assert "manifest created" in capsys.readouterr().out
-    assert cat.main(["describe", "lab", "--name", "Labo", "--description", "d",
-                     "--prefix", "labo"]) == 0
-    assert capsys.readouterr().out.startswith("labo-")
+    assert cat.main(["describe", "home", "--name", "Maison", "--description", "d",
+                     "--prefix", "maison"]) == 0
+    assert capsys.readouterr().out.startswith("maison-")
 
 
-def test_the_command_line_fails_loudly_on_a_refusal(station, lib, capsys):
-    assert cat.main(["describe", "lab", "--name", "Labo"]) == 1
+def test_the_command_line_fails_loudly_on_a_refusal(appliance, lib, capsys):
+    assert cat.main(["describe", "home", "--name", "Maison"]) == 1
     assert capsys.readouterr().err.startswith("catalogue: ")
 
 
@@ -434,16 +465,16 @@ def test_a_malformed_retired_record_is_refused(text, what):
 # --- the cleaning-up commands ------------------------------------------------------
 
 @pytest.fixture
-def cited(station, lib):
-    """The station, named, its manual cited by a journal elsewhere in the library."""
+def cited(appliance, lib):
+    """The appliance, named, its manual cited by a journal elsewhere in the library."""
     cat.sync(lib)
-    cat.describe(lib, "lab/tools/tc-22", "Station TC22", "Ma station.", "tc22")
-    manual = cat.describe(lib, "lab/tools/tc-22/sources/manuel.pdf", "Manuel", "Le manuel.",
+    cat.describe(lib, "home/appliances/washer", "Lave-linge", "Mon lave-linge.", "lave-linge")
+    manual = cat.describe(lib, "home/appliances/washer/sources/manuel.pdf", "Manuel", "Le manuel.",
                           "manuel").split()[0]
-    cat.describe(lib, "lab/tools/tc-22/notice.txt", "Notice", "Une notice.", "notice")
-    put(lib, "carnet/study/discussion/index.md", f"Voir [le manuel](id:{manual}).\n")
+    cat.describe(lib, "home/appliances/washer/notice.txt", "Notice", "Une notice.", "notice")
+    put(lib, "travaux/study/discussion/index.md", f"Voir [le manuel](id:{manual}).\n")
     cat.sync(lib)
-    return station
+    return appliance
 
 
 def others(root, *but):
@@ -453,18 +484,18 @@ def others(root, *but):
 
 
 def test_unused_lists_the_sources_nothing_cites_each_with_its_reason(cited, lib):
-    out = cat.unused(lib, "lab/tools/tc-22")
-    assert out[0] == "2 of 3 sources of lab/tools/tc-22 neither cited nor derived from:"
+    out = cat.unused(lib, "home/appliances/washer")
+    assert out[0] == "2 of 3 sources of home/appliances/washer neither cited nor derived from:"
     assert out[1].startswith("notice.txt  Notice  notice-") and out[1].endswith(
         "— cited by nothing; the entry's document may rest on it")
     assert out[2] == "sources/pannes  (to describe)  - — never named, so never cited"
 
 
 def test_unused_counts_a_directory_holding_a_cited_item_as_used(cited, lib):
-    photo = cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne", "La panne.",
+    photo = cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.",
                          "panne").split()[0]
-    put(lib, "carnet/study/NOTES.md", f"[p](id:{photo})\n")
-    assert not any("sources/pannes" in line for line in cat.unused(lib, "lab/tools/tc-22"))
+    put(lib, "travaux/study/NOTES.md", f"[p](id:{photo})\n")
+    assert not any("sources/pannes" in line for line in cat.unused(lib, "home/appliances/washer"))
 
 
 def test_unused_counts_what_a_tool_derives_from(lib):
@@ -484,7 +515,7 @@ def test_unused_counts_what_a_tool_derives_from(lib):
 
 
 def test_unused_takes_an_entry_only(cited, lib):
-    for target in ("lab", "lab/tools/tc-22/sources/manuel.pdf"):
+    for target in ("home", "home/appliances/washer/sources/manuel.pdf"):
         with pytest.raises(cat.ManifestError, match="unused takes an entry"):
             cat.unused(lib, target)
 
@@ -492,8 +523,8 @@ def test_unused_takes_an_entry_only(cited, lib):
 def test_remove_deletes_the_file_and_its_line_and_retires_the_id(cited, lib):
     before = others(lib, cited / "notice.txt")
     ident = items(cited)["notice.txt"].id
-    assert cat.remove(lib, ["lab/tools/tc-22/notice.txt"]) == [
-        f"lab/tools/tc-22/notice.txt — removed, {ident} retired"]
+    assert cat.remove(lib, ["home/appliances/washer/notice.txt"]) == [
+        f"home/appliances/washer/notice.txt — removed, {ident} retired"]
     assert not (cited / "notice.txt").exists()
     assert others(lib) == before                      # nothing else touched
     m = cat.read(cited)
@@ -504,8 +535,8 @@ def test_remove_deletes_the_file_and_its_line_and_retires_the_id(cited, lib):
 
 def test_remove_acts_only_on_items_named_exactly(cited, lib):
     before = others(lib)
-    for target in ("lab/tools/tc-22/sources/pannes/p1.jpg",   # inside an item
-                   "lab/tools/tc-22", "lab", "lab/tools/tc-22/sources"):
+    for target in ("home/appliances/washer/sources/pannes/p1.jpg",   # inside an item
+                   "home/appliances/washer", "home", "home/appliances/washer/sources"):
         with pytest.raises(cat.ManifestError, match="not an item"):
             cat.remove(lib, [target])
     with pytest.raises(cat.ManifestError, match="takes the items"):
@@ -516,40 +547,40 @@ def test_remove_acts_only_on_items_named_exactly(cited, lib):
 def test_remove_refuses_everything_when_one_target_is_refused(cited, lib):
     before = others(lib)
     with pytest.raises(cat.ManifestError, match="document/ is the deliverable"):
-        cat.remove(lib, ["lab/tools/tc-22/notice.txt", "lab/tools/tc-22/document/index.md"])
+        cat.remove(lib, ["home/appliances/washer/notice.txt", "home/appliances/washer/document/index.md"])
     assert others(lib) == before
 
 
 def test_remove_refuses_a_directory_holding_an_item_not_named(cited, lib):
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne", "La panne.", "panne")
+    cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.", "panne")
     with pytest.raises(cat.ManifestError, match="holds items not named: sources/pannes/p1.jpg"):
-        cat.remove(lib, ["lab/tools/tc-22/sources/pannes"])
-    out = cat.remove(lib, ["lab/tools/tc-22/sources/pannes",
-                           "lab/tools/tc-22/sources/pannes/p1.jpg"])
-    assert out[0].startswith("lab/tools/tc-22/sources/pannes/p1.jpg — removed")
+        cat.remove(lib, ["home/appliances/washer/sources/pannes"])
+    out = cat.remove(lib, ["home/appliances/washer/sources/pannes",
+                           "home/appliances/washer/sources/pannes/p1.jpg"])
+    assert out[0].startswith("home/appliances/washer/sources/pannes/p1.jpg — removed")
     assert not (cited / "sources/pannes").exists()
 
 
 def test_remove_refuses_an_item_in_use_unless_told(cited, lib):
     with pytest.raises(cat.ManifestError, match=r"in use \(cited\) — --used"):
-        cat.remove(lib, ["lab/tools/tc-22/sources/manuel.pdf"])
-    cat.remove(lib, ["lab/tools/tc-22/sources/manuel.pdf"], used=True)
+        cat.remove(lib, ["home/appliances/washer/sources/manuel.pdf"])
+    cat.remove(lib, ["home/appliances/washer/sources/manuel.pdf"], used=True)
     assert not (cited / "sources/manuel.pdf").exists()
 
 
 def test_removing_a_vanished_item_retires_its_id(cited, lib):
     (cited / "notice.txt").unlink()
-    cat.remove(lib, ["lab/tools/tc-22/notice.txt"])
+    cat.remove(lib, ["home/appliances/washer/notice.txt"])
     assert [r.path for r in cat.read(cited).retired] == ["notice.txt"]
 
 
 def test_merge_folds_an_item_back_into_the_directory_above(cited, lib):
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Les pannes.", "pannes")
-    photo = cat.describe(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "Panne", "La panne.",
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    photo = cat.describe(lib, "home/appliances/washer/sources/pannes/p1.jpg", "Panne", "La panne.",
                          "panne").split()[0]
     folder = items(cited)["sources/pannes"].id
     assert cat.merge(lib, [photo]) == [
-        f"lab/tools/tc-22/sources/pannes/p1.jpg — merged into sources/pannes ({folder})"]
+        f"home/appliances/washer/sources/pannes/p1.jpg — merged into sources/pannes ({folder})"]
     assert (cited / "sources/pannes/p1.jpg").is_file()
     assert "sources/pannes/p1.jpg" not in items(cited)
     (r,) = cat.read(cited).retired
@@ -560,36 +591,36 @@ def test_merge_folds_an_item_back_into_the_directory_above(cited, lib):
 
 
 def test_merge_needs_a_named_item_above_and_a_file_on_the_disk(cited, lib):
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes/p2.jpg", "Panne 2", "Deux.", "panne")
+    cat.describe(lib, "home/appliances/washer/sources/pannes/p2.jpg", "Panne 2", "Deux.", "panne")
     with pytest.raises(cat.ManifestError, match="no named item above it"):
-        cat.merge(lib, ["lab/tools/tc-22/sources/pannes/p2.jpg"])
+        cat.merge(lib, ["home/appliances/washer/sources/pannes/p2.jpg"])
     with pytest.raises(cat.ManifestError, match="no named item above it"):
-        cat.merge(lib, ["lab/tools/tc-22/notice.txt"])       # nothing above a root file
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Les pannes.", "pannes")
+        cat.merge(lib, ["home/appliances/washer/notice.txt"])       # nothing above a root file
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.", "pannes")
     (cited / "sources/pannes/p2.jpg").unlink()
     with pytest.raises(cat.ManifestError, match="gone from the disk"):
-        cat.merge(lib, ["lab/tools/tc-22/sources/pannes/p2.jpg"])
+        cat.merge(lib, ["home/appliances/washer/sources/pannes/p2.jpg"])
 
 
 def test_rename_renames_the_file_and_its_item_and_keeps_the_original(cited, lib):
     before = items(cited)["sources/manuel.pdf"]
-    out = cat.rename(lib, "lab/tools/tc-22/sources/manuel.pdf", "manuel-tc22.pdf")
-    assert out == ["lab/tools/tc-22/sources/manuel.pdf → manuel-tc22.pdf"
+    out = cat.rename(lib, "home/appliances/washer/sources/manuel.pdf", "manuel-lave-linge.pdf")
+    assert out == ["home/appliances/washer/sources/manuel.pdf → manuel-lave-linge.pdf"
                    " — original name kept: manuel.pdf"]
-    after = items(cited)["sources/manuel-tc22.pdf"]
+    after = items(cited)["sources/manuel-lave-linge.pdf"]
     assert (after.id, after.name, after.sha256) == (before.id, before.name, before.sha256)
     assert after.original == "manuel.pdf"
     report = cat.sync(lib)
     assert report[-1].startswith("0 manifests written")
-    cat.rename(lib, after.id, "manuel-station.pdf")
-    assert items(cited)["sources/manuel-station.pdf"].original == "manuel.pdf"
+    cat.rename(lib, after.id, "manuel-maison.pdf")
+    assert items(cited)["sources/manuel-maison.pdf"].original == "manuel.pdf"
     cat.rename(lib, after.id, "manuel.pdf")
     assert items(cited)["sources/manuel.pdf"].original is None
 
 
 def test_rename_inside_a_directory_gives_the_file_its_item(cited, lib):
-    cat.describe(lib, "lab/tools/tc-22/sources/pannes", "Pannes", "Les pannes.", "pannes")
-    cat.rename(lib, "lab/tools/tc-22/sources/pannes/p1.jpg", "panne-fer.jpg")
+    cat.describe(lib, "home/appliances/washer/sources/pannes", "Pannes", "Les pannes.", "pannes")
+    cat.rename(lib, "home/appliances/washer/sources/pannes/p1.jpg", "panne-fer.jpg")
     got = items(cited)
     assert got["sources/pannes/panne-fer.jpg"].original == "p1.jpg"
     assert got["sources/pannes/panne-fer.jpg"].name is None       # to describe
@@ -598,12 +629,12 @@ def test_rename_inside_a_directory_gives_the_file_its_item(cited, lib):
 
 
 @pytest.mark.parametrize("target, new, what", [
-    ("lab/tools/tc-22/sources/pannes", "x", "one file of an entry"),
-    ("lab/tools/tc-22/study/schema.md", "s.md", "only a source"),
-    ("lab/tools/tc-22/sources/manuel.pdf", "manuel.txt", "keeps its extension"),
-    ("lab/tools/tc-22/sources/manuel.pdf", "../x.pdf", "a file name, not a path"),
-    ("lab/tools/tc-22/sources/manuel.pdf", ".cache.pdf", "a file name, not a path"),
-    ("lab/tools/tc-22/sources/pannes/p1.jpg", "p2.jpg", "already exists"),
+    ("home/appliances/washer/sources/pannes", "x", "one file of an entry"),
+    ("home/appliances/washer/study/schema.md", "s.md", "only a source"),
+    ("home/appliances/washer/sources/manuel.pdf", "manuel.txt", "keeps its extension"),
+    ("home/appliances/washer/sources/manuel.pdf", "../x.pdf", "a file name, not a path"),
+    ("home/appliances/washer/sources/manuel.pdf", ".cache.pdf", "a file name, not a path"),
+    ("home/appliances/washer/sources/pannes/p1.jpg", "p2.jpg", "already exists"),
 ])
 def test_rename_refuses_what_is_not_a_plain_source_file_rename(cited, lib, target, new, what):
     before = others(lib)
@@ -621,9 +652,79 @@ def test_rename_refuses_a_source_a_tool_derives_from_by_name(lib):
         cat.rename(lib, "web/page/sources/page.html.gz", "article.html.gz")
 
 
+def test_move_takes_an_item_across_roles_with_its_id_name_and_description(cited, lib):
+    """An investigation's pieces leave `sources/` for `study/`: the item follows
+    its file, where `sync` would only see a source vanish."""
+    manual = items(cited)["sources/manuel.pdf"]
+    out = cat.move(lib, manual.id, "study/pieces/manuel.pdf")
+    assert out == [f"home/appliances/washer/sources/manuel.pdf → study/pieces/manuel.pdf"
+                   f" — {manual.id} kept"]
+    assert (cited / "study/pieces/manuel.pdf").read_text() == "%PDF manuel"
+    after = items(cited)["study/pieces/manuel.pdf"]
+    assert (after.id, after.name, after.description) == (manual.id, "Manuel", "Le manuel.")
+    assert after.sha256 is None                       # the agent's file: no digest
+    assert cat.cited(lib) >= {manual.id}              # the citation still leads to it
+    report = cat.sync(lib)
+    assert report[-1].startswith("0 manifests written")
+    assert not any("vanished" in line or "new item" in line for line in report)
+
+
+def test_move_carries_the_items_inside_and_removes_the_directories_left_empty(lib):
+    e = lib / "research" / "castle"
+    put(e, "sources/raw/page.html.gz", "gz")
+    put(e, "sources/raw/thread.html.gz", "gz 2")
+    put(e, "study/NOTES.md", "# Notes")
+    cat.sync(lib)
+    cat.describe(lib, "research/castle/sources/raw", "Pages", "Les pages reçues.", "pages")
+    thread = cat.describe(lib, "research/castle/sources/raw/thread.html.gz", "Fil", "Un fil.",
+                          "fil").split()[0]
+    out = cat.move(lib, "research/castle/sources/raw", "study/raw")
+    assert out[-1] == "research/castle/sources — left empty, removed"
+    assert not (e / "sources").exists()
+    got = items(e)
+    assert got["study/raw/thread.html.gz"].id == thread
+    assert (got["study/raw"].files, got["study/raw"].kind) == (2, "directory")
+
+
+def test_move_keeps_a_sources_digest_and_gives_one_to_a_file_moved_into_sources(cited, lib):
+    notice = items(cited)["notice.txt"]
+    cat.move(lib, "home/appliances/washer/notice.txt", "sources/notice.txt")
+    assert items(cited)["sources/notice.txt"].sha256 == notice.sha256
+    cat.describe(lib, "home/appliances/washer/study/schema.md", "Schéma", "Le schéma.", "schema")
+    cat.move(lib, "home/appliances/washer/study/schema.md", "sources/schema.md")
+    assert items(cited)["sources/schema.md"].sha256 == cat.digest(cited, "sources/schema.md")
+    assert not any("changed" in line for line in cat.sync(lib))
+
+
+@pytest.mark.parametrize("target, dest, what", [
+    ("home/appliances/washer/sources/pannes/p1.jpg", "study/p1.jpg", "not an item"),
+    ("home/appliances/washer", "study/x", "not an item"),
+    ("home/appliances/washer/sources/manuel.pdf", "study/NOTES.md", "already exists"),
+    ("home/appliances/washer/sources/manuel.pdf", "../manuel.pdf", "a path inside the entry"),
+    ("home/appliances/washer/sources/manuel.pdf", ".work/manuel.pdf", "a path inside the entry"),
+    ("home/appliances/washer/sources/manuel.pdf", "sources/manifest.yaml", "a path inside the entry"),
+    ("home/appliances/washer/sources/pannes", "sources/pannes/deeper", "inside the item"),
+])
+def test_move_refuses_what_is_not_a_move_of_an_item_within_its_entry(cited, lib, target,
+                                                                      dest, what):
+    before = others(lib)
+    with pytest.raises(cat.ManifestError, match=what):
+        cat.move(lib, target, dest)
+    assert others(lib) == before
+
+
+def test_move_refuses_a_source_a_tool_derives_from_by_name(lib):
+    capture = lib / "web" / "page"
+    put(capture, "sources/page.html.gz", "gz")
+    put(capture, "study/meta.json", '{"sha256_html": "00"}')
+    cat.sync(lib)
+    with pytest.raises(cat.ManifestError, match="make rederive"):
+        cat.move(lib, "web/page/sources/page.html.gz", "study/page.html.gz")
+
+
 def test_a_retired_id_cannot_be_described(cited, lib):
     ident = items(cited)["notice.txt"].id
-    cat.remove(lib, ["lab/tools/tc-22/notice.txt"])
+    cat.remove(lib, ["home/appliances/washer/notice.txt"])
     with pytest.raises(cat.ManifestError, match="retired on .*notice.txt removed"):
         cat.describe(lib, ident, name="Encore")
 
@@ -631,19 +732,23 @@ def test_a_retired_id_cannot_be_described(cited, lib):
 def test_the_command_line_cleans_up_on_another_library(cited, lib, tmp_path, monkeypatch,
                                                        capsys):
     monkeypatch.setattr(doc, "LIBRARY", tmp_path / "elsewhere")      # not this one
-    assert cat.main(["--library", str(lib), "unused", "lab/tools/tc-22"]) == 0
+    assert cat.main(["--library", str(lib), "unused", "home/appliances/washer"]) == 0
     assert "2 of 3 sources" in capsys.readouterr().out
-    assert cat.main(["--library", str(lib), "remove", "lab/tools/tc-22/notice.txt"]) == 0
-    assert cat.main(["--library", str(lib), "rename", "lab/tools/tc-22/sources/manuel.pdf",
+    assert cat.main(["--library", str(lib), "remove", "home/appliances/washer/notice.txt"]) == 0
+    assert cat.main(["--library", str(lib), "rename", "home/appliances/washer/sources/manuel.pdf",
                      "m.pdf"]) == 0
     assert (cited / "sources/m.pdf").is_file()
+    assert cat.main(["--library", str(lib), "move", "home/appliances/washer/sources/m.pdf",
+                     "study/m.pdf"]) == 0
+    assert (cited / "study/m.pdf").is_file()
 
 
 @pytest.mark.parametrize("call", [
-    lambda lib: cat.rename(lib, "lab/tools/tc-22/../../../outside.txt", "moved.txt"),
-    lambda lib: cat.remove(lib, ["lab/tools/tc-22/../../../outside.txt"]),
-    lambda lib: cat.describe(lib, "lab/../../outside.txt", "N", "D", "p"),
-    lambda lib: cat.sync(lib, ["lab/../.."]),
+    lambda lib: cat.rename(lib, "home/appliances/washer/../../../outside.txt", "moved.txt"),
+    lambda lib: cat.move(lib, "home/appliances/washer/../../../outside.txt", "study/moved.txt"),
+    lambda lib: cat.remove(lib, ["home/appliances/washer/../../../outside.txt"]),
+    lambda lib: cat.describe(lib, "home/../../outside.txt", "N", "D", "p"),
+    lambda lib: cat.sync(lib, ["home/../.."]),
 ])
 def test_no_command_follows_a_path_out_of_the_library(cited, lib, call):
     outside = put(lib.parent, "outside.txt", "not the library's")
@@ -655,26 +760,26 @@ def test_no_command_follows_a_path_out_of_the_library(cited, lib, call):
 # --- mapped: what a command that creates an entry prints ---------------------
 
 def test_mapped_syncs_a_new_entry_and_lists_what_is_left_to_name(lib):
-    e = put(lib, "watch/tc22/sources/manuel.pdf", "%PDF").parent.parent
+    e = put(lib, "watch/washer/sources/manuel.pdf", "%PDF").parent.parent
     put(e, "document/index.md", "---\ntitle: T\n---\n")
     lines = cat.mapped(lib, e)
     for d in (lib / "watch", e):
         assert (d / cat.MANIFEST).is_file()
-    assert lines[0] == "  map: watch/tc22 synced — to name: watch/tc22, watch"
+    assert lines[0] == "  map: watch/washer synced — to name: watch/washer, watch"
     assert "to describe: sources/manuel.pdf" in lines[1]
-    assert lines[-1].endswith(".venv/bin/catalogue ls watch/tc22 -l")
+    assert lines[-1].endswith(".venv/bin/catalogue ls watch/washer -l")
 
 
 def test_mapped_says_when_nothing_is_left(lib):
-    e = put(lib, "watch/tc22/document/index.md", "---\ntitle: T\n---\n").parent.parent
+    e = put(lib, "watch/washer/document/index.md", "---\ntitle: T\n---\n").parent.parent
     cat.sync(lib)
     cat.describe(lib, "watch", "Veille", "Ce qu'on surveille.", "veille")
-    cat.describe(lib, "watch/tc22", "Station", "Une station.", "tc22")
-    assert cat.mapped(lib, e) == ["  map: watch/tc22 synced — to name: nothing"]
+    cat.describe(lib, "watch/washer", "Lave-linge", "Un lave-linge.", "washer")
+    assert cat.mapped(lib, e) == ["  map: watch/washer synced — to name: nothing"]
 
 
 def test_mapped_never_fails_the_command_that_created_the_entry(lib):
-    e = put(lib, "watch/tc22/document/index.md", "x").parent.parent
+    e = put(lib, "watch/washer/document/index.md", "x").parent.parent
     put(e, cat.MANIFEST, "items: 3\n")
     lines = cat.mapped(lib, e)
-    assert len(lines) == 1 and lines[0].startswith("  ! map: watch/tc22 not synced")
+    assert len(lines) == 1 and lines[0].startswith("  ! map: watch/washer not synced")

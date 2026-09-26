@@ -93,8 +93,8 @@ def epub_css(d: Path, tokens: dict[str, str]) -> str:
     parts = [EPUB_SHEET.read_text(encoding="utf-8")]
     local = doc.doc_dir(d) / "theme.css"
     if local.exists():
-        # A document's local departure carries its content typography — the
-        # formulae in components/led/, for instance. So it follows into the
+        # A document's local departure carries its content typography — its
+        # formulae, for instance. So it follows into the
         # EPUB, stripped of whatever concerns the page alone.
         parts.append(f"\n/* {local.name} */\n" + local.read_text(encoding="utf-8"))
     return flatten_css("\n".join(parts), tokens)

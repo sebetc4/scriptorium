@@ -41,8 +41,16 @@ answer is not on that page, it has to be established.
   repository's art direction, not the site's.
 - **Capturing what is not a web page.** A PDF URL is refused with a pointer to
   `make import` (the `pdf` skill). An image or any other file is refused too.
+- **An `id:` link in `document/`.** Ids are the agent's citations, in its own
+  files; the document names its sources in its own words.
 
 ## Capturing
+
+**Look in the library first, through its map.** `.venv/bin/catalogue find
+<the page's subject>`: the library may already hold this page, or a document
+on its subject — say so before capturing a second one. `ls` on the topics
+gives where the new one goes: each topic's description says what belongs in
+it.
 
 ```bash
 make fetch URL=https://example.org/article DOC=watch/article [TO=fr] [RENDER=1]
@@ -74,6 +82,7 @@ It writes — `docs/document.md` says what each directory of a document is for:
 | `study/extracted.md` | the raw extraction, an immutable reference |
 | `sources/page.html.gz` | **the page as it was received**, byte for byte |
 | `study/meta.json` | provenance: URL, effective URL, HTTP status, content type, TLS verification, date, SHA-256 digest, images that failed |
+| `manifest.yaml` | the entry's map, synced as the last step; its last lines say what is left to name |
 
 **`sources/page.html.gz` is the only proof of what was captured**, because a
 web page changes or disappears and cannot be asked for again. It holds the
@@ -149,10 +158,12 @@ browser assembled rather than the bytes the server sent.
 4. **Check the images.** Those that failed are listed in `study/meta.json`,
    each with its reason. Each figure arrives titled "Figure — to be captioned":
    caption it or remove it.
-5. **Propose the cover** (the `pdf` skill, *The cover*), including the URL and
+5. **Name what the map lists** — the entry, a new topic above it — by the
+   `catalogue` skill.
+6. **Propose the cover** (the `pdf` skill, *The cover*), including the URL and
    the capture date. These are *not* carried by default: they are often useful
    on a web capture, but that is the user's call.
-6. **Build and review** (the `pdf` skill, *Build, then review*).
+7. **Build and review** (the `pdf` skill, *Build, then review*).
 
 The comment block at the top of `document/index.md` repeats what is left to do for this
 page. Delete it once done.

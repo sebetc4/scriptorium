@@ -7,7 +7,7 @@ from core import doc
 
 import epub
 
-FM = {"title": "Les LED", "subtitle": "Dimensionner et ne pas les griller",
+FM = {"title": "Le pain", "subtitle": "Doser et ne pas le brûler",
       "eyebrow": "Fiche technique", "date": "2026-09-10", "lang": "fr"}
 
 
@@ -19,7 +19,7 @@ def tokens(fixture_tree):
 
 def test_the_html_carries_the_title_and_the_eyebrow(fixture_tree):
     h = epub.cover_html(FM, tokens(fixture_tree))
-    assert "Les LED" in h
+    assert "Le pain" in h
     assert "Fiche technique" in h
 
 

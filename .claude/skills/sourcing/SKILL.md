@@ -6,17 +6,16 @@ description: Investigate a question across several sources that are not known in
 # Sourcing an investigation
 
 **It produces knowledge, not a document.** An investigation establishes an
-answer that no single source holds: which part cuts the power on a machine
-whose schematic was never published, what a dead forum said about it, whether
-three photos by three people agree. The output is a journal, the pieces as
+answer that no single source holds: what a document nobody published would
+have said, what a dead forum said about it, whether three photos by three
+people agree. The output is a journal, the pieces as
 they were received, and their transcriptions. A document may be written from
 them afterwards, with the `pdf` skill.
 
-Everything here comes from one real investigation — reconstructing the power-up
-circuit of a Korg Electribe 2 from a handful of links, every one of which on the
-main forum was dead. It produced 46 images, 11 transcribed threads and 8
-manufacturer PDFs. Nothing below is theoretical: each tool was used at least
-once, most between three and ten times.
+Everything here comes from a real investigation, started from a handful of
+links whose main forum was dead. It produced dozens of images, a dozen
+transcribed threads and several PDFs. Nothing below is theoretical: each tool
+was used at least once, most between three and ten times.
 
 ## When it stops being a `fetch`
 
@@ -26,21 +25,22 @@ document**. An investigation starts the moment either condition breaks:
 - **the sources are not known in advance** — the first link leads to a dead
   forum, the forum to an archive, the archive to a manual nobody linked;
 - **there are several, and they must be checked against each other** — a forum
-  claim against a datasheet, a photo against another photo.
+  claim against a primary source, a photo against another photo.
 
 A request that starts from one URL can still be an investigation: "find out,
-from this thread and whatever it leads to, how the power circuit works" is.
+from this thread and whatever it leads to, what really happened" is.
 The answer is not on that page; it has to be established. When the work turns
 out to be capturing one page after all, hand it to `fetch`.
 
 ## What this skill refuses
 
-- **Writing a document.** No `index.md` is ever written by an investigation. Its
-  material may live in the `sources/` of the document it feeds, and the journal
-  in its `study/` (`docs/document.md`) — as the Electribe investigation does,
-  its pieces in `library/electronics/repair/electribe-2/sources/` and its
-  journal in that document's `study/NOTES.md` — but the document itself is
-  written separately, with `pdf`.
+- **Writing a document.** No `index.md` is ever written by an investigation.
+  When it feeds a document of the library, it lives in that entry's `study/`
+  — its journal and the pieces it found (*In the library*, below) — and the
+  document itself is written separately, with `pdf`.
+- **Putting what it found in `sources/`.** `sources/` keeps what the user gave
+  or pointed at. A page, a thread, a document the investigation found is the
+  agent's finding, and goes beside its journal.
 - **Presenting a second-hand rendering as a primary source.** A search engine's
   excerpt of a dead page is a lead, never a piece to cite.
 - **Presenting a hypothesis as established.** That is what the journal is for.
@@ -70,9 +70,9 @@ usable". Two threads were opened twice for want of that line.
 
 | Level | Where | What it is |
 |---|---|---|
-| The piece | `raw/*.html.gz`, `datasheets/`, `images/` | what was received, intact — the proof. Never edited. |
+| The piece | `raw/*.html.gz`, `documents/`, `images/` | what was received, intact — the proof. Never edited. |
 | The transcription | `threads/*.md` | verbatim text, with a provenance header |
-| The analysis | `NOTES.md` | cites both levels above |
+| The analysis | `NOTES.md` | cites both levels above — by id, in the library |
 
 Every transcription carries a **provenance header**: original URL, archive URL,
 retrieval date, and **the conditions of the collection** — "the forum answered
@@ -81,27 +81,24 @@ HTTP 500 on every page; the Wayback Machine was the only way in".
 
 ### Four rules
 
-1. **Go up one rung, to the primary source.** The forum said "MOSFET CPH6302".
-   The Sanyo datasheet confirmed P-channel, gave the pinout and the package
-   marking `JB` — the only practical way to find the part on the board — and
-   let the dimensioning be checked by calculation. A forum gives a lead; a
-   manufacturer's datasheet gives a fact.
-2. **Cross-check visual testimony.** Three photos of the same board area, by
-   three people, on two models, three years apart. They converged, so the
-   layout is stable across models and the diagnosis transposes — and the
-   silkscreen settled three contradictory designations in the written sources.
-   **A photo is a piece of evidence like any other**, and often more reliable
-   than a forum memory.
-3. **Follow the lead the source abandoned.** The main thread's author mentions in
-   passing having seen "something similar in the microKORG service manual",
-   then drops it. That was the best seam of the investigation: four official
-   manuals, the Korg part code, the designator, the pinout, and the jack
-   mechanism drawn by the manufacturer. What a source mentions without
-   exploiting is worth a detour.
-4. **Look elsewhere rather than force a closed door.** The Electribe 2 power
-   schematic is not public. Those of three other Korg machines of the same
-   family are, and they hold the part, its designator and its pinout. That
-   detour produced the investigation's best result.
+1. **Go up one rung, to the primary source.** A forum names a thing, a figure,
+   a date; the primary source — the maker's documentation, the original
+   record, the text itself — confirms it, and gives what the forum left out:
+   the detail that lets the claim be checked. A forum gives a lead; a primary
+   source gives a fact.
+2. **Cross-check visual testimony.** Three photos of the same thing, by three
+   people, years apart: when they converge, what they show holds beyond one
+   case — and a label or an inscription read on them can settle what the
+   written sources disagree on. **A photo is a piece of evidence like any
+   other**, and often more reliable than a remembered account.
+3. **Follow the lead the source abandoned.** A source mentions in passing a
+   document it has seen, then drops it. That aside can be the best seam of an
+   investigation: it led to official documents holding what no other source
+   had. What a source mentions without exploiting is worth a detour.
+4. **Look elsewhere rather than force a closed door.** The document that would
+   answer is not public; a close relative of it often is — another model of
+   the same family, an earlier edition, a neighbouring case — and holds the
+   same answer. That detour produced the investigation's best result.
 
 ### Where things are
 
@@ -111,7 +108,7 @@ An investigation folder, wherever it lives:
 NOTES.md            the journal
 raw/                pieces: pages as received, gzipped
 threads/            transcriptions, each with its provenance header
-datasheets/         manufacturer PDFs
+documents/          PDFs and other documents received
 images/             archived images + manifest.json
 ```
 
@@ -120,12 +117,43 @@ calls: a `cd` followed by a background task writes elsewhere, silently. It cost
 a whole batch. Every tool here resolves its paths at once and prints them
 resolved.
 
+### In the library
+
+An investigation that feeds a document of the library has that entry's
+`study/` for its folder: `study/NOTES.md`, and beside it `study/raw/`,
+`study/threads/`, `study/documents/`, `study/images/`. **What it found is the
+agent's, not the user's**: `sources/` keeps what the user gave or pointed at —
+their notes, their photos, the PDF they imported, the page they had captured.
+The guard refuses an edit in `raw/`, `documents/` and `images/` beside a
+`NOTES.md`: the pieces are kept as received.
+
+There, the library's map applies:
+
+- **Before collecting, look in the library.** `.venv/bin/catalogue find <the
+  subject's words>`: a piece the library already holds is a piece already
+  received. Read what the search points at, and cite it.
+- **Its pieces become items.** After each batch of collection, `sync` the
+  entry: each new directory of `study/` is an item. A piece the journal cites
+  alone — the document a claim rests on, the page that settled a point, the
+  image a detail was read from — gets an item of its own, named and
+  described by the `catalogue` skill from what the journal says of it; a batch
+  cited only as a whole stays in its directory's item.
+- **`NOTES.md` cites them by id**, never by path — the path may stay as the
+  link's text: [`raw/forum-page.html.gz`](id:forum-page-k7m3p2x9). A
+  rename or a move no longer breaks the journal, and `links <piece>` says
+  which lines of the analysis rest on it.
+
+An investigation whose pieces sit in `sources/` predates this layout. On the
+user's word, each directory goes to `study/` with
+`.venv/bin/catalogue move <item> study/<dir>`, which keeps its id, its name
+and its description.
+
 ## Before any request: the access map
 
 `references/access-map.md` records, dated, which doors were closed and which
-were open — Reddit closed on every endpoint, datasheet aggregators 403, and
-`polynominal.com` serving synth service manuals directly. **Read it before
-probing**: it saves dozens of wasted requests. **Update it** when an
+were open — Reddit closed on every endpoint, a search engine's HTML answering
+with a challenge, the Wayback Machine reached through its CDX index. **Read it
+before probing**: it saves dozens of wasted requests. **Update it** when an
 investigation meets a wall or a door it does not list. It is the one piece of
 site knowledge worth maintaining.
 
@@ -182,22 +210,23 @@ a downloaded batch (three error pages) fail the batch.
   **Imgur's `h` suffix** marks a 40 kB thumbnail; the tools strip it to reach
   the 3 MB original.
 - **A pile of images → the two that matter.** `contact_sheet.py`, then
-  `crop.py` to read the silkscreen, `crop.py --compare` when two sources
+  `crop.py` to read the detail, `crop.py --compare` when two sources
   disagree, and `archive_images.py` for what is kept — provenance recorded at
   collection time, never afterwards.
 - **A manual → a fact.** `pdf_find.py` to find the page, reading its report of
-  pages with no text layer; `contact_sheet.py manual.pdf` to spot a schematic by
+  pages with no text layer; `contact_sheet.py manual.pdf` to spot a figure by
   its title block; `pdf_render.py --scale 6 --region …` to read it.
 
 ### Two traps in PDFs
 
-- **A page with no text layer is not an empty page.** The Korg service manuals'
-  schematics yielded zero characters. A text search concludes "not in this PDF"
+- **A page with no text layer is not an empty page.** A drawing, a scan, a
+  figure yields zero characters. A text search concludes "not in this PDF"
   exactly where the answer is: `pdf_find.py` names those pages on every run.
-- **Do not trust extracted tables.** The CPH6302 characteristics table came out
-  as `CV utoff Voltage GS(off) VDS=–10V, I D=0 –1mA –5 1. –V 2.` Rendered, the
-  same line reads without effort. Text extraction *locates* a page; the image is
-  what is read.
+- **Do not trust extracted tables.** A table of values comes out with its
+  subscripts torn from their symbols and its numbers split across cells, as
+  `CV utoff Value X(off) Y=–10, Z=0 –1 –5 1. –V 2.`; rendered, the same line
+  reads without effort. Text extraction *locates* a page; the image is what
+  is read.
 
 ## Shared with the rest of the repository
 

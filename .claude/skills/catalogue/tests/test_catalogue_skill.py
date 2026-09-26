@@ -61,7 +61,7 @@ def test_the_skill_states_its_refusals():
     refuses = section(SKILL, "What this skill refuses")
     for refusal in ("Changing a source's content", "Writing an id by hand",
                     "An id in `document/`", "Describing a file from its name",
-                    "Removing or renaming without the user's word"):
+                    "Removing, renaming or moving without the user's word"):
         assert refusal in refuses, refusal
 
 
@@ -72,6 +72,9 @@ def test_cleaning_up_and_renaming_wait_for_the_user():
     renaming = section(SKILL, "Renaming, on the user's word")
     assert "only those the user accepts" in renaming
     assert "The original name stays in the manifest" in renaming
+    moving = section(SKILL, "Moving, on the user's word")
+    assert "done on the user's word" in moving
+    assert "The id, the name and the description go with the file" in moving
 
 
 def test_the_skill_says_when_to_turn_to_the_user():
@@ -101,7 +104,7 @@ def test_the_agent_describes_and_never_acts_on_files():
     front = AGENT.read_text(encoding="utf-8").split("---")[1]
     assert re.search(r"^tools: Read, Bash$", front, re.M)
     never = section(AGENT, "Never")
-    for act in ("Rename, remove, merge or sync", "Edit a file", "Guess"):
+    for act in ("Rename, remove, merge, move or sync", "Edit a file", "Guess"):
         assert act in never, act
     assert "Questions for the user:" in text(AGENT)
     assert "Rename proposals:" in text(AGENT)

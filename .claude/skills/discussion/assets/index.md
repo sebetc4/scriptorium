@@ -1,10 +1,10 @@
 # Discussion — <subject>
 
-**Document:** `library/<topic…>/<slug>/`
+**Document:** [<the entry's name>](id:<the entry's id>)
 **Started:** <YYYY-MM-DD>
 
 The only file a resume reads. A subject's substance is in its topic, what was
-superseded is in `sessions/`.
+superseded is in `sessions/`, and the material is cited by id where it served.
 
 ## Where it stands
 
@@ -40,11 +40,6 @@ its reason, dated, and what was considered and rejected, with why.>
 
 <The document's plan, once the user has agreed it. Before that, a plan an agent
 proposed is recorded here marked as a proposal.>
-
-## Material
-
-- `<file>` — <what it is: a pasted passage and its agent, the user's notes, a
-  photo — and which topics it fed.>
 
 ## Sessions
 

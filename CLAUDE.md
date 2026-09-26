@@ -47,7 +47,7 @@ reads one of them:
 |---|---|---|
 | `document/` | `index.md`, `cover.md`, `theme.css`, `assets/` | the agent — **the only one the build reads** |
 | `sources/` | what the user gave it | the user; a tool may add to it, never change it |
-| `study/` | extracted text, provenance, an investigation's journal, a discussion's journal, a translation's workspace | the agent |
+| `study/` | extracted text, provenance, an investigation's journal and the pieces it found, a discussion's journal, a translation's workspace | the agent |
 | `generators/` | code that draws an asset | the agent |
 | `.work/` | review sheets, EPUB proofs, page renders | commands — removed by `make clean` |
 
@@ -79,12 +79,17 @@ make links AT=topic/slug / make path ID=…     # what cites what; where an id i
 
 The agent reads and keeps the map through one entry point,
 `.venv/bin/catalogue <command>` — `find`, `ls`, `links`, `path`, `peek` to read
-it; `sync`, `describe`, `unused`, `remove`, `merge`, `rename` to keep it, by
+it; `sync`, `describe`, `unused`, `remove`, `merge`, `rename`, `move` to keep it, by
 the `catalogue` skill's rules. Every answer is 20 lines at most, however large
 the library.
 
 ## Rules no skill owns
 
+- The repository serves any user, for any kind of file. No skill, script, hook
+  or rule is written around what a library holds — its topics, its entries,
+  its subjects, its file names or kinds: what a session needs to know about a
+  library, it learns from the library's map. An example is fictional, never
+  quoted from `library/`.
 - Always run Python through `.venv/bin/python`, never the system `python3`.
 - Never modify `diagram-design`: it is a plugin installed outside the repository
   and replaced on update. It reads the art direction through the profile

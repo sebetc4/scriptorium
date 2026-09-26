@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Archive images as evidence: capped recompression and a manifest.
 
-    archive_images.py raw/ --dest sources/images [--full power-area.jpg]
-    archive_images.py --plan plan.json --dest sources/images
+    archive_images.py raw/ --dest images [--full detail.jpg]
+    archive_images.py --plan plan.json --dest images
 
 For every image, the manifest records the SHA-256 of the **original** — taken
 before recompression — its origin, its caption, and its original and stored
@@ -11,17 +11,17 @@ manifest was consulted constantly while writing the notes, and the digest
 proves the piece was not altered.
 
 Recompression caps the long side at 2600 px, quality 88, progressive: 36 MB
-became 21 MB on the investigation with no loss of silkscreen legibility. The
+became 21 MB on the investigation with no loss of small print. The
 two or three decisive pieces keep their full size (`--full`).
 
 A plan is the editorial half, written by hand: which source becomes which file,
 from where, with which caption. It is JSON, and its `source` paths are relative
 to the plan file:
 
-    {"mcv-schema-power.jpg": {"source": "raw/WwbyM8Y.jpeg",
-                              "origin": "https://imgur.com/a/0C2Nj",
-                              "caption": "Power section, redrawn from the PCB",
-                              "max_side": 0}}
+    {"diagram-redrawn.jpg": {"source": "raw/Ab3dE5f.jpeg",
+                             "origin": "https://imgur.com/a/Xy7Kq2",
+                             "caption": "The diagram, redrawn by a forum member",
+                             "max_side": 0}}
 
 `max_side: 0` keeps the full size. Without a plan, every image of the folder is
 archived under its own name, with an empty origin and caption to fill in.

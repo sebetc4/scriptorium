@@ -6,8 +6,8 @@ def long_document(sections=30):
     parts = []
     for s in range(1, sections + 1):
         parts.append(f"## Section {s}\n\n" + "\n\n".join(
-            f"Paragraph {s}.{p}: the forward voltage stays near 2 V while the "
-            f"current rises, which is why a resistor sets the current."
+            f"Paragraph {s}.{p}: the dough stays near 25 °C while the yeast "
+            f"works, which is why the proofing time sets the flavour."
             for p in range(1, 5)))
         if s % 5 == 0:
             parts.append("```\n" + "\n".join(f"line {i}" for i in range(60)) + "\n```")
@@ -38,7 +38,7 @@ def test_a_code_block_with_blank_lines_is_never_cut():
 
 
 def test_an_admonition_stays_with_its_indented_body():
-    body = "Intro.\n\n!!! warning \"Polarity\"\n    The long leg.\n\n    Still inside.\n\nOutro.\n"
+    body = "Intro.\n\n!!! warning \"Heat\"\n    The stone.\n\n    Still inside.\n\nOutro.\n"
     chunks = chunking.split(body, budget=10)
     holder = next(c for c in chunks if "!!!" in c.text)
     assert "Still inside." in holder.text

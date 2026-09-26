@@ -44,31 +44,31 @@ def test_the_manifest_carries_the_original_digest(tmp_path):
 
 
 def test_a_decisive_piece_keeps_its_full_size(tmp_path):
-    src = photos(tmp_path / "raw", {"power-area.jpg": (4200, 2400), "other.jpg": (4200, 2400)})
+    src = photos(tmp_path / "raw", {"detail.jpg": (4200, 2400), "other.jpg": (4200, 2400)})
     dest = tmp_path / "images"
-    archive_images.main([str(src), "--dest", str(dest), "--full", "power-area.jpg"])
-    assert Image.open(dest / "power-area.jpg").size == (4200, 2400)
+    archive_images.main([str(src), "--dest", str(dest), "--full", "detail.jpg"])
+    assert Image.open(dest / "detail.jpg").size == (4200, 2400)
     assert max(Image.open(dest / "other.jpg").size) == archive_images.MAX_SIDE
 
 
 def test_a_png_stays_a_png(tmp_path):
-    src = photos(tmp_path / "raw", {"bridge.png": (600, 400)})
+    src = photos(tmp_path / "raw", {"diagram.png": (600, 400)})
     dest = tmp_path / "images"
     archive_images.main([str(src), "--dest", str(dest)])
-    assert Image.open(dest / "bridge.png").format == "PNG"
+    assert Image.open(dest / "diagram.png").format == "PNG"
 
 
 def test_a_plan_names_places_and_captions_each_piece(tmp_path):
-    src = photos(tmp_path / "raw", {"WwbyM8Y.jpeg": (900, 600)})
+    src = photos(tmp_path / "raw", {"Ab3dE5f.jpeg": (900, 600)})
     plan = tmp_path / "plan.json"
-    plan.write_text(json.dumps({"mcv-schema-power.jpg": {
-        "source": "raw/WwbyM8Y.jpeg", "origin": "https://imgur.com/a/0C2Nj",
-        "caption": "Power section, redrawn by hand from the PCB"}}))
+    plan.write_text(json.dumps({"diagram-redrawn.jpg": {
+        "source": "raw/Ab3dE5f.jpeg", "origin": "https://imgur.com/a/Xy7Kq",
+        "caption": "The diagram, redrawn by hand by a forum member"}}))
     dest = tmp_path / "images"
     assert archive_images.main(["--plan", str(plan), "--dest", str(dest)]) == 0
-    entry = manifest(dest)["mcv-schema-power.jpg"]
-    assert entry["origin"] == "https://imgur.com/a/0C2Nj"
-    assert entry["caption"].startswith("Power section")
+    entry = manifest(dest)["diagram-redrawn.jpg"]
+    assert entry["origin"] == "https://imgur.com/a/Xy7Kq"
+    assert entry["caption"].startswith("The diagram")
 
 
 def test_a_second_run_updates_the_manifest_instead_of_losing_it(tmp_path):

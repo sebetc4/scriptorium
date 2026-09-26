@@ -30,12 +30,13 @@ case "$file" in
 esac
 
 # An investigation's pieces are proof, wherever the document keeps them. The
-# journal marks one: `study/NOTES.md` since the document-anatomy roadmap, and
-# `NOTES.md` at the root for a document written before it.
+# journal marks one: its `NOTES.md` beside them in `study/`, where they live
+# since the library-catalogue roadmap; `study/NOTES.md` above them for pieces
+# kept at the document's root before it.
 dir=$(dirname "$file")
 while [ "$dir" != "/" ] && [ "$dir" != "." ]; do
   case "$(basename "$dir")" in
-    raw|datasheets|images)
+    raw|documents|images)
       up=$(dirname "$dir")
       { [ -f "$up/study/NOTES.md" ] || [ -f "$up/NOTES.md" ]; } &&
         deny "$(basename "$dir")/ holds pieces of an investigation, kept as received: never edited." ;;

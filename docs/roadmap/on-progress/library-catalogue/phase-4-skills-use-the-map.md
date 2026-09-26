@@ -4,10 +4,10 @@
 
 ## Status
 
-**Current Status:** 🔴 Not Started (0% — 0/7)
-**Started:** {{START_DATE}}
-**Completed:** {{COMPLETION_DATE}}
-**Blocked By:** discussion-and-illustration Phase 0 — its baseline notebook session, before `discussion` changes
+**Current Status:** 🟢 Done (100% — 7/7)
+**Started:** 2026-09-26
+**Completed:** 2026-09-26
+**Blocked By:** —
 
 ---
 
@@ -60,17 +60,17 @@ discussion-and-illustration roadmap.
 ## Tasks
 
 ### `discussion`
-- [ ] Write the rule into `discussion`: answer from the agent's own knowledge when that suffices, as an agent's account; search the library when the answer depends on it — the user's own material, a claim the document will state as established, how a document of the library explains something; read only what the search points at, and only the part needed
-- [ ] Make the journal cite by id and open or resume with `links` on its entry, and remove the **Material** section from the skill, the index template and the suite
-- [ ] Replace the resume's comparison of `sources/` by hand with `sync` then `ls` on the entry
-- [ ] Migrate the notebook's journal: its path citations become `id:` citations, and its **Material** section goes
+- [x] Write the rule into `discussion`: answer from the agent's own knowledge when that suffices, as an agent's account; search the library when the answer depends on it — the user's own material, a claim the document will state as established, how a document of the library explains something; read only what the search points at, and only the part needed
+- [x] Make the journal cite by id and open or resume with `links` on its entry, and remove the **Material** section from the skill, the index template and the suite
+- [x] Replace the resume's comparison of `sources/` by hand with `sync` then `ls` on the entry
+- [x] Migrate the notebook's journal: its path citations become `id:` citations, and its **Material** section goes
 
 ### The other skills
-- [ ] `sourcing`: its pieces become items, and `NOTES.md` cites them by id
-- [ ] `pdf` and `fetch`: look for related material through the map, and never write an id into `document/`; `pdf`'s description, which claims every repair `make check-library` reports, names `catalogue` for a `manifest`, `id` or `citation` defect, with `tests/test_triggers.py`'s neighbours to match
+- [x] `sourcing`: its pieces become items, and `NOTES.md` cites them by id
+- [x] `pdf` and `fetch`: look for related material through the map, and never write an id into `document/`; `pdf`'s description, which claims every repair `make check-library` reports, names `catalogue` for a `manifest`, `id` or `citation` defect, with `tests/test_triggers.py`'s neighbours to match
 
 ### Proof
-- [ ] Hold a notebook session with the map, and record how the agent found the material outside the notebook, what it read, and what it cost, against the baseline session of discussion-and-illustration Phase 0
+- [x] Hold a notebook session with the map, and record how the agent found the material outside the notebook, what it read, and what it cost, against the baseline session of discussion-and-illustration Phase 0
 
 ---
 
@@ -111,7 +111,7 @@ the `discussion` skill. The user's time for the proof session.
 
 ## Acceptance Criteria
 
-- [ ] `make test` and `make check-library` pass
-- [ ] In the proof session, the agent found the material outside the notebook through `find` or `links`, without listing the file system
-- [ ] In the same session, it answered from its own knowledge where the library added nothing, and read only what a search pointed at
-- [ ] The session's cost is recorded against the baseline
+- [x] `make test` and `make check-library` pass
+- [x] In the proof session, the agent found the material outside the notebook through `find` or `links`, without listing the file system
+- [x] In the same session, it answered from its own knowledge where the library added nothing, and read only what a search pointed at
+- [x] The session's cost is recorded against the baseline
