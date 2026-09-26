@@ -259,15 +259,25 @@ like the rest of the repository.
 
 ## Metadata
 
-**Roadmap Status:** 🟡 In Progress
-**Location:** `docs/roadmap/on-progress/library-catalogue/`
-**Version:** 1.5.0
+**Roadmap Status:** 🟢 Done
+**Location:** `docs/roadmap/completed/library-catalogue/`
+**Version:** 2.0.0
 **Created:** 2026-09-25
 **Last Updated:** 2026-09-26
 
 ---
 
 ## Changelog
+
+### 2.0.0 (2026-09-26)
+
+Roadmap closed, 41 of 41 tasks over five phases. `summary.md` records where
+it started and landed, what each phase delivered, what holds beyond it — a
+short description decides what gets opened; an id cited from a record never
+rewritten needs a tombstone; a rule is told apart by where its answer comes
+from, never by what one library holds — and what stays open. Nothing was
+pending approval. The folder moved from `docs/roadmap/on-progress/` to
+`docs/roadmap/completed/library-catalogue/`.
 
 ### 1.5.0 (2026-09-26)
 

@@ -225,7 +225,7 @@ gitignored, so the migration leaves no commit.
 The same day, the user raised what the migration had shown: the journal's
 **Material** section is a manifest kept by hand, citing other directories by
 path. A design conversation followed and produced a new roadmap,
-[library-catalogue](../../on-progress/library-catalogue/README.md): a manifest in every
+[library-catalogue](../../completed/library-catalogue/README.md): a manifest in every
 directory of the library, ids that survive renames, and search commands.
 The user gave it priority. This phase is not blocked. Its last task, a real
 notebook session with the three-layer journal and a fresh-session resume, is
