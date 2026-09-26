@@ -233,6 +233,36 @@ the user's to hold. It must happen before library-catalogue's Phase 4
 changes the `discussion` skill, because it is the baseline that phase
 measures against.
 
+### 2026-09-26
+
+The user held the notebook session, in a fresh session
+(`f7b98772-bd39-48e6-b38d-8053db74625a`), and reviewed it there with
+`session-review`: `reviews/2026-09-26-f7b98772-notebook-resume.md`. The
+resume read the index alone, then two topics and one session file, each only
+when the discussion went back to it through the index's links — the last
+task's two conditions. The session covered the user's two new note lines, a
+re-reading of the joints photo (the "balls" came from cutting into the
+solder), the ring's schematic opened into five new topics (the astable
+clock, the delay stage, the transistor, the diode, the breadboard), and two
+new photos, synced and described through the `catalogue` skill. It paused
+there: the user studies the transistor before going on.
+
+Its figures, the baseline library-catalogue's Phase 4 measures against:
+**102,719 fresh tokens, 4,053,380 cache reads, 33,556 output, 50 turns,
+19 active minutes, 8 images carried for 272,000 tokens, a context peak of
+126,214.** Part of it is not discussion: the catalogue work on the two new
+photos, from about 10:37 to 10:40, four of the eight images among it. The
+review found three things, none of high severity: about fifteen of its 35
+Bash calls were hand-written substitutions into the journal files, which a
+helper would make one call each; a photograph is read for detail by cropping
+at native resolution, which the skill does not say; and the journal twice
+referred to the user with a gendered pronoun, copied from earlier sessions.
+
+`make test`, red at the last entry for reasons outside this phase, is green
+since the suite-and-review roadmap: 757 passed, `tests/test_documentation.py`
+and `tests/test_triggers.py` included — the second holds the descriptions of
+`discussion` and `sourcing` apart by their own words.
+
 ---
 
 ## Decisions
@@ -322,6 +352,127 @@ measures against.
 
 ## Files Changed
 
+Computed against the start commit `d66f0b8`. The phase stayed open while
+two other roadmaps ran: their files are listed too, each with its roadmap.
+`library/` is gitignored — the notebook journal's migration and sessions are
+in the Work Log only.
+
+**Added**
+
+- `.claude/agents/catalogue-describer.md` — library-catalogue roadmap, not this phase
+- `.claude/skills/catalogue/SKILL.md` — library-catalogue roadmap, not this phase
+- `.claude/skills/catalogue/references/describing.md` — library-catalogue roadmap, not this phase
+- `.claude/skills/catalogue/tests/test_catalogue_skill.py` — library-catalogue roadmap, not this phase
+- `.claude/skills/discussion/SKILL.md`
+- `.claude/skills/discussion/assets/index.md`
+- `.claude/skills/discussion/assets/session.md`
+- `.claude/skills/discussion/assets/topic.md`
+- `.claude/skills/discussion/tests/test_discussion.py`
+- `.claude/skills/pdf/tests/test_mapped.py` — library-catalogue roadmap, not this phase
+- `assets/icon.png` — not this phase's work, staged outside this closure: left out of its commit
+- `brand/style-guide/document/assets/.gitkeep` — suite-and-review roadmap, not this phase
+- `brand/style-guide/document/assets/chaine.svg` — suite-and-review roadmap, not this phase
+- `brand/style-guide/document/cover.md` — suite-and-review roadmap, not this phase
+- `brand/style-guide/document/index.md` — suite-and-review roadmap, not this phase
+- `core/catalogue.py` — library-catalogue roadmap, not this phase
+- `core/library.py`
+- `core/navigate.py` — library-catalogue roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/README.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/phase-0-library-free-suite-report.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/phase-0-library-free-suite.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/phase-1-trigger-review-report.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/phase-1-trigger-review.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/phase-2-trigger-audit-report.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/phase-2-trigger-audit.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/completed/suite-and-review/summary.md` — suite-and-review roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/README.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-0-manifest-report.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-0-manifest.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-1-navigation-report.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-1-navigation.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-2-catalogue-skill-report.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-2-catalogue-skill.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-3-library-mapped-report.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-3-library-mapped.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/on-progress/library-catalogue/phase-4-skills-use-the-map.md` — library-catalogue roadmap, not this phase
+- `docs/roadmap/pending/discussion-and-illustration/phase-0-discussion-skill-report.md`
+- `tests/fixtures/library/exemples/guide-de-style/document/assets/.gitkeep` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/exemples/guide-de-style/document/assets/chaine.svg` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/exemples/guide-de-style/document/cover.md` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/exemples/guide-de-style/document/index.md` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/exemples/guide-de-style/manifest.yaml` — library-catalogue roadmap, not this phase
+- `tests/fixtures/library/exemples/manifest.yaml` — library-catalogue roadmap, not this phase
+- `tests/fixtures/library/sample/component/document/assets/brochage.svg` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/sample/component/document/assets/coupe.svg` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/sample/component/document/assets/courbe.svg` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/sample/component/document/assets/montage.svg` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/sample/component/document/cover.md` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/sample/component/document/index.md` — suite-and-review roadmap, not this phase
+- `tests/fixtures/library/sample/component/manifest.yaml` — library-catalogue roadmap, not this phase
+- `tests/fixtures/library/sample/component/study/discussion/index.md`
+- `tests/fixtures/library/sample/component/study/discussion/sessions/2026-01-05.md`
+- `tests/fixtures/library/sample/component/study/discussion/topics/brochage.md`
+- `tests/fixtures/library/sample/component/study/discussion/topics/courbe.md`
+- `tests/fixtures/library/sample/manifest.yaml` — library-catalogue roadmap, not this phase
+- `tests/test_catalogue.py` — library-catalogue roadmap, not this phase
+- `tests/test_library.py`
+- `tests/test_navigate.py` — library-catalogue roadmap, not this phase
+- `tests/test_triggers.py` — library-catalogue, suite-and-review roadmap, not this phase
+
+**Modified**
+
+- `.claude/hooks/protect-paths.sh` — library-catalogue roadmap, not this phase
+- `.claude/skills/epub/SKILL.md` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/scripts/epub.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/scripts/preview.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_build.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_chapters.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_checks.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_cover.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_css.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_raster.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_sheets.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_tables.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_tokens.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/epub/tests/test_xhtml.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/fetch/SKILL.md` — suite-and-review roadmap, not this phase
+- `.claude/skills/fetch/scripts/fetch.py` — library-catalogue roadmap, not this phase
+- `.claude/skills/fetch/tests/test_capture.py` — library-catalogue roadmap, not this phase
+- `.claude/skills/pdf/SKILL.md` — suite-and-review roadmap, not this phase
+- `.claude/skills/pdf/scripts/build.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/pdf/scripts/ingest.py` — library-catalogue roadmap, not this phase
+- `.claude/skills/pdf/scripts/new.py` — library-catalogue roadmap, not this phase
+- `.claude/skills/pdf/scripts/review.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/pdf/tests/test_pdf_layout.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/pdf/tests/test_review.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/SKILL.md` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/references/findings.md` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/references/format.md` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/scripts/corpus.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/scripts/metrics.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/tests/test_corpus.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/tests/test_metrics.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/session-review/tests/test_skill.py` — suite-and-review roadmap, not this phase
+- `.claude/skills/sourcing/SKILL.md` — suite-and-review roadmap, not this phase
+- `.gitignore` — suite-and-review roadmap, not this phase
+- `CLAUDE.md`
+- `Makefile` — library-catalogue, suite-and-review roadmap, not this phase
+- `README.md`
+- `conftest.py` — suite-and-review roadmap, not this phase
+- `core/doc.py` — suite-and-review roadmap, not this phase
+- `docs/architecture.md`
+- `docs/document.md`
+- `docs/roadmap/pending/discussion-and-illustration/README.md`
+- `docs/roadmap/pending/discussion-and-illustration/phase-0-discussion-skill.md`
+- `docs/roadmap/pending/discussion-and-illustration/phase-1-discussion-pilot.md`
+- `pyproject.toml` — library-catalogue roadmap, not this phase
+- `tests/test_anatomy.py` — library-catalogue, suite-and-review roadmap, not this phase
+- `tests/test_doc.py` — suite-and-review roadmap, not this phase
+
+**Deleted**
+
+- `tests/test_layout.py` — suite-and-review roadmap, not this phase
+
 ---
 
 ## Problems And Deviations
@@ -339,10 +490,20 @@ measures against.
 
   The skill's own suite and `tests/test_documentation.py` pass. The contract
   runs `make test` at every closure, so this phase cannot close until it is
-  green. Moved on 2026-09-25 to the `suite-and-review` roadmap, Phase 0.
+  green. Moved on 2026-09-25 to the `suite-and-review` roadmap, Phase 0, and
+  fixed there: green at this closure.
 - **The process departed from `skill-creator`** in three ways: no eval
   viewer, no second iteration, and no triggering measurement before the real
   sessions. The reasons are under Decisions.
+- **The last task waited two days** for a real session, while the user gave
+  the library-catalogue roadmap priority; its session was held after that
+  roadmap's Phase 3, with the library already mapped. The `discussion` skill
+  itself did not use the map: the session is still a baseline for how the
+  skill finds material.
+- **The session review's three findings are left in `reviews/`**, none being
+  of high severity: the journal helper, reading a photograph by crops, and the
+  journal's pronouns. The last two are one line each in the skill, for the
+  next change to it — library-catalogue's Phase 4.
 
 ---
 
@@ -363,3 +524,21 @@ measures against.
 ---
 
 ## Assessment
+
+The `discussion` skill exists and holds up on a real discussion over five
+sessions: a journal in three layers that a fresh session resumes from its
+index alone, what the user said kept apart from what the agent explained,
+and a resume that costs a small fraction of the transcript it replaces. The
+real case, not synthetic tests, drove the design: the single-file journal
+grew past what a resume should read, and became the index, topics and
+sessions.
+
+The phase also produced a roadmap it had not planned: the journal's
+**Material** section, a manifest kept by hand, became library-catalogue,
+which now maps the whole library.
+
+What Phase 1 needs first: it is blocked by library-catalogue, whose Phase 4
+teaches `discussion` to find material through the map; the transistor pilot
+starts after it, with the review's two small fixes to the skill applied
+there. The user is studying the transistor now, which is the pilot's
+subject.

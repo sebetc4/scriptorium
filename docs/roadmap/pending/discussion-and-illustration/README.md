@@ -15,17 +15,17 @@
 ## Overall Progress
 
 ```
-Phase 0  The Discussion Skill             🟡 ███████████████████░  93%  (13/14)
+Phase 0  The Discussion Skill             🟢 ████████████████████ 100%  (14/14)
 Phase 1  Discussion Pilot — Transistor    🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/9)
 Phase 2  The Drawing Brick                🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/7)
 Phase 3  The Illustration Skill           🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/10)
 Phase 4  Illustration Pilot — Transistor  🔴 ░░░░░░░░░░░░░░░░░░░░   0%  (0/8)
-TOTAL                                        █████░░░░░░░░░░░░░░░  27%  (13/48)
+TOTAL                                        ██████░░░░░░░░░░░░░░  29%  (14/48)
 ```
 
-**Current Phase:** Phase 0 — The Discussion Skill
-**Blocked By:** —
-**Next Milestone:** Phase 0 — The Discussion Skill
+**Current Phase:** —
+**Blocked By:** the [library-catalogue](../../on-progress/library-catalogue/README.md) roadmap, Phase 4 — `discussion` finds material through the map
+**Next Milestone:** Phase 1 — Discussion Pilot — Transistor
 
 ---
 
@@ -125,7 +125,7 @@ records that decision, and what would reopen it.
 
 | # | Phase | Tasks | Status |
 |---|---|---|---|
-| 0 | [The Discussion Skill](phase-0-discussion-skill.md) | 14 | 🟡 In Progress |
+| 0 | [The Discussion Skill](phase-0-discussion-skill.md) | 14 | 🟢 Done |
 | 1 | [Discussion Pilot — Transistor](phase-1-discussion-pilot.md) | 9 | 🔴 Not Started |
 | 2 | [The Drawing Brick](phase-2-drawing-brick.md) | 7 | 🔴 Not Started |
 | 3 | [The Illustration Skill](phase-3-illustration-skill.md) | 10 | 🔴 Not Started |
@@ -160,15 +160,27 @@ records that decision, and what would reopen it.
 
 ## Metadata
 
-**Roadmap Status:** 🔴 Not Started
+**Roadmap Status:** 🟡 In Progress
 **Location:** `docs/roadmap/pending/discussion-and-illustration/`
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Created:** 2026-09-24
-**Last Updated:** 2026-09-25
+**Last Updated:** 2026-09-26
 
 ---
 
 ## Changelog
+
+### 1.3.0 (2026-09-26)
+
+Phase 0 closed, 14 of 14 tasks. Its last task held: the user's notebook
+session of 2026-09-26, in a fresh session, resumed from the journal's index
+alone and reached earlier points through its links. Reviewed with
+`session-review`, it is the baseline library-catalogue's Phase 4 measures
+against (102,719 fresh tokens, 4.05 M cache reads, 50 turns, 8 images). The
+review's three findings, none high, stay in `reviews/`; two small fixes to the
+skill go with library-catalogue's Phase 4. `make test`, red at the last
+entry, is green. Phase 1 is not opened: it waits for library-catalogue's
+Phase 4, and the roadmap stays under `pending/` until it opens.
 
 ### 1.2.0 (2026-09-25)
 

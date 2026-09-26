@@ -4,9 +4,9 @@
 
 ## Status
 
-**Current Status:** 🟡 In Progress (93% — 13/14)
+**Current Status:** 🟢 Done (100% — 14/14)
 **Started:** 2026-09-24
-**Completed:** {{COMPLETION_DATE}}
+**Completed:** 2026-09-26
 **Blocked By:** —
 
 ---
@@ -75,7 +75,7 @@ transcripts.
 - [x] Write the rules that keep the files from drifting: one fact lives in one place, a superseded point moves to its session's archive with a link both ways, and a topic is loaded only when the discussion returns to it
 - [x] Test that every link of an `index.md` and of a topic file resolves, on a fixture journal
 - [x] Migrate the notebook's journal (`electronics/notebook/study/discussion.md`) to the new layout, after asking the user
-- [ ] Validate on a next session of the notebook and a fresh-session resume: the resume reads `index.md` alone, and a point from an earlier session is found through the links
+- [x] Validate on a next session of the notebook and a fresh-session resume: the resume reads `index.md` alone, and a point from an earlier session is found through the links
 
 ---
 
@@ -115,8 +115,8 @@ link check runs in `make check-library` (see the report's Decisions).
 
 ## Acceptance Criteria
 
-- [ ] `make test` passes, including `test_claude_md_and_readme_point_at_every_skill`
+- [x] `make test` passes, including `test_claude_md_and_readme_point_at_every_skill`
 - [x] The skill names where the journal lives, and none of its instructions writes into `sources/`
-- [ ] The two descriptions alone are enough to tell whether a request is `discussion` or `sourcing`
+- [x] The two descriptions alone are enough to tell whether a request is `discussion` or `sourcing`
 - [x] In the user's real discussion, the skill fires unasked both when the discussion opens and when it resumes in a fresh session
 - [x] At that resume, the size of the journal read and of the transcript it replaces are both recorded in the report, and the journal is a small fraction of the transcript
